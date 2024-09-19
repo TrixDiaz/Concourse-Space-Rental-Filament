@@ -15,4 +15,9 @@ class ConcourseRate extends Model
         'price',
         'is_active',
     ];
+
+    public function concourses()
+    {
+        return $this->hasMany(Concourse::class, 'rate_id')->where('is_active', true);
+    }
 }

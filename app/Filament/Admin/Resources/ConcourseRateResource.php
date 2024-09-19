@@ -19,6 +19,11 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ConcourseRateResource extends Resource
 {
+    protected static ?string $navigationGroup = 'Concourse Settings';
+
+    protected static ?string $navigationLabel = 'Rates';
+
+
     protected static ?string $model = ConcourseRate::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -169,13 +174,15 @@ class ConcourseRateResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money('PHP')
+                    ->money('PHP', locale: 'en_PH')
+                    ->numeric()
                     ->sortable(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active')
                     ->onIcon('heroicon-m-bolt')
                     ->offIcon('heroicon-m-bolt-slash')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -197,11 +204,15 @@ class ConcourseRateResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()->label('Archived'),
-                Tables\Actions\RestoreAction::make()->label('Restore'),
-                Tables\Actions\ForceDeleteAction::make()->label('Delete'),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()->color('info'),
+                    Tables\Actions\EditAction::make()->color('primary'),
+                    Tables\Actions\DeleteAction::make()->label('Archive'),
+                    Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
+                ])
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->tooltip('Actions')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

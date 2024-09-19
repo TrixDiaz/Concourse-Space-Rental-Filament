@@ -12,14 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('concourses', function (Blueprint $table) {
+            $table->unsignedBigInteger('rate_id');
+
             $table->id();
             $table->string('name');
             $table->string('address')->nullable();
-            $table->integer('rate')->default(0);
             $table->integer('spaces')->default(0);
             $table->string('image')->nullable();
             $table->string('layout')->nullable();
             $table->boolean('is_active')->default(true);
+            
+            $table->foreign('rate_id')->references('id')->on('concourse_rates')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

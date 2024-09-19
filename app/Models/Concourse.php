@@ -12,9 +12,14 @@ class Concourse extends Model
     protected $fillable = [
         'name',
         'address',
-        'rate',
+        'rate_id',
         'image',
         'layout',
         'is_active',
     ];
+
+    public function concourseRate()
+    {
+        return $this->belongsTo(ConcourseRate::class, 'rate_id')->where('is_active', true);
+    }
 }

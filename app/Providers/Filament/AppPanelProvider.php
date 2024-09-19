@@ -36,6 +36,11 @@ class AppPanelProvider extends PanelProvider
             ->profile(EditProfile::class)
             ->colors([
                 'primary' => Color::Emerald,
+                'secondary' => Color::Emerald,
+                'info' => Color::Blue,
+                'success' => Color::Green,
+                'warning' => Color::Orange,
+                'danger' => Color::Red,
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')

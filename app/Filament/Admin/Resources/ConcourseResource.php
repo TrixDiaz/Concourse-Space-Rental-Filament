@@ -20,9 +20,13 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ConcourseResource extends Resource
 {
+    protected static ?string $navigationGroup = 'Concourse Settings';
+
+    protected static ?string $navigationLabel = 'Concourse';
+
     protected static ?string $model = Concourse::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     public static function form(Form $form): Form
     {
@@ -41,7 +45,9 @@ class ConcourseResource extends Resource
                                     ->required()
                                     ->maxLength(255),
                                 Forms\Components\Select::make('rate')
-                                    ->options(ConcourseRate::all()->pluck('name', 'id'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->relationship('concourseRate', 'name')
                                     ->required(),
                             ])->columns(2),
                         ]),
@@ -207,13 +213,14 @@ class ConcourseResource extends Resource
                 Tables\Columns\TextColumn::make('address')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('rate')
+                Tables\Columns\TextColumn::make('concourseRate.price')
+                    ->label('Rate')
+                    ->money('PHP')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('spaces')
                     ->numeric()
                     ->sortable(),
-
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -238,18 +245,22 @@ class ConcourseResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()->label('Archived'),
-                Tables\Actions\RestoreAction::make()->label('Restore'),
-                Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()->color('info'),
+                    Tables\Actions\EditAction::make()->color('primary'),
+                    Tables\Actions\DeleteAction::make()->label('Archive'),
+                    Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
+                ])
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->tooltip('Actions')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
-                    ExportBulkAction::make()    
+                    ExportBulkAction::make()
                 ]),
             ]);
     }
