@@ -27,24 +27,35 @@ class ConcourseResource extends Resource
                 Forms\Components\Grid::make(2)->schema([
                     Forms\Components\Section::make()->schema([
 
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('address')
-                            ->maxLength(255)
-                            ->default(null),
-                        Forms\Components\TextInput::make('rate')
-                            ->required()
-                            ->numeric()
-                            ->default(0),
+                        Forms\Components\Section::make('Concourse Details')->schema([
+                            Forms\Components\TextInput::make('address')
+                                ->maxLength(255)
+                                ->required(),
+                            Forms\Components\Grid::make()->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\Select::make('rate')
+                                    ->options([
+                                        '0-10' => '0-10',
+                                        '11-20' => '11-20',
+                                        '21-30' => '21-30',
+                                        '31-40' => '31-40',
+                                        '41-50' => '41-50',
+                                    ])
+                                    ->required(),
+                            ])->columns(2),
+                        ]),
 
                         Forms\Components\Section::make('Attachments')->schema([
                             Forms\Components\FileUpload::make('image')
                                 ->image()
-                                ->imageEditor(),
+                                ->imageEditor()
+                                ->label('Concourse Image'),
                             Forms\Components\FileUpload::make('layout')
                                 ->image()
-                                ->imageEditor(),
+                                ->imageEditor()
+                                ->label('Space Layout'),
                         ])->columns(2),
 
                     ])->columnSpan([
@@ -68,7 +79,7 @@ class ConcourseResource extends Resource
                                 ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
                                     $category = Concourse::find($record->id);
                                     $now = \Carbon\Carbon::now();
-        
+
                                     $diff = $category->created_at->diff($now);
                                     if ($diff->y > 0) {
                                         return $diff->y . ' years ago';
@@ -118,7 +129,7 @@ class ConcourseResource extends Resource
                                 ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
                                     $category = Concourse::find($record->id);
                                     $now = \Carbon\Carbon::now();
-        
+
                                     $diff = $category->updated_at->diff($now);
                                     if ($diff->y > 0) {
                                         return $diff->y . ' years ago';
@@ -167,7 +178,8 @@ class ConcourseResource extends Resource
                     ])->columnSpan([
                         'sm' => 3,
                         'md' => 3,
-                        'lg' => 1]),
+                        'lg' => 1
+                    ]),
 
                 ])->columns(3)
             ]);
