@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Series;
+use App\Models\Space;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -24,7 +25,7 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
         ConcourseRate::factory(1)->create();
         Concourse::factory(10)->create();
-        
+        Space::factory(10)->create();
       
         User::factory()->create([
             'name' => 'Test User',
@@ -33,18 +34,5 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'birth_date' => now(),
         ]);
-
-        ConcourseRate::create(
-            [
-                'name' => 'City',
-                'price' => 2000,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Province',
-                'price' => 1000,
-                'is_active' => true,
-            ]);
-       
     }
 }

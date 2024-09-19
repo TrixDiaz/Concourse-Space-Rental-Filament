@@ -13,6 +13,9 @@ class Concourse extends Model
         'name',
         'address',
         'rate_id',
+        'latitude',
+        'longitude',
+        'spaces',
         'image',
         'layout',
         'is_active',
@@ -21,5 +24,10 @@ class Concourse extends Model
     public function concourseRate()
     {
         return $this->belongsTo(ConcourseRate::class, 'rate_id')->where('is_active', true);
+    }
+
+    public function spaces()
+    {
+        return $this->hasMany(Space::class, 'concourse_id');
     }
 }
