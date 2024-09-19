@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('address')->nullable();
             $table->integer('rate')->default(0);
+            $table->integer('spaces')->default(0);
             $table->string('image')->nullable();
             $table->string('layout')->nullable();
             $table->boolean('is_active')->default(true);
