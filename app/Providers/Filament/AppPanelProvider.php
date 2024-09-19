@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
+use Filament\Pages\Auth\EditProfile;
 use Filament\Pages\Auth\Register;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -29,6 +30,9 @@ class AppPanelProvider extends PanelProvider
             ->login()
             ->registration(Register::class)
             ->emailVerification()
+            ->passwordReset()
+            ->topNavigation()
+            ->profile(EditProfile::class)
             ->colors([
                 'primary' => Color::Emerald,
             ])
@@ -40,7 +44,7 @@ class AppPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -55,6 +59,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->databaseNotifications();
     }
 }
