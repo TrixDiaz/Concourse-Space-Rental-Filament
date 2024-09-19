@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Concourse;
+use App\Models\ConcourseRate;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
@@ -22,6 +23,7 @@ class DatabaseSeeder extends Seeder
     {
         User::factory(10)->create();
         Concourse::factory(10)->create();
+        
       
         User::factory()->create([
             'name' => 'Test User',
@@ -31,6 +33,17 @@ class DatabaseSeeder extends Seeder
             'birth_date' => now(),
         ]);
 
+        ConcourseRate::create(
+            [
+                'name' => 'City',
+                'price' => 2000,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Province',
+                'price' => 1000,
+                'is_active' => true,
+            ]);
        
     }
 }

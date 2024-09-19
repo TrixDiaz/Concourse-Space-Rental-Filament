@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources;
 use App\Filament\Admin\Resources\ConcourseResource\Pages;
 use App\Filament\Admin\Resources\ConcourseResource\RelationManagers;
 use App\Models\Concourse;
+use App\Models\ConcourseRate;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -40,10 +41,7 @@ class ConcourseResource extends Resource
                                     ->required()
                                     ->maxLength(255),
                                 Forms\Components\Select::make('rate')
-                                    ->options([
-                                        '100' => 'City',
-                                        '200' => 'Province',
-                                    ])
+                                    ->options(ConcourseRate::all()->pluck('name', 'id'))
                                     ->required(),
                             ])->columns(2),
                         ]),
@@ -198,7 +196,7 @@ class ConcourseResource extends Resource
                     ->defaultImageUrl(fn($record) => $record->image === null ? asset('https://placehold.co/600x800') : null),
                 Tables\Columns\ImageColumn::make('layout')
                     ->square()
-                    ->width(200)
+                    ->width(150)
                     ->height(150)
                     ->label('Space Layout')
                     ->defaultImageUrl(fn($record) => $record->layout === null ? asset('https://placehold.co/600x800') : null)
@@ -237,7 +235,7 @@ class ConcourseResource extends Resource
                         '1' => 'Active',
                         '0' => 'Inactive',
                     ])
-                    ->label('Rate'),
+                    ->label('Active'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
