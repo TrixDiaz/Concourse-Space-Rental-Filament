@@ -37,11 +37,8 @@ class ConcourseResource extends Resource
                                     ->maxLength(255),
                                 Forms\Components\Select::make('rate')
                                     ->options([
-                                        '0-10' => '0-10',
-                                        '11-20' => '11-20',
-                                        '21-30' => '21-30',
-                                        '31-40' => '31-40',
-                                        '41-50' => '41-50',
+                                        '100' => 'City',
+                                        '200' => 'Province',
                                     ])
                                     ->required(),
                             ])->columns(2),
@@ -189,15 +186,29 @@ class ConcourseResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image')
+                    ->square()
+                    ->width(150)
+                    ->height(150)
+                    ->label('Concourse Image')
+                    ->defaultImageUrl(fn($record) => $record->image === null ? asset('https://placehold.co/600x800') : null),
+                Tables\Columns\ImageColumn::make('layout')
+                    ->square()
+                    ->width(200)
+                    ->height(150)
+                    ->label('Space Layout')
+                    ->defaultImageUrl(fn($record) => $record->layout === null ? asset('https://placehold.co/600x800') : null)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('address')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('rate')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\ImageColumn::make('image'),
-                Tables\Columns\ImageColumn::make('layout'),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -206,11 +217,17 @@ class ConcourseResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Active')
+                    ->onIcon('heroicon-m-bolt')
+                    ->offIcon('heroicon-m-bolt-slash')
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
