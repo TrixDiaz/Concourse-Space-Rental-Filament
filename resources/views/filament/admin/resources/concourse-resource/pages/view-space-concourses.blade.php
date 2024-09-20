@@ -9,8 +9,8 @@
         </x-slot>
 
         <x-slot name="headerEnd">
-            <x-filament::button>
-                Draw Layout
+            <x-filament::button wire:click="toggleDrawMode">
+                {{ $drawMode ? 'Cancel Drawing' : 'Draw Layout' }}
             </x-filament::button>
             <x-filament::modal width="5xl">
                 <x-slot name="heading">
@@ -56,8 +56,9 @@
         </x-slot>
 
         @if($this->record->layout)
-        <div class="relative">
-            <img src="{{ Storage::url($this->record->layout) }}" alt="Concourse Layout" class="max-w-full h-auto">
+        <div class="relative" wire:ignore>
+            <canvas id="floorMapCanvas" class="absolute top-0 left-0 z-10"></canvas>
+            <img id="concourseLayout" src="{{ Storage::url($this->record->layout) }}" alt="Concourse Layout" class="max-w-full h-auto">
             @foreach($this->spaces as $space)
             <div class="absolute border-2 border-red-500"
                 style="left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
@@ -65,6 +66,71 @@
             </div>
             @endforeach
         </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                const $canvas = $('#floorMapCanvas');
+                const ctx = $canvas[0].getContext('2d');
+                const $img = $('#concourseLayout');
+                let isDrawing = false;
+                let startX, startY;
+
+                function resizeCanvas() {
+                    $canvas.attr({
+                        width: $img.width(),
+                        height: $img.height()
+                    });
+                }
+
+                $img.on('load', resizeCanvas);
+                $(window).on('resize', resizeCanvas);
+                resizeCanvas();
+
+                $canvas.on('mousedown', function(e) {
+                    if (!@this.drawMode) return;
+                    isDrawing = true;
+                    const offset = $canvas.offset();
+                    startX = e.pageX - offset.left;
+                    startY = e.pageY - offset.top;
+                });
+
+                $canvas.on('mousemove', function(e) {
+                    if (!isDrawing || !@this.drawMode) return;
+                    const offset = $canvas.offset();
+                    const endX = e.pageX - offset.left;
+                    const endY = e.pageY - offset.top;
+                    
+                    ctx.clearRect(0, 0, $canvas.width(), $canvas.height());
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+                });
+
+                $canvas.on('mouseup mouseleave', function(e) {
+                    if (!isDrawing || !@this.drawMode) return;
+                    isDrawing = false;
+                    const offset = $canvas.offset();
+                    const endX = e.pageX - offset.left;
+                    const endY = e.pageY - offset.top;
+                    const width = endX - startX;
+                    const height = endY - startY;
+
+                    const dimensions = {
+                        x: (startX / $canvas.width()) * 100,
+                        y: (startY / $canvas.height()) * 100,
+                        width: (width / $canvas.width()) * 100,
+                        height: (height / $canvas.height()) * 100,
+                    };
+
+                    @this.call('setSpaceDimensions', dimensions);
+                });
+
+                Livewire.on('drawModeToggled', function(mode) {
+                    $canvas.css('pointer-events', mode ? 'auto' : 'none');
+                });
+            });
+        </script>
         @else
         <p class="mt-4 text-gray-500">No layout image available</p>
         @endif

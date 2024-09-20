@@ -8,7 +8,6 @@ use App\Models\User;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
-use League\CommonMark\Extension\CommonMark\Parser\Inline\BacktickParser;
 
 class ViewSpaceConcourses extends Page
 {
@@ -23,12 +22,25 @@ class ViewSpaceConcourses extends Page
     public $status = 'available';
     public $spaces;
     public $canCreateSpace = false;
+    public $drawMode = false;
+    public $spaceDimensions = null;
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
         $this->spaces = $this->record->spaces()->get();
-        $this->canCreateSpace = $this->record->dimension !== null; 
+        $this->canCreateSpace = $this->record->layout !== null;
+    }
+
+    public function toggleDrawMode()
+    {
+        $this->drawMode = !$this->drawMode;
+        $this->dispatch('drawModeToggled', $this->drawMode);
+    }
+
+    public function setSpaceDimensions($dimensions)
+    {
+        $this->spaceDimensions = $dimensions;
     }
 
     public function createSpace()
@@ -38,10 +50,14 @@ class ViewSpaceConcourses extends Page
             'price' => 'required|numeric|min:0',
         ]);
 
-        $spaceWidth = rand(5, 20);
-        $spaceLength = rand(5, 20);
-        $spaceCoordinatesX = rand(0, 100);
-        $spaceCoordinatesY = rand(0, 100);
+        if (!$this->spaceDimensions) {
+            Notification::make()
+                ->title('Error')
+                ->body('Please draw the space on the layout before creating.')
+                ->danger()
+                ->send();
+            return;
+        }
 
         Space::create([
             'user_id' => null,
@@ -50,23 +66,25 @@ class ViewSpaceConcourses extends Page
             'price' => $this->price,
             'status' => 'available',
             'is_active' => true,
-            'space_width' => $spaceWidth,
-            'space_length' => $spaceLength,
-            'space_area' => $spaceWidth * $spaceLength,
-            'space_dimension' => $spaceWidth . 'x' . $spaceLength,
-            'space_coordinates_x' => $spaceCoordinatesX,
-            'space_coordinates_y' => $spaceCoordinatesY,
-            'space_coordinates_x2' => $spaceCoordinatesX + $spaceWidth,
-            'space_coordinates_y2' => $spaceCoordinatesY + $spaceLength,
+            'space_width' => $this->spaceDimensions['width'],
+            'space_length' => $this->spaceDimensions['height'],
+            'space_area' => $this->spaceDimensions['width'] * $this->spaceDimensions['height'],
+            'space_dimension' => $this->spaceDimensions['width'] . 'x' . $this->spaceDimensions['height'],
+            'space_coordinates_x' => $this->spaceDimensions['x'],
+            'space_coordinates_y' => $this->spaceDimensions['y'],
+            'space_coordinates_x2' => $this->spaceDimensions['x'] + $this->spaceDimensions['width'],
+            'space_coordinates_y2' => $this->spaceDimensions['y'] + $this->spaceDimensions['height'],
         ]);
 
-        $this->reset(['name', 'price']);
+        $this->reset(['name', 'price', 'spaceDimensions']);
+        $this->drawMode = false;
 
         Notification::make()
             ->title('Space Created')
-            ->body('A new space has been created. The space is ' . '. Please Refresh the page to see the new space.')
+            ->body('A new space has been created. Please refresh the page to see the new space.')
             ->success()
-            ->send(User::all());
+            ->send();
 
+        $this->spaces = $this->record->spaces()->get();
     }
 }
