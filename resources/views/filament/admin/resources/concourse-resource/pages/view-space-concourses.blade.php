@@ -43,7 +43,13 @@
                                 wire:model="price" />
                         </x-filament::input.wrapper>
 
-                        <x-filament::button type="submit">Create Space</x-filament::button>
+                        <x-filament::button
+                            type="submit"
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-70 cursor-wait">
+                            <span wire:loading.remove>Create Space</span>
+                            <span wire:loading>Loading...</span>
+                        </x-filament::button>
                     </x-filament::section>
                 </form>
             </x-filament::modal>

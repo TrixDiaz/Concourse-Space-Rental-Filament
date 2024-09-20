@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\ConcourseResource\Pages;
 
 use App\Filament\Admin\Resources\ConcourseResource;
 use App\Models\Space;
+use App\Models\User;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -30,7 +31,6 @@ class ViewSpaceConcourses extends Page
         $this->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'status' => 'required|string|in:available,occupied,reserved',
         ]);
 
         $spaceWidth = rand(5, 20);
@@ -39,7 +39,7 @@ class ViewSpaceConcourses extends Page
         $spaceCoordinatesY = rand(0, 100);
 
         Space::create([
-            'user_id' => auth()->id(),
+            'user_id' => null,
             'concourse_id' => $this->record->id,
             'name' => $this->name,
             'price' => $this->price,
@@ -55,11 +55,14 @@ class ViewSpaceConcourses extends Page
             'space_coordinates_y2' => $spaceCoordinatesY + $spaceLength,
         ]);
 
-        $this->reset(['name', 'price', 'status']);
+        $this->reset(['name', 'price']);
 
         Notification::make()
-            ->title('Space created successfully')
+            ->title('Space Created')
+            ->body('A new space "' . $this->name . '" has been created.')
             ->success()
-            ->send();
+            ->send(User::all());
+
+        
     }
 }
