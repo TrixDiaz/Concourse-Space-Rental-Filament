@@ -57,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('App')
-                    ->url(fn (): string => route('filament.admin.pages.dashboard'))
+                    ->url(fn (): string => route('filament.app.pages.dashboard'))
                     ->icon('heroicon-m-home'),
             ])
             ->middleware([
