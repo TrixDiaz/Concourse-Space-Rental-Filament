@@ -2,31 +2,30 @@
 
 namespace App\Filament\Admin\Resources;
 
-use App\Filament\Admin\Resources\ConcourseResource\Pages;
-use App\Filament\Admin\Resources\ConcourseResource\RelationManagers;
-use App\Models\Concourse;
-use App\Models\ConcourseRate;
+use App\Filament\Admin\Resources\RequirementResource\Pages;
+use App\Filament\Admin\Resources\RequirementResource\RelationManagers;
+use App\Models\Requirement;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
-class ConcourseResource extends Resource
+class RequirementResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Concourse Settings';
+    protected static ?string $navigationGroup = 'Requirements';
 
-    protected static ?string $navigationLabel = 'Concourse';
+    protected static ?string $navigationLabel = 'Requirements';
 
-    protected static ?string $model = Concourse::class;
+    protected static ?string $model = Requirement::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
 
     public static function form(Form $form): Form
     {
@@ -35,32 +34,10 @@ class ConcourseResource extends Resource
                 Forms\Components\Grid::make(2)->schema([
                     Forms\Components\Section::make()->schema([
                         Forms\Components\Section::make('Concourse Details')->schema([
-                            Forms\Components\TextInput::make('address')
-                                ->maxLength(255)
-                                ->required(),
-                            Forms\Components\Grid::make()->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\Select::make('rate')
-                                    ->searchable()
-                                    ->preload()
-                                    ->relationship('concourseRate', 'name')
-                                    ->required(),
-                            ])->columns(2),
-                        ]),
-
-                        Forms\Components\Section::make('Attachments')->schema([
-                            Forms\Components\FileUpload::make('image')
-                                ->image()
-                                ->imageEditor()
-                                ->label('Concourse Image'),
-                            Forms\Components\FileUpload::make('layout')
-                                ->image()
-                                ->imageEditor()
-                                ->label('Space Layout'),
+                            Forms\Components\TextInput::make('name')
+                                ->required()
+                                ->maxLength(255),
                         ])->columns(2),
-
                     ])->columnSpan([
                         'sm' => 3,
                         'md' => 3,
@@ -80,7 +57,7 @@ class ConcourseResource extends Resource
                                 ->label('Created at')
                                 ->hiddenOn('create')
                                 ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
-                                    $category = Concourse::find($record->id);
+                                    $category = Requirement::find($record->id);
                                     $now = \Carbon\Carbon::now();
 
                                     $diff = $category->created_at->diff($now);
@@ -130,7 +107,7 @@ class ConcourseResource extends Resource
                             Forms\Components\Placeholder::make('updated_at')
                                 ->label('Last modified at')
                                 ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
-                                    $category = Concourse::find($record->id);
+                                    $category = Requirement::find($record->id);
                                     $now = \Carbon\Carbon::now();
 
                                     $diff = $category->updated_at->diff($now);
@@ -183,7 +160,6 @@ class ConcourseResource extends Resource
                         'md' => 3,
                         'lg' => 1
                     ]),
-
                 ])->columns(3)
             ]);
     }
@@ -192,32 +168,12 @@ class ConcourseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')
-                    ->square()
-                    ->width(150)
-                    ->height(150)
-                    ->label('Concourse Image')
-                    ->defaultImageUrl(fn($record) => $record->image === null ? asset('https://placehold.co/600x800') : null),
-                Tables\Columns\ImageColumn::make('layout')
-                    ->square()
-                    ->width(150)
-                    ->height(150)
-                    ->label('Space Layout')
-                    ->defaultImageUrl(fn($record) => $record->layout === null ? asset('https://placehold.co/600x800') : null)
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')
-                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('address')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('concourseRate.price')
-                    ->label('Rate')
-                    ->money('PHP')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('spaces')
-                    ->numeric()
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Active')
+                    ->onIcon('heroicon-m-bolt')
+                    ->offIcon('heroicon-m-bolt-slash')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -227,11 +183,6 @@ class ConcourseResource extends Resource
                     ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ToggleColumn::make('is_active')
-                    ->label('Active')
-                    ->onIcon('heroicon-m-bolt')
-                    ->offIcon('heroicon-m-bolt-slash')
-                    ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -243,21 +194,12 @@ class ConcourseResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
                     Tables\Actions\EditAction::make()->color('primary'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
-                    Tables\Actions\Action::make('viewSpaces')
-                        ->label('View Layout')
-                        ->icon('heroicon-o-map')
-                        ->url(fn (Concourse $record): string => static::getUrl('view-spaces', ['record' => $record]))
-                        ->color('success'),
                 ])
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->tooltip('Actions')
-            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -278,18 +220,9 @@ class ConcourseResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListConcourses::route('/'),
-            'create' => Pages\CreateConcourse::route('/create'),
-            'edit' => Pages\EditConcourse::route('/{record}/edit'),
-            'view-spaces' => Pages\ViewSpaceConcourses::route('/{record}/spaces'),
+            'index' => Pages\ListRequirements::route('/'),
+            'create' => Pages\CreateRequirement::route('/create'),
+            'edit' => Pages\EditRequirement::route('/{record}/edit'),
         ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }

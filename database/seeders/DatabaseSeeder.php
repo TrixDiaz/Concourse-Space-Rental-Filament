@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         ConcourseRate::factory(1)->create();
         Concourse::factory(10)->create();
         Space::factory(10)->create();
+        $this->call(RequirementSeeder::class);
       
         User::factory()->create([
             'name' => 'Test User',
