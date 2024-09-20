@@ -24,6 +24,7 @@ class ViewSpaceConcourses extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+        $this->spaces = $this->record->spaces()->get();
     }
 
     public function createSpace()
