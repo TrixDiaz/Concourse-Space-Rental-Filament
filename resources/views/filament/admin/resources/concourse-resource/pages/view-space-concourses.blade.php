@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <x-filament::section>
         <x-slot name="heading">
-            {{ $this->record->name }} 
+            {{ $this->record->name }}
         </x-slot>
 
         <x-slot name="description">
@@ -9,6 +9,9 @@
         </x-slot>
 
         <x-slot name="headerEnd">
+            <x-filament::button icon="heroicon-m-arrow-path" color="secondary" wire:click="reload">
+                Refresh
+            </x-filament::button>
             <x-filament::button wire:click="toggleDrawMode">
                 {{ $drawMode ? 'Cancel Drawing' : 'Draw Layout' }}
             </x-filament::button>
@@ -17,7 +20,7 @@
                     Add Space
                 </x-slot>
 
-                @if($this->canCreateSpace)
+                @if($this->canCreateSpace && $this->spaceDimensions)
                 <x-slot name="trigger">
                     <x-filament::button color="secondary">
                         Create Space
@@ -62,7 +65,7 @@
             @foreach($this->spaces as $space)
             <div class="absolute border-2 border-red-500"
                 style="left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
-                <span class="absolute top-0 left-0 bg-white text-xs p-1">{{ $space->id }}</span>
+                <span class="absolute top-0 left-0 bg-white text-xs p-1">{{ $space->id }} {{ $space->name }} {{ $space->price }}</span>
             </div>
             @endforeach
         </div>
@@ -100,7 +103,7 @@
                     const offset = $canvas.offset();
                     const endX = e.pageX - offset.left;
                     const endY = e.pageY - offset.top;
-                    
+
                     ctx.clearRect(0, 0, $canvas.width(), $canvas.height());
                     ctx.strokeStyle = 'red';
                     ctx.lineWidth = 2;
@@ -128,6 +131,12 @@
 
                 Livewire.on('drawModeToggled', function(mode) {
                     $canvas.css('pointer-events', mode ? 'auto' : 'none');
+                });
+            });
+
+            document.addEventListener('livewire:initialized', () => {
+                Livewire.on('reload-page', () => {
+                    window.location.reload();
                 });
             });
         </script>

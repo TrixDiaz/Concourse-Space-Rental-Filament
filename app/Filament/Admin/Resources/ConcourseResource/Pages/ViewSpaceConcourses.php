@@ -87,4 +87,18 @@ class ViewSpaceConcourses extends Page
 
         $this->spaces = $this->record->spaces()->get();
     }
+
+    public function reload()
+    {
+        $this->spaces = $this->record->spaces()->get();
+        $this->canCreateSpace = $this->record->layout !== null;
+
+        Notification::make()
+            ->title('Page Reloaded')
+            ->body('The page data has been refreshed.')
+            ->success()
+            ->send();
+
+        $this->dispatch('reload-page');
+    }
 }
