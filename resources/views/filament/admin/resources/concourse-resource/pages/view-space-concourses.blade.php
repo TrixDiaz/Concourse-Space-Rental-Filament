@@ -77,7 +77,7 @@
 
                 <x-filament::section>
                     <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
-                    <p>Price: ${{ number_format($space->price, 2) }}</p>
+                    <p>Price: ₱{{ number_format($space->price, 2) }}</p>
                     <p>Status: {{ ucfirst($space->status) }}</p>
                     <p>Dimensions: {{ $space->space_dimension }}</p>
                     <p>Area: {{ $space->space_area }} sq units</p>
