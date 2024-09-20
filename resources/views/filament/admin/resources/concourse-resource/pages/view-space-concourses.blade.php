@@ -16,7 +16,7 @@
                 {{ $drawMode ? 'Cancel Drawing' : 'Draw Layout' }}
             </x-filament::button>
             <x-filament::modal width="5xl">
-                <x-slot name="heading">
+                <x-slot name="heading" wire:ignore>
                     Add Space
                 </x-slot>
 
@@ -65,8 +65,25 @@
             @foreach($this->spaces as $space)
             <div class="absolute border-2 border-red-500"
                 style="left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
-                <span class="absolute top-0 left-0 text-xs p-1">{{ $space->id }} {{ $space->name }} {{ $space->price }}</span>
+                <span class="absolute top-0 left-0 text-md p-2 text-center w-full text-wrap">{{ $space->name }}</span>
             </div>
+
+            <x-filament::modal id="{{ $space->id }}">
+                <x-slot name="trigger" wire:ignore>
+                    <x-filament::button class="mt-3">
+                        {{ $space->name }}
+                    </x-filament::button>
+                </x-slot>
+
+                <x-filament::section>
+                    <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
+                    <p>Price: ${{ number_format($space->price, 2) }}</p>
+                    <p>Status: {{ ucfirst($space->status) }}</p>
+                    <p>Dimensions: {{ $space->space_dimension }}</p>
+                    <p>Area: {{ $space->space_area }} sq units</p>
+                    <p>Coordinates: ({{ $space->space_coordinates_x }}, {{ $space->space_coordinates_y }}) to ({{ $space->space_coordinates_x2 }}, {{ $space->space_coordinates_y2 }})</p>
+                </x-filament::section>
+            </x-filament::modal>
             @endforeach
         </div>
 
