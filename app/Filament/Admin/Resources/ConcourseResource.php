@@ -251,6 +251,11 @@ class ConcourseResource extends Resource
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
+                    Tables\Actions\Action::make('viewSpaces')
+                        ->label('View Layout')
+                        ->icon('heroicon-o-map')
+                        ->url(fn (Concourse $record): string => static::getUrl('view-spaces', ['record' => $record]))
+                        ->color('success'),
                 ])
                 ->icon('heroicon-m-ellipsis-vertical')
                 ->tooltip('Actions')
@@ -278,6 +283,7 @@ class ConcourseResource extends Resource
             'index' => Pages\ListConcourses::route('/'),
             'create' => Pages\CreateConcourse::route('/create'),
             'edit' => Pages\EditConcourse::route('/{record}/edit'),
+            'view-spaces' => Pages\ViewSpaceConcourses::route('/{record}/spaces'),
         ];
     }
 
