@@ -8,6 +8,7 @@ use App\Models\User;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
+use League\CommonMark\Extension\CommonMark\Parser\Inline\BacktickParser;
 
 class ViewSpaceConcourses extends Page
 {
@@ -20,6 +21,7 @@ class ViewSpaceConcourses extends Page
     public $name;
     public $price;
     public $status = 'available';
+    public $spaces;
 
     public function mount(int | string $record): void
     {
@@ -60,10 +62,9 @@ class ViewSpaceConcourses extends Page
 
         Notification::make()
             ->title('Space Created')
-            ->body('A new space "' . $this->name . '" has been created.')
+            ->body('A new space has been created. The space is ' . '. Please Refresh the page to see the new space.')
             ->success()
             ->send(User::all());
 
-        
     }
 }

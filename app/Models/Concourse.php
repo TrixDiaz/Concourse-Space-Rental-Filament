@@ -28,6 +28,6 @@ class Concourse extends Model
 
     public function spaces()
     {
-        return $this->hasMany(Space::class, 'concourse_id');
+        return $this->hasMany(Space::class);
     }
 }

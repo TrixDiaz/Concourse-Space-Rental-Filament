@@ -61,7 +61,7 @@
             @foreach($this->spaces as $space)
             <div class="absolute border-2 border-red-500"
                 style="left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
-                <span class="absolute top-0 left-0 bg-white text-xs p-1">{{ $space->name }}</span>
+                <span class="absolute top-0 left-0 bg-white text-xs p-1">{{ $space->id }}</span>
             </div>
             @endforeach
         </div>
