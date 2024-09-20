@@ -65,7 +65,7 @@
             @foreach($this->spaces as $space)
             <div class="absolute border-2 border-red-500"
                 style="left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
-                <span class="absolute top-0 left-0 bg-white text-xs p-1">{{ $space->id }} {{ $space->name }} {{ $space->price }}</span>
+                <span class="absolute top-0 left-0 text-xs p-1">{{ $space->id }} {{ $space->name }} {{ $space->price }}</span>
             </div>
             @endforeach
         </div>
@@ -153,7 +153,7 @@
         @if($this->spaces->count() > 0)
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
             @foreach($this->spaces as $space)
-            <div class="bg-white p-4 rounded-lg shadow">
+            <div class="p-4 rounded-lg shadow-md border">
                 <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
                 <p>Price: ${{ number_format($space->price, 2) }}</p>
                 <p>Status: {{ ucfirst($space->status) }}</p>
