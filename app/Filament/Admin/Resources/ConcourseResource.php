@@ -32,10 +32,8 @@ class ConcourseResource extends Resource
     {
         return $form
             ->schema([
-
                 Forms\Components\Grid::make(2)->schema([
                     Forms\Components\Section::make()->schema([
-
                         Forms\Components\Section::make('Concourse Details')->schema([
                             Forms\Components\TextInput::make('address')
                                 ->maxLength(255)
