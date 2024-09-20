@@ -1,7 +1,5 @@
 <x-filament-panels::page>
-    <x-filament::section
-        collapsible
-        collapsed>
+    <x-filament::section>
         <x-slot name="heading">
             {{ $this->record->name }} 
         </x-slot>
@@ -19,11 +17,13 @@
                     Add Space
                 </x-slot>
 
+                @if($this->canCreateSpace)
                 <x-slot name="trigger">
                     <x-filament::button color="secondary">
                         Create Space
                     </x-filament::button>
                 </x-slot>
+                @endif
 
                 <form wire:submit.prevent="createSpace">
                     <x-filament::section>
@@ -70,7 +70,7 @@
         @endif
     </x-filament::section>
 
-    <x-filament::section>
+    <x-filament::section collapsible collapsed>
         <x-slot name="heading">
             Spaces
         </x-slot>

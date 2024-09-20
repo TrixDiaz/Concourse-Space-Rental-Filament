@@ -22,11 +22,13 @@ class ViewSpaceConcourses extends Page
     public $price;
     public $status = 'available';
     public $spaces;
+    public $canCreateSpace = false;
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
         $this->spaces = $this->record->spaces()->get();
+        $this->canCreateSpace = $this->record->dimension !== null; 
     }
 
     public function createSpace()
