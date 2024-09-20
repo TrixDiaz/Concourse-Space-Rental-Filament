@@ -76,7 +76,7 @@
         </x-slot>
 
         @if($this->spaces->count() > 0)
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
             @foreach($this->spaces as $space)
             <div class="bg-white p-4 rounded-lg shadow">
                 <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
