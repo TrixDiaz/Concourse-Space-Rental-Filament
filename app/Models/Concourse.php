@@ -30,4 +30,5 @@ class Concourse extends Model
     {
         return $this->hasMany(Space::class);
     }
+
 }

@@ -36,8 +36,9 @@ class ListConcourses extends Component implements HasTable, HasForms
                     Tables\Columns\ImageColumn::make('image')
                         ->width('100%')
                         ->height('100%')
-                        ->defaultImageUrl(fn ($record) => 
-                            $record->image === null 
+                        ->defaultImageUrl(
+                            fn($record) =>
+                            $record->image === null
                                 ? 'https://placehold.co/600x250?text=No+Image'
                                 : null
                         ),
@@ -58,9 +59,13 @@ class ListConcourses extends Component implements HasTable, HasForms
                         ->toggleable(isToggledHiddenByDefault: true),
                 ]),
             ])
-            ->filters([
-            ])
+            ->filters([])
             ->actions([
+                Tables\Actions\Action::make('view_spaces')
+                    ->label('View Spaces')
+                    ->icon('heroicon-o-rectangle-stack')
+                    ->url(fn($record) => route('filament.app.pages.list-space-table', ['concourse_id' => $record->id]))
+                    ->openUrlInNewTab(),
                 // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
