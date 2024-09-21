@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Space;
-use App\Models\Concourse;
 use App\Services\RequirementForm;
 use Livewire\Component;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -12,14 +11,12 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Filament\Tables\Enums\FiltersLayout;
 
 class ListSpaces extends Component implements HasTable, HasForms
 {
     use InteractsWithForms, InteractsWithTable;
-
+    
     public $concourseId;
 
     public function mount()
@@ -74,17 +71,15 @@ class ListSpaces extends Component implements HasTable, HasForms
                     ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('apply')
+                Tables\Actions\CreateAction::make()
                     ->label('Rent Space')
                     ->slideOver()
-                    ->button()
                     ->icon('heroicon-o-plus')
-                    ->form(RequirementForm::schema()),
-                Tables\Actions\EditAction::make()
-                    ->label('Edit Space')
-                    ->color('warning')
-                    ->slideOver()
-                    ->form(RequirementForm::schema()),
+                    ->form(fn ($record) => RequirementForm::schema($this->concourseId, $record->id))
+                    ->using(function (array $data) {
+                        return \App\Models\Application::create($data);
+                    })
+                    ->disableCreateAnother(),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('View Requirements')

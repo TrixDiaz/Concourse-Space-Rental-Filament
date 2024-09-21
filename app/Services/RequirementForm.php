@@ -7,17 +7,17 @@ use Illuminate\Support\Facades\Auth;
 
 final class RequirementForm
 {
-    public static function schema(): array
-    {
+    public static function schema($concourseId = null, $spaceId = null): array
+    {    
         $user = Auth::user();
 
         return [
             Forms\Components\Hidden::make('user_id')
                 ->default(fn () => $user->id),
             Forms\Components\Hidden::make('space_id')
-                ->default(fn () => request()->route('space')),
+                ->default($spaceId),
             Forms\Components\Hidden::make('concourse_id')
-                ->default(fn () => request()->route('concourse')),
+                ->default($concourseId),
 
             Forms\Components\Section::make('Business Information')
                 ->schema([
@@ -51,7 +51,7 @@ final class RequirementForm
                         ->native(false),
                     Forms\Components\Repeater::make('requirements')
                         ->schema([
-                            Forms\Components\TextInput::make('name')->required(),
+                            Forms\Components\TextInput::make('name'),
                             Forms\Components\FileUpload::make('requirements')
                                 ->label('Requirements')
                                 ->columnSpanFull(),
@@ -64,8 +64,6 @@ final class RequirementForm
                                 ])
                                 ->native(false),
                         ])->columnSpanFull(),
-
-
                 ])
                 ->columns(2),
 
