@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Application extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -37,7 +38,7 @@ class Application extends Model
     {
         return $this->belongsTo(Space::class);
     }
-    
+
     public function concourse()
     {
         return $this->belongsTo(Concourse::class);
