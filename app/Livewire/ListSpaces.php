@@ -83,6 +83,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                 Tables\Actions\EditAction::make()
                     ->label('Edit Space')
                     ->color('warning')
+                    ->slideOver()
                     ->form(RequirementForm::schema()),
             ])
             ->headerActions([

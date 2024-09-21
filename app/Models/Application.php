@@ -18,7 +18,7 @@ class Application extends Model
         'owner_name',
         'email',
         'phone_number',
-        'permanent_address',
+        'address',
         'business_type',
         'requirements',
         'expiration_date',

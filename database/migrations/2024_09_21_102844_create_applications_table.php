@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('business_name')->nullable();
             $table->string('owner_name')->nullable();
-            $table->string('permanent_address')->nullable();
+            $table->string('address')->nullable();
             $table->string('contact_number')->nullable();
             $table->string('email')->nullable();
             $table->string('business_type')->nullable();

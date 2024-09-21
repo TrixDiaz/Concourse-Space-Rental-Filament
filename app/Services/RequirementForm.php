@@ -3,13 +3,22 @@
 namespace App\Services;
 
 use Filament\Forms;
+use Illuminate\Support\Facades\Auth;
 
 final class RequirementForm
 {
     public static function schema(): array
-
     {
+        $user = Auth::user();
+
         return [
+            Forms\Components\Hidden::make('user_id')
+                ->default(fn () => $user->id),
+            Forms\Components\Hidden::make('space_id')
+                ->default(fn () => request()->route('space')),
+            Forms\Components\Hidden::make('concourse_id')
+                ->default(fn () => request()->route('concourse')),
+
             Forms\Components\Section::make('Business Information')
                 ->schema([
                     Forms\Components\TextInput::make('business_name')
@@ -18,11 +27,16 @@ final class RequirementForm
                         ->label('Owner Name'),
                     Forms\Components\TextInput::make('email')
                         ->label('Email')
-                        ->email(),
+                        ->email()
+                        ->default(fn () => $user->email)
+                        ->disabled(),
                     Forms\Components\TextInput::make('phone_number')
-                        ->label('Phone Number'),
-                    Forms\Components\TextInput::make('permanent_address')
+                        ->label('Phone Number')
+                        ->default(fn () => $user->phone_number)
+                        ->disabled(),
+                    Forms\Components\TextInput::make('address')
                         ->label('Permanent Address')
+                        ->default(fn () => $user->address)
                         ->columnSpanFull(),
                     Forms\Components\Select::make('business_type')
                         ->label('Business Type')
