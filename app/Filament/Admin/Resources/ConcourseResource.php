@@ -53,12 +53,22 @@ class ConcourseResource extends Resource
                         Forms\Components\Section::make('Attachments')->schema([
                             Forms\Components\FileUpload::make('image')
                                 ->image()
+                                ->label('Concourse Image')
+                                ->maxSize(5120)
+                                ->optimize('webp')
                                 ->imageEditor()
-                                ->label('Concourse Image'),
+                                ->openable()
+                                ->downloadable()
+                                ->preserveFilenames(),
                             Forms\Components\FileUpload::make('layout')
                                 ->image()
+                                ->label('Space Layout')
+                                ->maxSize(5120) // 5MB max size
+                                ->optimize('webp')
                                 ->imageEditor()
-                                ->label('Space Layout'),
+                                ->openable()
+                                ->downloadable()
+                                ->preserveFilenames(),
                         ])->columns(2),
 
                     ])->columnSpan([
@@ -252,11 +262,11 @@ class ConcourseResource extends Resource
                     Tables\Actions\Action::make('viewSpaces')
                         ->label('View Layout')
                         ->icon('heroicon-o-map')
-                        ->url(fn (Concourse $record): string => static::getUrl('view-spaces', ['record' => $record]))
+                        ->url(fn(Concourse $record): string => static::getUrl('view-spaces', ['record' => $record]))
                         ->color('success'),
                 ])
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->tooltip('Actions')
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->tooltip('Actions')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
