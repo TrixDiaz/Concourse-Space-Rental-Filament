@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Filament\Forms;
 use Filament\Forms\Components\Wizard;
-use App\Models\Requirement;
 
 final class RequirementForm
 {
@@ -53,16 +52,7 @@ final class RequirementForm
                     ->schema([
                         Forms\Components\Section::make()
                             ->schema(function () {
-                                $requirements = Requirement::where('is_active', true)->get();
-
-                                return $requirements->map(function ($requirement) {
-                                    return Forms\Components\FileUpload::make("attachment_{$requirement->id}")
-                                        ->label($requirement->name)
-                                        ->acceptedFileTypes(['application/pdf', 'image/*'])
-                                        ->maxSize(5120) // 5MB
-                                        ->disk('public')
-                                        ->directory('attachments');
-                                })->toArray();
+                              //
                             })->columns(2),
                     ]),
                 Wizard\Step::make('Agreement')

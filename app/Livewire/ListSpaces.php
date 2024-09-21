@@ -54,6 +54,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->sortable()
+                    ->badge()
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('F j, Y')
@@ -77,6 +78,13 @@ class ListSpaces extends Component implements HasTable, HasForms
                     ->label('Rent Space')
                     ->slideOver()
                     ->form(RequirementForm::schema())
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('View Requirements')
+                    ->button()
+                    ->color('warning')
+                    ->url(fn() => route('filament.app.pages.requirement-page'))
+                    ->openUrlInNewTab(),
             ]);
     }
 }
