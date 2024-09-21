@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Auth;
 final class RequirementForm
 {
     public static function schema($concourseId = null, $spaceId = null): array
-    {    
+    {
         $user = Auth::user();
 
         return [
             Forms\Components\Hidden::make('user_id')
-                ->default(fn () => $user->id),
+                ->default(fn() => $user->id),
             Forms\Components\Hidden::make('space_id')
                 ->default($spaceId),
             Forms\Components\Hidden::make('concourse_id')
@@ -28,15 +28,15 @@ final class RequirementForm
                     Forms\Components\TextInput::make('email')
                         ->label('Email')
                         ->email()
-                        ->default(fn () => $user->email)
+                        ->default(fn() => $user->email)
                         ->disabled(),
                     Forms\Components\TextInput::make('phone_number')
                         ->label('Phone Number')
-                        ->default(fn () => $user->phone_number)
+                        ->default(fn() => $user->phone_number)
                         ->disabled(),
                     Forms\Components\TextInput::make('address')
                         ->label('Permanent Address')
-                        ->default(fn () => $user->address)
+                        ->default(fn() => $user->address)
                         ->columnSpanFull(),
                     Forms\Components\Select::make('business_type')
                         ->label('Business Type')
@@ -52,8 +52,15 @@ final class RequirementForm
                     Forms\Components\Repeater::make('requirements')
                         ->schema([
                             Forms\Components\TextInput::make('name'),
-                            Forms\Components\FileUpload::make('requirements')
-                                ->label('Requirements')
+                            Forms\Components\FileUpload::make('attachment')
+                                ->image()
+                                ->label('Attachment')
+                                ->maxSize(5120)
+                                ->optimize('webp')
+                                ->imageEditor()
+                                ->openable()
+                                ->downloadable()
+                                ->preserveFilenames()
                                 ->columnSpanFull(),
                             Forms\Components\Select::make('status')
                                 ->options([
@@ -61,7 +68,7 @@ final class RequirementForm
                                     'pending' => 'Pending',
                                     'approved' => 'Approved',
                                     're-upload' => 'Re-Upload',
-                                ])
+                                ])->hiddenOn('create')
                                 ->native(false),
                         ])->columnSpanFull(),
                 ])

@@ -12,11 +12,12 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class ListSpaces extends Component implements HasTable, HasForms
 {
     use InteractsWithForms, InteractsWithTable;
-    
+
     public $concourseId;
 
     public function mount()
@@ -43,7 +44,10 @@ class ListSpaces extends Component implements HasTable, HasForms
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Tenant')
-                    ->searchable(),
+                    ->searchable()
+                    ->state(function ($record) {
+                        return $record->user ? $record->user->name : 'No Tenant';
+                    }),
                 Tables\Columns\TextColumn::make('price')
                     ->searchable()
                     ->sortable()
@@ -72,14 +76,32 @@ class ListSpaces extends Component implements HasTable, HasForms
             ])
             ->actions([
                 Tables\Actions\CreateAction::make()
+                    ->disableCreateAnother()
                     ->label('Rent Space')
                     ->slideOver()
                     ->icon('heroicon-o-plus')
-                    ->form(fn ($record) => RequirementForm::schema($this->concourseId, $record->id))
-                    ->using(function (array $data) {
-                        return \App\Models\Application::create($data);
+                    ->form(function ($record) {
+                        $spaceId = $record ? $record->id : null;
+                        return RequirementForm::schema($this->concourseId, $spaceId);
                     })
-                    ->disableCreateAnother(),
+                    ->using(function (array $data, $record) {
+                        $application = \App\Models\Application::create($data);
+                        if ($record) {
+                            $record->update([
+                                'user_id' => Auth::id(),
+                                'status' => 'pending'
+                            ]);
+                        }
+                        return $application;
+                    })
+                    ->hidden(function ($record) {
+                        if (!$record) return false;
+                        return \App\Models\Application::where('user_id', Auth::id())->exists()
+                            && (\App\Models\Application::where('user_id', Auth::id())
+                                ->where('concourse_id', $this->concourseId)
+                                ->where('space_id', $record->id)
+                                ->exists());
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('View Requirements')
