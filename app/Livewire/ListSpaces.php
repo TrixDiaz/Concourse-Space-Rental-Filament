@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Space;
 use App\Models\Concourse;
+use App\Services\RequirementForm;
 use Livewire\Component;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -74,8 +75,8 @@ class ListSpaces extends Component implements HasTable, HasForms
             ->actions([
                 Tables\Actions\Action::make('apply')
                     ->label('Rent Space')
-                    ->url(fn($record) => route('filament.app.pages.list-space-table', ['concourse_id' => $record->id]))
-                    ->openUrlInNewTab(),
+                    ->slideOver()
+                    ->form(RequirementForm::schema())
             ]);
     }
 }
