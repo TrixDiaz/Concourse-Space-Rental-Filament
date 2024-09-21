@@ -29,13 +29,15 @@ final class RequirementForm
                         ->label('Email')
                         ->email()
                         ->default(fn() => $user->email)
-                        ->disabled(),
+                        ->readOnly(),
                     Forms\Components\TextInput::make('phone_number')
                         ->label('Phone Number')
+
                         ->default(fn() => $user->phone_number)
-                        ->disabled(),
+                        ->readOnly(),
                     Forms\Components\TextInput::make('address')
                         ->label('Permanent Address')
+
                         ->default(fn() => $user->address)
                         ->columnSpanFull(),
                     Forms\Components\Select::make('business_type')
@@ -62,22 +64,13 @@ final class RequirementForm
                                 ->downloadable()
                                 ->preserveFilenames()
                                 ->columnSpanFull(),
-                            Forms\Components\Select::make('status')
-                                ->options([
-                                    'rejected' => 'Rejected',
-                                    'pending' => 'Pending',
-                                    'approved' => 'Approved',
-                                    're-upload' => 'Re-Upload',
-                                ])->hiddenOn('create')
-                                ->native(false),
+                            Forms\Components\TextInput::make('status')
+                                ->default('pending')
+                                ->hidden(),
                         ])->columnSpanFull(),
+
                 ])
                 ->columns(2),
-
-
-
-
-
 
         ];
     }

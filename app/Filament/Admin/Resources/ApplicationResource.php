@@ -102,8 +102,6 @@ class ApplicationResource extends Resource
                                     Forms\Components\TextInput::make('name'),
                                     Forms\Components\Select::make('status')
                                         ->options([
-                                            'rejected' => 'Rejected',
-                                            'pending' => 'Pending',
                                             'approved' => 'Approved',
                                             're-upload' => 'Re-Upload',
                                         ])
