@@ -88,10 +88,6 @@
                     <x-filament::input.wrapper label="Permanent Address">
                         <x-filament::input type="text" wire:model="permanentAddress" disabled />
                     </x-filament::input.wrapper>
-                    <label for="currentAddress">Current Address</label>
-                    <x-filament::input.wrapper label="Current Address">
-                        <x-filament::input type="text" wire:model="currentAddress" disabled />
-                    </x-filament::input.wrapper>
                     <label for="contactNumber">Contact Number</label>
                     <x-filament::input.wrapper label="Contact Number">
                         <x-filament::input type="tel" wire:model="contactNumber" disabled />
@@ -103,7 +99,7 @@
                 </div>
             </div>
 
-            <div class="mt-1 print-compact">
+            <div class="mt-2 print-compact">
                 <h3 class="text-sm font-semibold mb-2">REQUIREMENTS</h3>
                 <x-filament::grid columns="1">
                     @foreach([

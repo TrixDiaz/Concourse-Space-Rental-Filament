@@ -77,11 +77,18 @@ class ListSpaces extends Component implements HasTable, HasForms
                 Tables\Actions\Action::make('apply')
                     ->label('Rent Space')
                     ->slideOver()
-                    ->form(RequirementForm::schema())
+                    ->button()
+                    ->icon('heroicon-o-plus')
+                    ->form(RequirementForm::schema()),
+                Tables\Actions\EditAction::make()
+                    ->label('Edit Space')
+                    ->color('warning')
+                    ->form(RequirementForm::schema()),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('View Requirements')
                     ->button()
+                    ->icon('heroicon-o-eye')
                     ->color('warning')
                     ->url(fn() => route('filament.app.pages.requirement-page'))
                     ->openUrlInNewTab(),
