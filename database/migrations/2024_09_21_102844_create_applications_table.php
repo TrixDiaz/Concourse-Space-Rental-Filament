@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('business_name')->nullable();
             $table->string('owner_name')->nullable();
             $table->string('address')->nullable();
-            $table->string('contact_number')->nullable();
+            $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
             $table->string('business_type')->nullable();
             $table->string('status')->nullable();

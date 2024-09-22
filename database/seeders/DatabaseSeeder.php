@@ -2,18 +2,15 @@
 
 namespace Database\Seeders;
 
-use App\Models\Announcement;
-use App\Models\Brand;
-use App\Models\Category;
+
+use App\Models\Application;
 use App\Models\Concourse;
 use App\Models\ConcourseRate;
-use App\Models\Product;
-use App\Models\Role;
 use App\Models\User;
-use App\Models\Series;
 use App\Models\Space;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,10 +19,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
-        ConcourseRate::factory(1)->create();
-        Concourse::factory(10)->create();
-        Space::factory(10)->create();
+        User::factory(2)->create();
+        ConcourseRate::factory(2)->create();
+        Concourse::factory(2)->create();
+        Space::factory(2)->create();
+        Application::factory(2)->create();
+        Tenant::factory(2)->create();
         $this->call(RequirementSeeder::class);
       
         User::factory()->create([

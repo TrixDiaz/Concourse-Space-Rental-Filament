@@ -17,7 +17,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ApplicationResource extends Resource
 {
-    protected static ?string $navigationLabel = 'Tenant Applications';
+    protected static ?string $navigationGroup = 'Tenants Settings';
+
+    protected static ?string $navigationLabel = 'Applications';
 
     protected static ?string $model = Application::class;
 
