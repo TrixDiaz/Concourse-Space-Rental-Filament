@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -9,15 +10,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, HasPanelShield;
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // You may optionally implement your own logic here when a user has access to this panel.
-        // return $this->email === 'john.darlucio022@gmail.com';
+        if ($panel->getId() === 'admin') {
+            return $this->hasRole('super_admin') || $this->hasRole('accountant');
+        }
+        
+        // Allow access to all other panels (including 'app')
         return true;
     }
 

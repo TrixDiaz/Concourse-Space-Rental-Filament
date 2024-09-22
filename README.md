@@ -57,6 +57,12 @@ php artisan migrate:fresh
 php artisan storage:link
 ```
 
+### Run Shield Permissions
+
+```
+php artisan shield:install
+```
+
 ### All as one command
 
 ```
@@ -65,5 +71,6 @@ cp .env.example .env &&
 php artisan key:generate && 
 php artisan filament:upgrade &&
 php artisan migrate:fresh &&
-php artisan storage:link
+php artisan storage:link &&
+php artisan shield:install
 ```
