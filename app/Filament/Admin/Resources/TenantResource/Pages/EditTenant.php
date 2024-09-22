@@ -23,10 +23,16 @@ class EditTenant extends EditRecord
     protected function getHeaderWidgets(): array
     {
         return [
-           SpaceOverview::class,
-           SpaceElectricityChart::class,
-           SpaceWaterChart::class,
+            SpaceOverview::class,
         ];
     }
-  
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            SpaceElectricityChart::class,
+            SpaceWaterChart::class,
+        ];
+    }
+
 }
