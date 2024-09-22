@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateConcourseRate extends CreateRecord
 {
     protected static string $resource = ConcourseRateResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
