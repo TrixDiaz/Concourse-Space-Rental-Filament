@@ -3,7 +3,9 @@
 namespace App\Filament\Admin\Resources\TenantResource\Pages;
 
 use App\Filament\Admin\Resources\TenantResource;
+use App\Filament\Admin\Resources\TenantResource\Widgets\SpaceElectricityChart;
 use App\Filament\Admin\Resources\TenantResource\Widgets\SpaceOverview;
+use App\Filament\Admin\Resources\TenantResource\Widgets\SpaceWaterChart;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -22,6 +24,8 @@ class EditTenant extends EditRecord
     {
         return [
            SpaceOverview::class,
+           SpaceElectricityChart::class,
+           SpaceWaterChart::class,
         ];
     }
   
