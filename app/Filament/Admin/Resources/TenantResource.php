@@ -30,21 +30,156 @@ class TenantResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('tenant_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('concourse_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('space_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('owner_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\Toggle::make('is_active')
-                    ->required(),
-            ]);
+                Forms\Components\Grid::make(2)->schema([
+                    Forms\Components\Section::make()
+                        ->schema([
+                            Forms\Components\Select::make('tenant_id')
+                                ->relationship('tenant', 'name')
+                                ->label('Tenant Name')
+                                ->preload()
+                                ->required()
+                                ->disabled(),
+                            Forms\Components\Select::make('concourse_id')
+                                ->relationship('concourse', 'name')
+                                ->label('Concourse')
+                                ->preload()
+                                ->required()
+                                ->disabled(),
+                            Forms\Components\Select::make('space_id')
+                                ->relationship('space', 'name')
+                                ->label('Space')
+                                ->preload()
+                                ->required()
+                                ->disabled(),
+                            Forms\Components\Select::make('owner_id')
+                                ->relationship('owner', 'name')
+                                ->label('Owner')
+                                ->preload()
+                                ->required()
+                                ->disabled(),
+                        ])->columns(2),
+                ])->columnSpan([
+                    'sm' => 3,
+                    'md' => 3,
+                    'lg' => 2
+                ]),
+                Forms\Components\Grid::make(1)->schema([
+                    Forms\Components\Section::make('Visibility')->schema([
+                        Forms\Components\Toggle::make('is_active')
+                            ->onIcon('heroicon-s-eye')
+                            ->offIcon('heroicon-s-eye-slash')
+                            ->label('Visible')
+                            ->default(true),
+                    ]),
+                    Forms\Components\Section::make()->schema([
+                        Forms\Components\Placeholder::make('created_at')
+                            ->label('Created at')
+                            ->hiddenOn('create')
+                            ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
+                                $category = Tenant::find($record->id);
+                                $now = \Carbon\Carbon::now();
+
+                                $diff = $category->created_at->diff($now);
+                                if ($diff->y > 0) {
+                                    return $diff->y . ' years ago';
+                                } elseif ($diff->m > 0) {
+                                    if ($diff->m == 1) {
+                                        return '1 month ago';
+                                    } else {
+                                        return $diff->m . ' months ago';
+                                    }
+                                } elseif ($diff->d >= 7) {
+                                    $weeks = floor($diff->d / 7);
+                                    if ($weeks == 1) {
+                                        return 'a week ago';
+                                    } else {
+                                        return $weeks . ' weeks ago';
+                                    }
+                                } elseif ($diff->d > 0) {
+                                    if ($diff->d == 1) {
+                                        return 'yesterday';
+                                    } else {
+                                        return $diff->d . ' days ago';
+                                    }
+                                } elseif ($diff->h > 0) {
+                                    if ($diff->h == 1) {
+                                        return '1 hour ago';
+                                    } else {
+                                        return $diff->h . ' hours ago';
+                                    }
+                                } elseif ($diff->i > 0) {
+                                    if ($diff->i == 1) {
+                                        return '1 minute ago';
+                                    } else {
+                                        return $diff->i . ' minutes ago';
+                                    }
+                                } elseif ($diff->s > 0) {
+                                    if ($diff->s == 1) {
+                                        return '1 second ago';
+                                    } else {
+                                        return $diff->s . ' seconds ago';
+                                    }
+                                } else {
+                                    return 'just now';
+                                }
+                            }),
+                        Forms\Components\Placeholder::make('updated_at')
+                            ->label('Last modified at')
+                            ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
+                                $category = Tenant::find($record->id);
+                                $now = \Carbon\Carbon::now();
+
+                                $diff = $category->updated_at->diff($now);
+                                if ($diff->y > 0) {
+                                    return $diff->y . ' years ago';
+                                } elseif ($diff->m > 0) {
+                                    if ($diff->m == 1) {
+                                        return '1 month ago';
+                                    } else {
+                                        return $diff->m . ' months ago';
+                                    }
+                                } elseif ($diff->d >= 7) {
+                                    $weeks = floor($diff->d / 7);
+                                    if ($weeks == 1) {
+                                        return 'a week ago';
+                                    } else {
+                                        return $weeks . ' weeks ago';
+                                    }
+                                } elseif ($diff->d > 0) {
+                                    if ($diff->d == 1) {
+                                        return 'yesterday';
+                                    } else {
+                                        return $diff->d . ' days ago';
+                                    }
+                                } elseif ($diff->h > 0) {
+                                    if ($diff->h == 1) {
+                                        return '1 hour ago';
+                                    } else {
+                                        return $diff->h . ' hours ago';
+                                    }
+                                } elseif ($diff->i > 0) {
+                                    if ($diff->i == 1) {
+                                        return '1 minute ago';
+                                    } else {
+                                        return $diff->i . ' minutes ago';
+                                    }
+                                } elseif ($diff->s > 0) {
+                                    if ($diff->s == 1) {
+                                        return '1 second ago';
+                                    } else {
+                                        return $diff->s . ' seconds ago';
+                                    }
+                                } else {
+                                    return 'just now';
+                                }
+                            }),
+                    ])->hiddenOn('create')
+                ])->columnSpan([
+                    'sm' => 3,
+                    'md' => 3,
+                    'lg' => 1
+                ])
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -84,7 +219,7 @@ class TenantResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('lease_term')
                     ->label('Lease Term')
-                    ->formatStateUsing(fn ($state) => $state . ' Months')
+                    ->formatStateUsing(fn($state) => $state . ' Months')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('lease_status')
