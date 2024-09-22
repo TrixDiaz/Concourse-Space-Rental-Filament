@@ -25,7 +25,6 @@ class Space extends Model
         'space_coordinates_y',
         'space_coordinates_x2',
         'space_coordinates_y2',
-        'lease_term',
     ];
 
     public function user()

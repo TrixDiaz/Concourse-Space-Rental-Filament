@@ -15,6 +15,10 @@ class Tenant extends Model
         'space_id',
         'owner_id',
         'is_active',
+        'lease_start',
+        'lease_end',
+        'lease_term',
+        'lease_status',
     ];
 
     public function tenant()

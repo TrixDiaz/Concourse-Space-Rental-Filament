@@ -33,7 +33,6 @@ class SpaceFactory extends Factory
             'space_coordinates_y' => $this->faker->numberBetween(10, 100),
             'space_coordinates_x2' => $this->faker->numberBetween(10, 100),
             'space_coordinates_y2' => $this->faker->numberBetween(10, 100),
-            'lease_term' => $this->faker->date, 
         ];
     }
 }

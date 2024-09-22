@@ -73,9 +73,23 @@ class TenantResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('space.lease_term')
+                Tables\Columns\TextColumn::make('lease_start')
+                    ->dateTime('F j, Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('lease_end')
+                    ->dateTime('F j, Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('lease_term')
                     ->label('Lease Term')
-                    ->date('F j, Y')
+                    ->formatStateUsing(fn ($state) => $state . ' Months')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('lease_status')
+                    ->label('Lease Status')
+                    ->badge()
+                    ->extraAttributes(['class' => 'capitalize'])
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\ToggleColumn::make('is_active')

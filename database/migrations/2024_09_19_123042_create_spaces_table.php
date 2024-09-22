@@ -28,7 +28,7 @@ return new class extends Migration
             $table->integer('space_coordinates_y');
             $table->integer('space_coordinates_x2');
             $table->integer('space_coordinates_y2');
-            $table->date('lease_term')->nullable();
+           
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('concourse_id')->references('id')->on('concourses')->onDelete('cascade');
