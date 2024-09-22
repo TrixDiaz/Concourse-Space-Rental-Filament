@@ -72,7 +72,13 @@ class TenantResource extends Resource
                                         ->numeric()
                                         ->required(),
                                 ])
-                            ])->columnSpanFull()
+                            ])
+                            ->columnSpanFull()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $total = collect($state)->sum('amount');
+                                $set('monthly_payment', $total);
+                            })
                     ])->columns(2),
                 ])->columnSpan([
                     'sm' => 3,
@@ -80,6 +86,23 @@ class TenantResource extends Resource
                     'lg' => 2
                 ]),
                 Forms\Components\Grid::make(1)->schema([
+                    Forms\Components\Section::make('Monthly Payment')->schema([
+                        Forms\Components\TextInput::make('monthly_payment')
+                            ->label('Monthly Payment')
+                            ->prefix('₱')
+                            ->numeric()
+                            ->readOnly()
+                            ->default(0),
+                        Forms\Components\Select::make('lease_status')
+                            ->label('Lease Status')
+                            ->native(false)
+                            ->options([
+                                'paid' => 'Paid',
+                                'unpaid' => 'Unpaid',
+                                'overdue' => 'Overdue',
+                                'pending' => 'Pending',
+                            ]),
+                    ]),
                     Forms\Components\Section::make('Visibility')->schema([
                         Forms\Components\Toggle::make('is_active')
                             ->onIcon('heroicon-s-eye')

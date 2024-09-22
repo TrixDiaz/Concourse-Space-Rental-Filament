@@ -27,7 +27,7 @@ class TenantFactory extends Factory
             'lease_start' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'lease_end' => $this->faker->dateTimeBetween('now', '+1 year'),
             'lease_term' => $this->faker->numberBetween(1, 12),
-            'lease_status' => $this->faker->randomElement(['active', 'inactive', 'expired']),
+            'lease_status' => $this->faker->randomElement(['paid', 'unpaid', 'overdue', 'pending']),
             'is_active' => $this->faker->boolean,
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
