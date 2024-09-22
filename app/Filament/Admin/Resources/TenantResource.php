@@ -7,6 +7,7 @@ use App\Filament\Admin\Resources\TenantResource\RelationManagers;
 use App\Filament\Admin\Resources\TenantResource\Widgets\TenantsRevenue;
 use App\Models\Tenant;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -58,6 +59,21 @@ class TenantResource extends Resource
                                 ->required()
                                 ->disabled(),
                         ])->columns(2),
+                    Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
+                        Repeater::make('bills')
+                            ->schema([
+                                Forms\Components\Grid::make(2)->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Name')
+                                        ->required(),
+                                    Forms\Components\TextInput::make('amount')
+                                        ->label('Amount')
+                                        ->prefix('₱')
+                                        ->numeric()
+                                        ->required(),
+                                ])
+                            ])->columnSpanFull()
+                    ])->columns(2),
                 ])->columnSpan([
                     'sm' => 3,
                     'md' => 3,
@@ -279,7 +295,7 @@ class TenantResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PaymentRelationManager::class,
         ];
     }
 

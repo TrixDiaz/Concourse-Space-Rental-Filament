@@ -25,6 +25,7 @@ return new class extends Migration
             $table->date('lease_end')->nullable();
             $table->integer('lease_term')->nullable();
             $table->string('lease_status')->nullable();
+            $table->json('bills')->nullable();
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

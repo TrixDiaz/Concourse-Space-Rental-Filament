@@ -9,6 +9,7 @@ use App\Models\ConcourseRate;
 use App\Models\User;
 use App\Models\Space;
 use App\Models\Tenant;
+use App\Models\Payment;
 use Illuminate\Database\Seeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
@@ -26,7 +27,7 @@ class DatabaseSeeder extends Seeder
         Application::factory(2)->create();
         Tenant::factory(2)->create();
         $this->call(RequirementSeeder::class);
-      
+        Payment::factory(2)->create();
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'admin@example.com',

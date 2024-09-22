@@ -19,6 +19,11 @@ class Tenant extends Model
         'lease_end',
         'lease_term',
         'lease_status',
+        'bills',
+    ];
+
+    protected $casts = [
+        'bills' => 'array',
     ];
 
     public function tenant()
@@ -39,5 +44,10 @@ class Tenant extends Model
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }
