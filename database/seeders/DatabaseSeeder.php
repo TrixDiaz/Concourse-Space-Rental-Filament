@@ -11,6 +11,8 @@ use App\Models\Space;
 use App\Models\Tenant;
 use App\Models\Payment;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
@@ -35,5 +37,6 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'birth_date' => now(),
         ]);
+        Role::create(['name' => 'accountant']);
     }
 }
