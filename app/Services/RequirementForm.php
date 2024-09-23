@@ -65,7 +65,7 @@ final class RequirementForm
                                 ->columnSpanFull(),
                             Forms\Components\TextInput::make('status')
                                 ->default('pending')
-                                ->hidden(),
+                                ->disabledOn(['create', 'edit']),
                         ])->columnSpanFull(),
 
                 ])

@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\ConcourseResource\Pages;
 
 use App\Filament\Admin\Resources\ConcourseResource;
+use App\Models\Concourse;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -16,6 +17,10 @@ class EditConcourse extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('viewSpaces')
+            ->label('View Layout')
+            ->url(fn () => $this->getResource()::getUrl('view-spaces', ['record' => $this->getRecord()]))
+            ->color('success'),
             Actions\DeleteAction::make(),
         ];
     }

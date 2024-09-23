@@ -31,35 +31,37 @@ class ApplicationResource extends Resource
             ->schema([
                 Forms\Components\Section::make()
                     ->schema([
-                        Forms\Components\Select::make('concourse_id')
-                            ->relationship('concourse', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->disabledOn('edit'),
-                        Forms\Components\Select::make('space_id')
-                            ->relationship('space', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->disabledOn('edit'),
-                        Forms\Components\Select::make('user_id')
-                            ->relationship('user', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->label('Tenant')
-                            ->disabledOn('edit'),
-                        Forms\Components\TextInput::make('business_name')
-                            ->maxLength(255)
-                            ->default(null),
-                        Forms\Components\TextInput::make('owner_name')
-                            ->maxLength(255)
-                            ->default(null),
-                        Forms\Components\TextInput::make('email')
-                            ->email()
-                            ->maxLength(255)
-                            ->default(null),
+                        Forms\Components\Grid::make()->schema([
+                            Forms\Components\Select::make('concourse_id')
+                                ->relationship('concourse', 'name')
+                                ->required()
+                                ->searchable()
+                                ->preload()
+                                ->disabledOn('edit'),
+                            Forms\Components\Select::make('space_id')
+                                ->relationship('space', 'name')
+                                ->required()
+                                ->searchable()
+                                ->preload()
+                                ->disabledOn('edit'),
+                            Forms\Components\Select::make('user_id')
+                                ->relationship('user', 'name')
+                                ->required()
+                                ->searchable()
+                                ->preload()
+                                ->label('Tenant')
+                                ->disabledOn('edit'),
+                            Forms\Components\TextInput::make('business_name')
+                                ->maxLength(255)
+                                ->default(null),
+                            Forms\Components\TextInput::make('owner_name')
+                                ->maxLength(255)
+                                ->default(null),
+                            Forms\Components\TextInput::make('email')
+                                ->email()
+                                ->maxLength(255)
+                                ->default(null),
+                        ])->columns(3),
                         Forms\Components\TextInput::make('address')
                             ->maxLength(255)
                             ->default(null)
@@ -70,30 +72,26 @@ class ApplicationResource extends Resource
                             ->default(null),
                         Forms\Components\Select::make('business_type')
                             ->label('Business Type')
+                            ->extraInputAttributes(['class' => 'capitalize'])
                             ->options([
                                 'food' => 'Food',
                                 'non-food' => 'Non Food',
                                 'other' => 'Other',
                             ])
                             ->native(false),
-                        Forms\Components\Select::make('status')
-                            ->label('Status')
-                            ->options([
-                                'rejected' => 'Rejected',
-                                'pending' => 'Pending',
-                                'approved' => 'Approved',
-                                're-upload' => 'Re-Upload',
-                            ])
-                            ->native(false),
-                    ])->columns(3),
-                Forms\Components\Section::make()
-                    ->schema([
                         Forms\Components\DatePicker::make('expiration_date')
                             ->native(false)
                             ->label('Due Lease Agreement Date'),
+                        Forms\Components\TextInput::make('status')
+                            ->disabled()
+                            ->extraInputAttributes(['class' => 'capitalize']),
                         Forms\Components\TextInput::make('remarks')
                             ->maxLength(255)
-                            ->default(null),
+                            ->default(null)
+                            ->columnSpanFull(),
+                    ])->columns(2),
+                Forms\Components\Section::make('List of Required Documents')->description('Approved each documents for the application')
+                    ->schema([
                         Forms\Components\Repeater::make('requirements')
                             ->schema([
                                 Forms\Components\Group::make([
@@ -114,7 +112,6 @@ class ApplicationResource extends Resource
                                     ->downloadable()
                                     ->preserveFilenames()
                                     ->columnSpanFull(),
-
                             ])->columnSpanFull(),
                     ])->columns(2),
             ]);
@@ -155,7 +152,9 @@ class ApplicationResource extends Resource
                     ->label('Due Date')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
+                    ->searchable()
+                    ->badge()
+                    ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('remarks')
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active')

@@ -55,20 +55,16 @@ class ConcourseResource extends Resource
                                 ->image()
                                 ->label('Concourse Image')
                                 ->maxSize(5120)
-                                ->optimize('webp')
                                 ->imageEditor()
                                 ->openable()
-                                ->downloadable()
-                                ->preserveFilenames(),
+                                ->downloadable(),
                             Forms\Components\FileUpload::make('layout')
                                 ->image()
                                 ->label('Space Layout')
                                 ->maxSize(5120) // 5MB max size
-                                ->optimize('webp')
                                 ->imageEditor()
                                 ->openable()
-                                ->downloadable()
-                                ->preserveFilenames(),
+                                ->downloadable(),
                         ])->columns(2),
 
                     ])->columnSpan([

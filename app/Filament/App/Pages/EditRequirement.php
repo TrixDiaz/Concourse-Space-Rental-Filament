@@ -71,7 +71,13 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                             ->native(false),
                         Forms\Components\Repeater::make('requirements')
                             ->schema([
-                                Forms\Components\TextInput::make('name'),
+                                Forms\Components\Grid::make(2)->schema([
+                                    Forms\Components\TextInput::make('name'),
+                                    Forms\Components\TextInput::make('status')
+                                        ->default('pending')
+                                        ->extraInputAttributes(['class' => 'capitalize'])
+                                        ->disabled(),
+                                ]),
                                 Forms\Components\FileUpload::make('attachment')
                                     ->image()
                                     ->label('Attachment')
@@ -81,9 +87,6 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                                     ->downloadable()
                                     ->preserveFilenames()
                                     ->columnSpanFull(),
-                                Forms\Components\TextInput::make('status')
-                                    ->default('pending')
-                                    ->hidden(),
                             ])->columnSpanFull(),
 
                     ])
@@ -95,7 +98,7 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
     public function save(): void
     {
         $data = $this->form->getState();
-        
+
         // No need to filter fillable data, as we're using $fillable in the model
         $this->application->update($data);
 

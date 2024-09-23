@@ -45,8 +45,8 @@ class EditTenant extends EditRecord
         $notification = Notification::make()
             ->success()
             ->icon('heroicon-o-user-circle')
-            ->title('Tenant Updated')
-            ->body("Tenant {$record->name} Updated!")
+            ->title('Tenant Space Updated')
+            ->body("Your Tenant Space {$record->name} Updated please review it!")
             ->actions([
                 Action::make('view')
                     ->label('Mark as read')
@@ -59,14 +59,15 @@ class EditTenant extends EditRecord
                     ->action(fn(Notification $notification) => $notification->delete()),
             ]);
 
-        // Assuming we have a method to get the selected user's ID
-        $selectedUserId = $this->getSelectedUserId();
+        // Get the selected user's ID
+        $selectedUserId = $this->record->user_id;
 
         // Find the selected user
         $selectedUser = User::find($selectedUserId);
 
         if ($selectedUser) {
             // Send notification to the selected user
+            $notification->sendToDatabase($selectedUser);
         }
 
         // Send notification to the authenticated user
@@ -75,12 +76,5 @@ class EditTenant extends EditRecord
         return $notification;
     }
 
-    // Add this method to get the selected user's ID
-    protected function getSelectedUserId(): ?int
-    {
-        // Implement the logic to get the selected user's ID
-        // This could be from a form field, a request parameter, or any other source
-        // For now, we'll return null as a
-    }
 
 }

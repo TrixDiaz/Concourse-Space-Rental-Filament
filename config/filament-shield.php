@@ -29,11 +29,6 @@ return [
         'name' => 'panel_user',
     ],
 
-    'accountant' => [
-        'enabled' => true,
-        'name' => 'accountant',
-    ],
-
     'permission_prefixes' => [
         'resource' => [
             'view',

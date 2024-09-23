@@ -106,12 +106,17 @@ class ListSpaces extends Component implements HasTable, HasForms
                             ->where('space_id', $record->id)
                             ->exists();
                     }),
-                Tables\Actions\Action::make('Edit Application')
+                Tables\Actions\Action::make('Check Application')
                     ->link()
                     ->icon('heroicon-o-pencil')
                     ->url(fn($record) => route('filament.app.pages.edit-requirement', ['concourse_id' => $this->concourseId, 'space_id' => $record->id]))
                     ->openUrlInNewTab()
                     ->visible(function ($record) {
+                        // Hide if status is approved
+                        if ($record->status === 'approved') {
+                            return false;
+                        }
+                        
                         return \App\Models\Application::where('user_id', Auth::id())
                             ->where('concourse_id', $this->concourseId)
                             ->where('space_id', $record->id)
