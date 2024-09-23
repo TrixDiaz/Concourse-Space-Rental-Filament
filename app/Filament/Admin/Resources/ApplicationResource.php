@@ -36,33 +36,30 @@ class ApplicationResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->disabled(),
+                            ->disabledOn('edit'),
                         Forms\Components\Select::make('space_id')
                             ->relationship('space', 'name')
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->disabled(),
+                            ->disabledOn('edit'),
                         Forms\Components\Select::make('user_id')
                             ->relationship('user', 'name')
                             ->required()
                             ->searchable()
                             ->preload()
                             ->label('Tenant')
-                            ->disabled(),
+                            ->disabledOn('edit'),
                         Forms\Components\TextInput::make('business_name')
                             ->maxLength(255)
-                            ->default(null)
-                            ->disabled(),
+                            ->default(null),
                         Forms\Components\TextInput::make('owner_name')
                             ->maxLength(255)
-                            ->default(null)
-                            ->disabled(),
+                            ->default(null),
                         Forms\Components\TextInput::make('email')
                             ->email()
                             ->maxLength(255)
-                            ->default(null)
-                            ->disabled(),
+                            ->default(null),
                         Forms\Components\TextInput::make('address')
                             ->maxLength(255)
                             ->default(null)
@@ -70,8 +67,7 @@ class ApplicationResource extends Resource
                         Forms\Components\TextInput::make('phone_number')
                             ->tel()
                             ->maxLength(255)
-                            ->default(null)
-                            ->disabled(),
+                            ->default(null),
                         Forms\Components\Select::make('business_type')
                             ->label('Business Type')
                             ->options([
@@ -113,7 +109,6 @@ class ApplicationResource extends Resource
                                     ->image()
                                     ->label('Attachment')
                                     ->maxSize(5120)
-                                    ->optimize('webp')
                                     ->imageEditor()
                                     ->openable()
                                     ->downloadable()

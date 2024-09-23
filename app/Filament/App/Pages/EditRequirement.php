@@ -76,7 +76,6 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                                     ->image()
                                     ->label('Attachment')
                                     ->maxSize(5120)
-                                    ->optimize('webp')
                                     ->imageEditor()
                                     ->openable()
                                     ->downloadable()

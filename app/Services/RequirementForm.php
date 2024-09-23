@@ -58,7 +58,6 @@ final class RequirementForm
                                 ->image()
                                 ->label('Attachment')
                                 ->maxSize(5120)
-                                ->optimize('webp')
                                 ->imageEditor()
                                 ->openable()
                                 ->downloadable()

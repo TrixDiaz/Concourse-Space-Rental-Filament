@@ -95,12 +95,16 @@ class ListSpaces extends Component implements HasTable, HasForms
                         return $application;
                     })
                     ->hidden(function ($record) {
-                        if (!$record) return false;
-                        return \App\Models\Application::where('user_id', Auth::id())->exists()
-                            && (\App\Models\Application::where('user_id', Auth::id())
-                                ->where('concourse_id', $this->concourseId)
-                                ->where('space_id', $record->id)
-                                ->exists());
+                        if (!$record) return true; // Hide if no record (shouldn't happen, but just in case)
+                        
+                        // Hide if space is not available
+                        if ($record->status !== 'available') return true;
+                        
+                        // Hide if user already has an application for this space
+                        return \App\Models\Application::where('user_id', Auth::id())
+                            ->where('concourse_id', $this->concourseId)
+                            ->where('space_id', $record->id)
+                            ->exists();
                     }),
                 Tables\Actions\Action::make('Edit Application')
                     ->link()
