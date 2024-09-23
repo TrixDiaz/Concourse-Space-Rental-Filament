@@ -191,7 +191,7 @@ class ApplicationResource extends Resource
                     Tables\Actions\EditAction::make()->color('primary'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
-                    Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
+                Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->tooltip('Actions')
@@ -201,7 +201,8 @@ class ApplicationResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->poll('30s');
     }
 
     public static function getRelations(): array

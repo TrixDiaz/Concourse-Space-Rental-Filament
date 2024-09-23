@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\ConcourseResource\Pages;
 use App\Filament\Admin\Resources\ConcourseResource;
 use App\Models\Space;
 use App\Models\User;
+use App\Models\ConcourseRate;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -24,12 +25,15 @@ class ViewSpaceConcourses extends Page
     public $canCreateSpace = false;
     public $drawMode = false;
     public $spaceDimensions = null;
+    public $sqm;
+    public $rate;
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
         $this->spaces = $this->record->spaces()->get();
         $this->canCreateSpace = $this->record->layout !== null;
+        $this->rate = $this->record->concourseRate->price; 
     }
 
     public function toggleDrawMode()
@@ -65,6 +69,7 @@ class ViewSpaceConcourses extends Page
             'name' => $this->name,
             'price' => $this->price,
             'status' => 'available',
+            'sqm' => $this->sqm,
             'is_active' => true,
             'space_width' => $this->spaceDimensions['width'],
             'space_length' => $this->spaceDimensions['height'],
@@ -101,4 +106,15 @@ class ViewSpaceConcourses extends Page
 
         $this->dispatch('reload-page');
     }
+
+    public function updatedSqm()
+    {
+        $this->computePrice();
+    }
+
+    protected function computePrice()
+    {
+        $this->price = $this->sqm * $this->rate;
+    }
+
 }

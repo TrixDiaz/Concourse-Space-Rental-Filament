@@ -24,6 +24,7 @@ class SpaceFactory extends Factory
             'name' => $this->faker->name,
             'price' => $this->faker->numberBetween(1000, 10000),
             'status' => $this->faker->randomElement(['available', 'occupied', 'reserved']),
+            'sqm' => $this->faker->numberBetween(10, 100),
             'is_active' => $this->faker->boolean,
             'space_width' => $this->faker->numberBetween(10, 100),
             'space_length' => $this->faker->numberBetween(10, 100),

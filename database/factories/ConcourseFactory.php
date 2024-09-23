@@ -21,6 +21,7 @@ class ConcourseFactory extends Factory
             'name' => fake()->name(),
             'address' => fake()->address(),
             'rate_id' => ConcourseRate::factory()->create()->id,
+            'lease_term' => fake()->date(),
             'spaces' => fake()->numberBetween(0, 20),
             'is_active' => fake()->boolean(),
         ];

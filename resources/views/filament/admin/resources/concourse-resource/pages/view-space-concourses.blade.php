@@ -29,7 +29,7 @@
                 @endif
 
                 <form wire:submit.prevent="createSpace">
-                    <x-filament::section>
+                    <x-filament::section class="grid grid-cols-2 gap-2">
                         <label for="name">Name</label>
                         <x-filament::input.wrapper class="mb-2">
                             <x-filament::input
@@ -38,12 +38,25 @@
                                 wire:model="name" />
                         </x-filament::input.wrapper>
 
-                        <label for="price">Price</label>
+                        <label for="sqm">SQM</label>
                         <x-filament::input.wrapper class="mb-2">
                             <x-filament::input
                                 type="number"
+                                placeholder="SQM"
+                                min="0"
+                                wire:model.live="sqm" />
+                            <x-slot name="suffix" > 
+                               X {{ $rate }} 
+                            </x-slot>
+                        </x-filament::input.wrapper>
+
+                        <label for="price">Price</label>
+                        <x-filament::input.wrapper disabled class="mb-2">
+                            <x-filament::input
+                                type="number"
                                 placeholder="Price"
-                                wire:model="price" />
+                                wire:model="price"
+                                disabled />
                         </x-filament::input.wrapper>
 
                         <x-filament::button
@@ -78,11 +91,9 @@
                 <x-filament::section>
                     <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
                     <p>Price: ₱{{ number_format($space->price, 2) }}</p>
+                    <p>Sqm: {{ $space->sqm }}</p>
                     <p>Status: {{ ucfirst($space->status) }}</p>
-                    <p>Dimensions: {{ $space->space_dimension }}</p>
-                    <p>Area: {{ $space->space_area }} sq units</p>
-                    <p>Coordinates: ({{ $space->space_coordinates_x }}, {{ $space->space_coordinates_y }}) to ({{ $space->space_coordinates_x2 }}, {{ $space->space_coordinates_y2 }})</p>
-                </x-filament::section>
+                    </x-filament::section>
             </x-filament::modal>
             @endforeach
         </div>
@@ -172,12 +183,10 @@
             @foreach($this->spaces as $space)
             <div class="p-4 rounded-lg shadow-md border">
                 <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
-                <p>Price: ${{ number_format($space->price, 2) }}</p>
+                <p>Price: ₱{{ number_format($space->price, 2) }}</p>
+                <p>Sqm: {{ $space->sqm }}</p>
                 <p>Status: {{ ucfirst($space->status) }}</p>
-                <p>Dimensions: {{ $space->space_dimension }}</p>
-                <p>Area: {{ $space->space_area }} sq units</p>
-                <p>Coordinates: ({{ $space->space_coordinates_x }}, {{ $space->space_coordinates_y }}) to ({{ $space->space_coordinates_x2 }}, {{ $space->space_coordinates_y2 }})</p>
-            </div>
+                  </div>
             @endforeach
         </div>
         @else

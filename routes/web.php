@@ -10,4 +10,4 @@ Route::get('/', function () {
 
 
 Route::get('/terms', [TermsController::class, 'show'])->name('terms.show');
-Route::get('/policy', [PolicyController::class, 'show'])->name('policy.show');
+Route::get('/policy', [PolicyController::class, 'show'])->name('policy.show'); 

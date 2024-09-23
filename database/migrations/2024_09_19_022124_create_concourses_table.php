@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('longitude')->nullable();
             $table->string('image')->nullable();
             $table->string('layout')->nullable();
+            $table->date('lease_term')->nullable();
             $table->boolean('is_active')->default(true);
             
             $table->foreign('rate_id')->references('id')->on('concourse_rates')->onDelete('cascade');

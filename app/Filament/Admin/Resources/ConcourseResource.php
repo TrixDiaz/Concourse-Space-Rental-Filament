@@ -265,11 +265,11 @@ class ConcourseResource extends Resource
                     ->tooltip('Actions')
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
-                    ExportBulkAction::make()
                 ]),
             ]);
     }

@@ -22,9 +22,11 @@ final class RequirementForm
             Forms\Components\Section::make('Business Information')
                 ->schema([
                     Forms\Components\TextInput::make('business_name')
-                        ->label('Business Name'),
+                        ->label('Business Name')
+                        ->required(),
                     Forms\Components\TextInput::make('owner_name')
-                        ->label('Owner Name'),
+                        ->label('Owner Name')
+                        ->required(),
                     Forms\Components\TextInput::make('email')
                         ->label('Email')
                         ->email()
@@ -32,14 +34,14 @@ final class RequirementForm
                         ->readOnly(),
                     Forms\Components\TextInput::make('phone_number')
                         ->label('Phone Number')
-
                         ->default(fn() => $user->phone_number)
-                        ->readOnly(),
+                        ->readOnly()
+                        ->required(),
                     Forms\Components\TextInput::make('address')
                         ->label('Permanent Address')
-
                         ->default(fn() => $user->address)
-                        ->columnSpanFull(),
+                        ->columnSpanFull()
+                        ->required(),
                     Forms\Components\Select::make('business_type')
                         ->label('Business Type')
                         ->options([

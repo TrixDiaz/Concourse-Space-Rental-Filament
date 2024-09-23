@@ -122,14 +122,6 @@ class ListSpaces extends Component implements HasTable, HasForms
                             ->where('space_id', $record->id)
                             ->exists();
                     }),
-            ])
-            ->headerActions([
-                Tables\Actions\Action::make('View Requirements')
-                    ->button()
-                    ->icon('heroicon-o-eye')
-                    ->color('warning')
-                    ->url(fn() => route('filament.app.pages.requirement-page'))
-                    ->openUrlInNewTab(),
             ]);
     }
 }

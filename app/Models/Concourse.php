@@ -18,6 +18,7 @@ class Concourse extends Model
         'spaces',
         'image',
         'layout',
+        'lease_term',
         'is_active',
     ];
 

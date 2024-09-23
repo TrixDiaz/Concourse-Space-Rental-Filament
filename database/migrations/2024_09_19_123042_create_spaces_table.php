@@ -17,8 +17,9 @@ return new class extends Migration
             $table->id();
 
             $table->string('name');
-            $table->integer('price');
             $table->string('status');
+            $table->string('sqm');
+            $table->integer('price');
             $table->boolean('is_active')->default(true);
             $table->integer('space_width');
             $table->integer('space_length');

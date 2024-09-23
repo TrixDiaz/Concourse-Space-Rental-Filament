@@ -15,6 +15,7 @@ class Space extends Model
         'concourse_id',
         'name',
         'price',
+        'sqm',
         'status',
         'is_active',
         'space_width',
