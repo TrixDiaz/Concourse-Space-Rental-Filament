@@ -59,7 +59,7 @@ class AppPanelProvider extends PanelProvider
                     ->label('Admin')
                     ->url(fn(): string => route('filament.admin.pages.dashboard'))
                     ->icon('heroicon-m-home')
-                    ->visible(fn () => auth()->user()->hasRole('account')),
+                    ->visible(fn () => auth()->user()->hasRole('accountant')),
             ])
             ->middleware([
                 EncryptCookies::class,
