@@ -90,30 +90,29 @@ class ApplicationResource extends Resource
                             ->default(null)
                             ->columnSpanFull(),
                     ])->columns(2),
-                Forms\Components\Section::make('List of Required Documents')->description('Approved each documents for the application')
+                Forms\Components\Section::make('List of Required Documents')->description('Approved each document for the application')
                     ->schema([
                         Forms\Components\Repeater::make('requirements')
+                            ->relationship('requirements')
                             ->schema([
-                                Forms\Components\Group::make([
-                                    Forms\Components\TextInput::make('name'),
-                                    Forms\Components\Select::make('status')
-                                        ->options([
-                                            'approved' => 'Approved',
-                                            're-upload' => 'Re-Upload',
-                                        ])
-                                        ->native(false),
-                                ])->columns(2),
-                                Forms\Components\FileUpload::make('attachment')
-                                    ->image()
+                                Forms\Components\TextInput::make('name')
+                                    ->disabled(),
+                                Forms\Components\Select::make('status')
+                                    ->options([
+                                        'pending' => 'Pending',
+                                        'approved' => 'Approved',
+                                        'rejected' => 'Rejected',
+                                    ])
+                                    ->disabled(),
+                                Forms\Components\FileUpload::make('file_path')
                                     ->label('Attachment')
-                                    ->maxSize(5120)
-                                    ->imageEditor()
-                                    ->openable()
-                                    ->downloadable()
-                                    ->preserveFilenames()
                                     ->columnSpanFull(),
-                            ])->columnSpanFull(),
-                    ])->columns(2),
+                            ])
+                            ->columns(2)
+                            ->disableItemCreation()
+                            ->disableItemDeletion()
+                            ->disableItemMovement(),
+                    ])->columnSpanFull(),
             ]);
     }
 
@@ -191,7 +190,7 @@ class ApplicationResource extends Resource
                     Tables\Actions\EditAction::make()->color('primary'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
-                Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
+                    Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->tooltip('Actions')

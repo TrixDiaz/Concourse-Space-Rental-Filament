@@ -22,11 +22,10 @@ class Application extends Model
         'status',
         'business_type',
         'expiration_date',
-        'requirements',
+        'remarks',
     ];
 
     protected $casts = [
-        'requirements' => 'array',
         'expiration_date' => 'date',
     ];
 
@@ -43,5 +42,10 @@ class Application extends Model
     public function concourse()
     {
         return $this->belongsTo(Concourse::class);
+    } 
+
+    public function requirements()
+    {
+        return $this->hasMany(Requirement::class);
     }
 }
