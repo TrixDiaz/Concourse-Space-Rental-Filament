@@ -92,27 +92,7 @@ class ApplicationResource extends Resource
                     ])->columns(2),
                 Forms\Components\Section::make('List of Required Documents')->description('Approved each documents for the application')
                     ->schema([
-                        Forms\Components\Repeater::make('requirements')
-                            ->schema([
-                                Forms\Components\Group::make([
-                                    Forms\Components\TextInput::make('name'),
-                                    Forms\Components\Select::make('status')
-                                        ->options([
-                                            'approved' => 'Approved',
-                                            're-upload' => 'Re-Upload',
-                                        ])
-                                        ->native(false),
-                                ])->columns(2),
-                                Forms\Components\FileUpload::make('attachment')
-                                    ->image()
-                                    ->label('Attachment')
-                                    ->maxSize(5120)
-                                    ->imageEditor()
-                                    ->openable()
-                                    ->downloadable()
-                                    ->preserveFilenames()
-                                    ->columnSpanFull(),
-                            ])->columnSpanFull(),
+                       
                     ])->columns(2),
             ]);
     }

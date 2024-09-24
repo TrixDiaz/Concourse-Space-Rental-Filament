@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('status')->nullable();
             $table->date('expiration_date')->nullable();
             $table->string('remarks')->nullable();
-            $table->json('requirements')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('concourse_id')->references('id')->on('concourses')->onDelete('cascade');
             $table->foreign('space_id')->references('id')->on('spaces')->onDelete('cascade');

@@ -31,7 +31,6 @@ class ApplicationFactory extends Factory
             'address' => $this->faker->address,
             'business_type' => $this->faker->randomElement(['restaurant', 'retail', 'other']),
             'expiration_date' => $this->faker->dateTimeBetween('now', '+1 year'),
-            'requirements' => $this->faker->randomElements(['license', 'permit', 'insurance'], 2),
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
         ];

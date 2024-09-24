@@ -22,7 +22,6 @@ class Application extends Model
         'status',
         'business_type',
         'expiration_date',
-        'requirements',
     ];
 
     protected $casts = [
