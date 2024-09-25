@@ -92,8 +92,7 @@ class ApplicationResource extends Resource
                     ])->columns(2),
                 Forms\Components\Section::make('List of Required Documents')->description('Approved each documents for the application')
                     ->schema([
-                       
-                    ])->columns(2),
+                    ])->columnSpanFull(),
             ]);
     }
 

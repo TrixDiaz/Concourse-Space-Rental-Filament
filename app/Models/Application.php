@@ -43,4 +43,9 @@ class Application extends Model
     {
         return $this->belongsTo(Concourse::class);
     }
+
+    public function requirements()
+    {
+        return $this->hasMany(AppRequirement::class);
+    }
 }

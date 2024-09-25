@@ -22,21 +22,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(2)->create();
-        ConcourseRate::factory(2)->create();
+        $this->call(UserSeeder::class);
+        $this->call(ConcourseRateSeeder::class);
         Concourse::factory(2)->create();
         Space::factory(2)->create();
         Application::factory(2)->create();
         Tenant::factory(2)->create();
         $this->call(RequirementSeeder::class);
         Payment::factory(2)->create();
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
-            'birth_date' => now(),
-        ]);
-        Role::create(['name' => 'accountant']);
+
+
     }
 }
