@@ -3,6 +3,7 @@
 namespace App\Filament\App\Pages;
 
 use App\Models\Application;
+use App\Models\AppRequirement;
 use App\Models\Requirement;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -21,6 +22,8 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
 
     public ?array $data = [];
     public ?Application $application;
+    public $appRequirements;
+    public $allRequirements;
 
     public function mount(): void
     {
@@ -33,7 +36,18 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
             ->where('user_id', $userId)
             ->firstOrFail();
 
-        $this->form->fill($this->application->toArray());
+        $this->appRequirements = AppRequirement::where('application_id', $this->application->id)->get();
+        
+        // Fetch all requirements for the concourse
+        // Adjust this query based on your actual database structure
+        $this->allRequirements = Requirement::all();
+
+        $formData = $this->application->toArray();
+        foreach ($this->allRequirements as $requirement) {
+            $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
+            $formData['requirements'][$requirement->id] = $appRequirement ? $appRequirement->file : null;
+        }
+        $this->form->fill($formData);
     }
 
     public function form(Form $form): Form
@@ -72,10 +86,14 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                             ->native(false),
                         Forms\Components\Section::make('Requirements')
                             ->schema(function () {
-                                $requirements = Requirement::all();
-                                return $requirements->map(function ($requirement) {
-                                    return Forms\Components\FileUpload::make($requirement->name)
-                                        ->label($requirement->name);
+                                return $this->allRequirements->map(function ($requirement) {
+                                    $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
+                                    return Forms\Components\FileUpload::make("requirements.{$requirement->id}")
+                                        ->label($requirement->name)
+                                        ->disk('public')
+                                        ->directory('requirements')
+                                        ->acceptedFileTypes(['application/pdf', 'image/*'])
+                                        ->maxSize(5120);
                                 })->toArray();
                             })
                             ->columns(2),
@@ -89,8 +107,35 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
     {
         $data = $this->form->getState();
 
-        // No need to filter fillable data, as we're using $fillable in the model
+        // Update Application
         $this->application->update($data);
+
+        // Update or Create AppRequirements
+        if (isset($data['requirements'])) {
+            foreach ($data['requirements'] as $requirementId => $file) {
+                $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirementId);
+                if ($appRequirement) {
+                    if ($file) {
+                        $appRequirement->update([
+                            'file' => $file,
+                            'status' => 'pending',
+                        ]);
+                    }
+                } else {
+                    // Create new AppRequirement if it doesn't exist
+                    AppRequirement::create([
+                        'requirement_id' => $requirementId,
+                        'user_id' => Auth::id(),
+                        'space_id' => $this->application->space_id,
+                        'concourse_id' => $this->application->concourse_id,
+                        'application_id' => $this->application->id,
+                        'name' => $this->allRequirements->firstWhere('id', $requirementId)->name,
+                        'status' => 'pending',
+                        'file' => $file,
+                    ]);
+                }
+            }
+        }
 
         Notification::make()
             ->success()

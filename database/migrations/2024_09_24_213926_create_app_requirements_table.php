@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('application_id')->constrained()->onDelete('cascade');
             $table->foreignId('concourse_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->string('file');
+            $table->string('file')->nullable();
             $table->string('status');
             $table->timestamps();
         });
