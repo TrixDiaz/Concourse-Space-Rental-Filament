@@ -269,7 +269,8 @@ class ConcourseResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->poll('30s');
     }
 
     public static function getRelations(): array

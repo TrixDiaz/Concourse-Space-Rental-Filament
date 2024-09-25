@@ -138,7 +138,8 @@ class UserResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     ExportBulkAction::make()
                 ]),
-            ]);
+            ])
+            ->poll('30s');
     }
 
     public static function getRelations(): array

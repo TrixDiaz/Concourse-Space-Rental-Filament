@@ -305,7 +305,8 @@ class TenantResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->poll('30s');
     }
 
     public static function getWidgets(): array

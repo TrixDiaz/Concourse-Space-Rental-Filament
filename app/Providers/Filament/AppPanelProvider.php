@@ -44,7 +44,7 @@ class AppPanelProvider extends PanelProvider
                 'danger' => Color::Red,
             ])
             ->databaseNotifications()
-            ->databaseNotificationsPolling('3s')
+            ->databaseNotificationsPolling('30s')
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
@@ -54,13 +54,6 @@ class AppPanelProvider extends PanelProvider
             ->widgets([
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
-            ])
-            ->userMenuItems([
-                MenuItem::make()
-                    ->label('Admin')
-                    ->url(fn(): string => route('filament.admin.pages.dashboard'))
-                    ->icon('heroicon-m-home')
-                    ->visible(fn () => auth()->user()->hasRole('accountant')),
             ])
             ->middleware([
                 EncryptCookies::class,
