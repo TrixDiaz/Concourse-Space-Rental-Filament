@@ -46,6 +46,7 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
         foreach ($this->allRequirements as $requirement) {
             $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
             $formData['requirements'][$requirement->id] = $appRequirement ? $appRequirement->file : null;
+            $formData['requirement_status'][$requirement->id] = $appRequirement ? $appRequirement->status : 'pending';
         }
         $this->form->fill($formData);
     }
@@ -88,12 +89,19 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                             ->schema(function () {
                                 return $this->allRequirements->map(function ($requirement) {
                                     $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
-                                    return Forms\Components\FileUpload::make("requirements.{$requirement->id}")
-                                        ->label($requirement->name)
-                                        ->disk('public')
-                                        ->directory('requirements')
-                                        ->acceptedFileTypes(['application/pdf', 'image/*'])
-                                        ->maxSize(5120);
+                                    return Forms\Components\Group::make([
+                                        Forms\Components\FileUpload::make("requirements.{$requirement->id}")
+                                            ->label($requirement->name)
+                                            ->disk('public')
+                                            ->directory('requirements')
+                                            ->acceptedFileTypes(['application/pdf', 'image/*'])
+                                            ->maxSize(5120)
+                                            ->required(!$appRequirement),
+                                        Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
+                                            ->label($requirement->name . ' Status')
+                                            ->extraInputAttributes(['class' => 'capitalize'])
+                                            ->disabled(),
+                                    ])->columnSpan(1);
                                 })->toArray();
                             })
                             ->columns(2),
