@@ -47,7 +47,19 @@ class ConcourseResource extends Resource
                                     ->preload()
                                     ->relationship('concourseRate', 'name')
                                     ->required(),
-                            ])->columns(2),
+                                Forms\Components\Select::make('lease_term')
+                                    ->options([
+                                        '1' => '1 month',
+                                        '2' => '2 months',
+                                        '3' => '3 months',
+                                        '6' => '6 months',
+                                        '12' => '1 year',
+                                        '24' => '2 years',
+                                        '36' => '3 years',
+                                    ])
+                                    ->native(false)
+                                    ->required(),
+                            ])->columns(3),
                         ]),
 
                         Forms\Components\Section::make('Attachments')->schema([

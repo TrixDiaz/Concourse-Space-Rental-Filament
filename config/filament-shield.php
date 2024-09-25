@@ -17,16 +17,16 @@ return [
         'fqcn' => 'App\\Models\\User',
     ],
 
-    'owner' => [
+    'super_admin' => [
         'enabled' => true,
-        'name' => 'owner',
+        'name' => 'super_admin',
         'define_via_gate' => false,
         'intercept_gate' => 'before', // after
     ],
 
-    'accountant' => [
+    'panel_user' => [
         'enabled' => true,
-        'name' => 'accountant',
+        'name' => 'panel_user',
     ],
 
 

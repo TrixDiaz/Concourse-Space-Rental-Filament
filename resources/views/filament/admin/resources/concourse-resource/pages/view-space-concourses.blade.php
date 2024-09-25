@@ -46,7 +46,7 @@
                                 min="0"
                                 wire:model.live="sqm" />
                             <x-slot name="suffix" > 
-                               X {{ $rate }} 
+                               X Rate {{ $rate }} 
                             </x-slot>
                         </x-filament::input.wrapper>
 
