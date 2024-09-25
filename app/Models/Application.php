@@ -25,7 +25,6 @@ class Application extends Model
     ];
 
     protected $casts = [
-        'requirements' => 'array',
         'expiration_date' => 'date',
     ];
 

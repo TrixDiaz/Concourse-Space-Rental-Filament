@@ -10,9 +10,12 @@ class AppRequirement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'application_id',
-        'user_id',
         'requirement_id',
+        'user_id',
+        'space_id',
+        'concourse_id',
+        'application_id',
+        'name',
         'status',
         'file',
     ];
@@ -26,4 +29,5 @@ class AppRequirement extends Model
     {
         return $this->belongsTo(Requirement::class);
     }
+
 }

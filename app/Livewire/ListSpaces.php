@@ -85,7 +85,27 @@ class ListSpaces extends Component implements HasTable, HasForms
                         return RequirementForm::schema($this->concourseId, $spaceId);
                     })
                     ->using(function (array $data, $record) {
+                        // Create the application
                         $application = \App\Models\Application::create($data);
+
+                        // Store the uploaded requirements
+                        if (isset($data['requirements'])) {
+                            foreach ($data['requirements'] as $requirementId => $file) {
+                                if ($file) {
+                                    \App\Models\AppRequirement::create([
+                                        'requirement_id' => $requirementId,
+                                        'user_id' => Auth::id(),
+                                        'space_id' => $record->id,
+                                        'concourse_id' => $this->concourseId,
+                                        'application_id' => $application->id,
+                                        'name' => \App\Models\Requirement::find($requirementId)->name,
+                                        'status' => 'pending',
+                                        'file' => $file,
+                                    ]);
+                                }
+                            }
+                        }
+
                         if ($record) {
                             $record->update([
                                 'user_id' => Auth::id(),

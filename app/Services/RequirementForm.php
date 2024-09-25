@@ -64,7 +64,10 @@ final class RequirementForm
                         return Forms\Components\FileUpload::make("requirements.{$requirement->id}")
                             ->label($requirement->name)
                             ->disk('public')
-                            ->directory('requirements');
+                            ->directory('requirements')
+                            ->acceptedFileTypes(['application/pdf', 'image/*'])
+                            ->maxSize(5120) // 5MB max file size
+                        ;
                     })->toArray();
                 })
                 ->columns(2),
