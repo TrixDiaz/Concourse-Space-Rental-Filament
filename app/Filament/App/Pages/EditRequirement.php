@@ -3,6 +3,7 @@
 namespace App\Filament\App\Pages;
 
 use App\Models\Application;
+use App\Models\Requirement;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
@@ -69,26 +70,15 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                         Forms\Components\DatePicker::make('expiration_date')
                             ->label('Lease Agreement Date')
                             ->native(false),
-                        Forms\Components\Repeater::make('requirements')
-                            ->schema([
-                                Forms\Components\Grid::make(2)->schema([
-                                    Forms\Components\TextInput::make('name'),
-                                    Forms\Components\TextInput::make('status')
-                                        ->default('pending')
-                                        ->extraInputAttributes(['class' => 'capitalize'])
-                                        ->disabled(),
-                                ]),
-                                Forms\Components\FileUpload::make('attachment')
-                                    ->image()
-                                    ->label('Attachment')
-                                    ->maxSize(5120)
-                                    ->imageEditor()
-                                    ->openable()
-                                    ->downloadable()
-                                    ->preserveFilenames()
-                                    ->columnSpanFull(),
-                            ])->columnSpanFull(),
-
+                        Forms\Components\Section::make('Requirements')
+                            ->schema(function () {
+                                $requirements = Requirement::all();
+                                return $requirements->map(function ($requirement) {
+                                    return Forms\Components\FileUpload::make($requirement->name)
+                                        ->label($requirement->name);
+                                })->toArray();
+                            })
+                            ->columns(2),
                     ])
                     ->columns(2),
             ])

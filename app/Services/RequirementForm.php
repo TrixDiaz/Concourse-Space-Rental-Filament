@@ -57,13 +57,14 @@ final class RequirementForm
                 ])
                 ->columns(2),
 
-                Forms\Components\Section::make('Requirements')
+            Forms\Components\Section::make('Requirements')
                 ->schema(function () {
                     $requirements = Requirement::all();
                     return $requirements->map(function ($requirement) {
-                        return Forms\Components\FileUpload::make($requirement->name)
+                        return Forms\Components\FileUpload::make("requirements.{$requirement->id}")
                             ->label($requirement->name)
-                            ->required();
+                            ->disk('public')
+                            ->directory('requirements');
                     })->toArray();
                 })
                 ->columns(2),

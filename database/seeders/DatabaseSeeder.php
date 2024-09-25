@@ -25,10 +25,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(UserSeeder::class);
         $this->call(ConcourseRateSeeder::class);
-        Concourse::factory(2)->create();
-        Space::factory(2)->create();
-        Application::factory(2)->create();
-        Tenant::factory(2)->create();
+        $this->call(ConcourseSeeder::class);
+        $this->call(SpaceSeeder::class);
+        $this->call(ApplicationSeeder::class);
+        $this->call(TenantSeeder::class);
         $this->call(RequirementSeeder::class);
         Payment::factory(2)->create();
     }

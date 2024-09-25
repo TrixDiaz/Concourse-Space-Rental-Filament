@@ -22,7 +22,7 @@ class ApplicationFactory extends Factory
         return [
             'concourse_id' => Concourse::factory(),
             'space_id' => Space::factory(),
-            'user_id' => User::factory(),
+            'user_id' => $this->faker->randomElement(User::pluck('id')->toArray()),
             'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
             'business_name' => $this->faker->name,
             'owner_name' => $this->faker->name,

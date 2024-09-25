@@ -11,6 +11,7 @@ class AppRequirement extends Model
 
     protected $fillable = [
         'application_id',
+        'user_id',
         'requirement_id',
         'status',
         'file',
