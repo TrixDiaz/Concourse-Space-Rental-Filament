@@ -90,8 +90,34 @@ class ApplicationResource extends Resource
                             ->default(null)
                             ->columnSpanFull(),
                     ])->columns(2),
-                Forms\Components\Section::make('List of Required Documents')->description('Approved each documents for the application')
+                Forms\Components\Section::make('List of Required Documents')
+                    ->description('Approved each documents for the application')
                     ->schema([
+                        Forms\Components\Repeater::make('appRequirements')
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->readOnly(),
+                                Forms\Components\Select::make('status')
+                                    ->options([
+                                        'pending' => 'Pending',
+                                        'approved' => 'Approved',
+                                        'rejected' => 'Rejected',
+                                    ])
+                                    ->required(),
+                                Forms\Components\FileUpload::make('file')
+                                    ->disk('public')
+                                    ->directory('app-requirements')
+                                    ->visibility('public')
+                                    ->downloadable()
+                                    ->openable(),
+                            ])
+                            ->columns(3)
+                            ->columnSpanFull()
+                            ->defaultItems(0)
+                            ->disableItemCreation()
+                            ->disableItemDeletion(),
                     ])->columnSpanFull(),
             ]);
     }
@@ -170,7 +196,7 @@ class ApplicationResource extends Resource
                     Tables\Actions\EditAction::make()->color('primary'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
-                Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
+                    Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->tooltip('Actions')
