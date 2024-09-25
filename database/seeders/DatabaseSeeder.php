@@ -11,6 +11,7 @@ use App\Models\Space;
 use App\Models\Tenant;
 use App\Models\Payment;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -30,7 +31,5 @@ class DatabaseSeeder extends Seeder
         Tenant::factory(2)->create();
         $this->call(RequirementSeeder::class);
         Payment::factory(2)->create();
-
-
     }
 }

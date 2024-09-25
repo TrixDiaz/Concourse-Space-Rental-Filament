@@ -19,20 +19,16 @@ return [
 
     'super_admin' => [
         'enabled' => true,
-        'name' => 'owner',
+        'name' => 'super_admin',
         'define_via_gate' => false,
         'intercept_gate' => 'before', // after
     ],
 
     'panel_user' => [
         'enabled' => true,
-        'name' => 'tenant',
+        'name' => 'panel_user',
     ],
 
-    'accountant' => [
-        'enabled' => true,
-        'name' => 'accountant',
-    ],
 
     'permission_prefixes' => [
         'resource' => [
@@ -75,7 +71,8 @@ return [
         ],
 
         'widgets' => [
-            'AccountWidget', 'FilamentInfoWidget',
+            'AccountWidget',
+            'FilamentInfoWidget',
         ],
 
         'resources' => [],

@@ -54,14 +54,12 @@ class ConcourseResource extends Resource
                             Forms\Components\FileUpload::make('image')
                                 ->image()
                                 ->label('Concourse Image')
-                                ->maxSize(5120)
                                 ->imageEditor()
                                 ->openable()
                                 ->downloadable(),
                             Forms\Components\FileUpload::make('layout')
                                 ->image()
                                 ->label('Space Layout')
-                                ->maxSize(5120) // 5MB max size
                                 ->imageEditor()
                                 ->openable()
                                 ->downloadable(),
