@@ -27,7 +27,7 @@ class ApplicationSeeder extends Seeder
             'phone_number' => '081234567890',
             'address' => 'Jl. Raya No. 1',
             'business_type' => 'Restaurant',
-            'expiration_date' => now()->addYear(),
+            'concourse_lease_term' => rand(1, 10),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

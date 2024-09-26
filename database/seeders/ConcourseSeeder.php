@@ -21,7 +21,7 @@ class ConcourseSeeder extends Seeder
             'spaces' => 100,
             'image' => 'https://placehold.co/600x400',
             'layout' => 'https://placehold.co/600x400',
-            'lease_term' => now()->addYear(),
+            'lease_term' => rand(1, 10),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
