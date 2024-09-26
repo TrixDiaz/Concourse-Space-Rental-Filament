@@ -50,6 +50,7 @@ final class RequirementForm
                             'non-food' => 'Non Food',
                             'other' => 'Other',
                         ])
+                        ->required()
                         ->native(false),
                     Forms\Components\TextInput::make('concourse_lease_term')
                         ->label('Concourse Lease Term')
