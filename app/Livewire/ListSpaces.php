@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Concourse;
 use App\Models\Space;
 use App\Services\RequirementForm;
 use Livewire\Component;
@@ -19,10 +20,12 @@ class ListSpaces extends Component implements HasTable, HasForms
     use InteractsWithForms, InteractsWithTable;
 
     public $concourseId;
+    public $concourse_lease_term;
 
     public function mount()
     {
         $this->concourseId = request()->query('concourse_id');
+        $this->concourse_lease_term = Concourse::find($this->concourseId)->lease_term;
     }
 
     public function render()
@@ -52,6 +55,17 @@ class ListSpaces extends Component implements HasTable, HasForms
                     ->searchable()
                     ->sortable()
                     ->money('PHP'),
+                Tables\Columns\TextColumn::make('concourse.lease_term')
+                    ->label('Lease Term')
+                    ->searchable()
+                    ->sortable()
+                    ->formatStateUsing(function ($state) {
+                        if ($state == 1) {
+                            return $state . ' Month';
+                        } else {
+                            return $state . ' Months';
+                        }
+                    }),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->sortable()
@@ -82,7 +96,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                     ->icon('heroicon-o-plus')
                     ->form(function ($record) {
                         $spaceId = $record ? $record->id : null;
-                        return RequirementForm::schema($this->concourseId, $spaceId);
+                        return RequirementForm::schema($this->concourseId, $spaceId, $this->concourse_lease_term);
                     })
                     ->using(function (array $data, $record) {
                         // Create the application

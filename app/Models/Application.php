@@ -21,11 +21,7 @@ class Application extends Model
         'address',
         'status',
         'business_type',
-        'expiration_date',
-    ];
-
-    protected $casts = [
-        'expiration_date' => 'date',
+        'concourse_lease_term',
     ];
 
     public function user()

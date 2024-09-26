@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 final class RequirementForm
 {
-    public static function schema($concourseId = null, $spaceId = null): array
+    public static function schema($concourseId = null, $spaceId = null, $concourseLeaseTerm = null): array
     {
         $user = Auth::user();
 
@@ -19,7 +19,8 @@ final class RequirementForm
                 ->default($spaceId),
             Forms\Components\Hidden::make('concourse_id')
                 ->default($concourseId),
-
+            Forms\Components\Hidden::make('status')
+                ->default('pending'),
             Forms\Components\Section::make('Business Information')
                 ->schema([
                     Forms\Components\TextInput::make('business_name')
@@ -36,7 +37,6 @@ final class RequirementForm
                     Forms\Components\TextInput::make('phone_number')
                         ->label('Phone Number')
                         ->default(fn() => $user->phone_number)
-                        ->readOnly()
                         ->required(),
                     Forms\Components\TextInput::make('address')
                         ->label('Permanent Address')
@@ -51,9 +51,11 @@ final class RequirementForm
                             'other' => 'Other',
                         ])
                         ->native(false),
-                    Forms\Components\DatePicker::make('expiration_date')
-                        ->label('Lease Agreement Date')
-                        ->native(false),
+                    Forms\Components\TextInput::make('concourse_lease_term')
+                        ->label('Concourse Lease Term')
+                        ->default($concourseLeaseTerm)
+                        ->suffix('Months')
+                        ->readOnly(),
                 ])
                 ->columns(2),
 

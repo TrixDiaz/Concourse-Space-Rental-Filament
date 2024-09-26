@@ -79,11 +79,17 @@ class ApplicationResource extends Resource
                                 'other' => 'Other',
                             ])
                             ->native(false),
-                        Forms\Components\DatePicker::make('expiration_date')
-                            ->native(false)
-                            ->label('Due Lease Agreement Date'),
-                        Forms\Components\TextInput::make('status')
+                        Forms\Components\TextInput::make('concourse_lease_term')
+                            ->label('Concourse Lease Term')
                             ->disabled()
+                            ->suffix('Months'),
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'pending' => 'Pending',
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ])
+                            ->native(false)
                             ->extraInputAttributes(['class' => 'capitalize']),
                         Forms\Components\TextInput::make('remarks')
                             ->maxLength(255)
@@ -152,10 +158,16 @@ class ApplicationResource extends Resource
                 Tables\Columns\TextColumn::make('business_type')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('expiration_date')
-                    ->date()
+                Tables\Columns\TextColumn::make('concourse_lease_term')
                     ->label('Due Date')
-                    ->sortable(),
+                    ->date()
+                    ->sortable()
+                    ->getStateUsing(function ($record) {
+                        if ($record->concourse_lease_term) {
+                            return $record->created_at->addMonths($record->concourse_lease_term);
+                        }
+                        return null;
+                    }),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
                     ->badge()

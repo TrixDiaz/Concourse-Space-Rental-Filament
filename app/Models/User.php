@@ -21,13 +21,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         if ($panel->getId() === 'admin') {
             return $this->hasRole('super_admin') || $this->hasRole('panel_user');
         }
-
-        // Disallow access to the 'app' panel for 'panel_user'
-        if ($panel->getId() === 'app' && $this->hasRole('panel_user')) {
-            return false;
-        }
-
-        // Allow access to all other panels
+        
+        // Allow access to all other panels (including 'app')
         return true;
     }
 
