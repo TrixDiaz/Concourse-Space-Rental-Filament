@@ -20,6 +20,7 @@ class Application extends Model
         'phone_number',
         'address',
         'status',
+        'remarks',
         'business_type',
         'concourse_lease_term',
     ];

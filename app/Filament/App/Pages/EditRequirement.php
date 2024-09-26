@@ -82,9 +82,13 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                                 'other' => 'Other',
                             ])
                             ->native(false),
-                        Forms\Components\DatePicker::make('expiration_date')
+                        Forms\Components\TextInput::make('concourse_lease_term')
                             ->label('Lease Agreement Date')
-                            ->native(false),
+                            ->disabled()
+                            ->suffix('Months'),
+                        Forms\Components\TextInput::make('remarks')
+                            ->label('Remarks')
+                            ->columnSpanFull(),
                         Forms\Components\Section::make('Requirements')
                             ->schema(function () {
                                 return $this->allRequirements->map(function ($requirement) {
@@ -148,5 +152,10 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
             ->success()
             ->title('Application updated successfully')
             ->send();
+
+        Notification::make()
+            ->success()
+            ->title('Application updated successfully')
+            ->sendToDatabase(Auth::user(), );
     }
 }

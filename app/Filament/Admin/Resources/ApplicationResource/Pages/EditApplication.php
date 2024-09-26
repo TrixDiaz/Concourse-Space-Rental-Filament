@@ -37,6 +37,7 @@ class EditApplication extends EditRecord
                     $authUser = Auth::user();
                     Notification::make()
                         ->success()
+                        ->button()
                         ->title('Application Approved')
                         ->body("You have successfully approved the application and associated space.")
                         ->sendToDatabase($authUser);
@@ -45,6 +46,7 @@ class EditApplication extends EditRecord
                     $applicationUser = User::find($application->user_id);
                     Notification::make()
                         ->success()
+                        ->button()
                         ->title('Application Approved')
                         ->body("Your application and associated space have been approved.")
                         ->sendToDatabase($applicationUser);
@@ -52,6 +54,7 @@ class EditApplication extends EditRecord
                     // Show a success message in the UI
                     Notification::make()
                         ->success()
+                        ->button()
                         ->title('Application and Space Approved')
                         ->body("The application and associated space have been successfully approved and notifications sent.")
                         ->send();
@@ -64,40 +67,55 @@ class EditApplication extends EditRecord
     protected function getSavedNotification(): ?Notification
     {
         $record = $this->getRecord();
+        $authUser = auth()->user();
 
-        $notification = Notification::make()
+        // Notification for the authenticated user
+        $authNotification = Notification::make()
             ->success()
-            ->icon('heroicon-o-user-circle')
+            ->icon('heroicon-o-document-text')
             ->title('Application Updated')
-            ->body("Your Application {$record->name} Updated please review it!")
+            ->body("Application {$record->name} has been updated.")
             ->actions([
-                Action::make('view')
+                Action::make('markAsRead')
                     ->label('Mark as read')
-                    ->link()
+                    ->button()
                     ->markAsRead(),
                 Action::make('delete')
                     ->label('Delete')
                     ->color('danger')
                     ->icon('heroicon-o-trash')
                     ->action(fn(Notification $notification) => $notification->delete()),
+            ])
+            ->sendToDatabase($authUser);
+
+        // Notification for the application owner (if different from auth user)
+        $selectedUser = User::find($record->user_id);
+        if ($selectedUser && $selectedUser->id !== $authUser->id) {
+            $url = route('filament.app.pages.edit-requirement', [
+                'concourse_id' => $record->concourse_id,
+                'space_id' => $record->space_id,
+                'user_id' => $record->user_id,
             ]);
 
-        // Get the selected user's ID
-        $selectedUserId = $this->record->user_id;
-
-        // Find the selected user
-        $selectedUser = User::find($selectedUserId);
-
-        if ($selectedUser) {
-            // Send notification to the selected user
-            $notification->sendToDatabase($selectedUser);
+            Notification::make()
+                ->success()
+                ->icon('heroicon-o-user-circle')
+                ->title('Application Updated')
+                ->body("Application {$record->name} Updated. Please review it!")
+                ->actions([
+                    Action::make('view')
+                        ->label('View Application')
+                        ->button()
+                        ->url($url),
+                    Action::make('delete')
+                        ->label('Delete')
+                        ->color('danger')
+                        ->icon('heroicon-o-trash')
+                        ->action(fn(Notification $notification) => $notification->delete()),
+                ])
+                ->sendToDatabase($selectedUser);
         }
 
-        // Send notification to the authenticated user
-        $notification->sendToDatabase(auth()->user());
-
-        return $notification;
+        return $authNotification;
     }
-
-  
 }

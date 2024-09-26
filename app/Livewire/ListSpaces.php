@@ -4,16 +4,19 @@ namespace App\Livewire;
 
 use App\Models\Concourse;
 use App\Models\Space;
+use App\Models\User;
 use App\Services\RequirementForm;
 use Livewire\Component;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Actions\Action;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Filament\Notifications\Notification;
 
 class ListSpaces extends Component implements HasTable, HasForms
 {
@@ -126,14 +129,51 @@ class ListSpaces extends Component implements HasTable, HasForms
                                 'status' => 'pending'
                             ]);
                         }
+
+                        $applicationUrl = route('filament.admin.resources.applications.edit', ['record' => $application->id]); 
+
+                        Notification::make()
+                            ->title('Application Submitted')
+                            ->body('Your application has been submitted.')
+                            ->icon('heroicon-o-document-text')
+                            ->actions([
+                                Action::make('view')
+                                    ->label('Mark as read')
+                                    ->button()
+                                    ->url($applicationUrl),
+                                Action::make('delete')
+                                    ->label('Delete')
+                                    ->color('danger')
+                                    ->icon('heroicon-o-trash')
+                                    ->action(fn(Notification $notification) => $notification->delete())
+                            ])
+                            ->sendToDatabase(Auth::user());
+
+                        Notification::make()
+                            ->title('New Application')
+                            ->body('A new application has been submitted.')
+                            ->icon('heroicon-o-document-text')
+                            ->actions([
+                                Action::make('view')
+                                    ->label('View Application')
+                                    ->button()
+                                    ->url($applicationUrl),
+                                Action::make('delete')
+                                    ->label('Delete')
+                                    ->color('danger')
+                                    ->icon('heroicon-o-trash')
+                                    ->action(fn(Notification $notification) => $notification->delete())
+                            ])
+                            ->sendToDatabase(User::find(1));
+
                         return $application;
                     })
                     ->hidden(function ($record) {
                         if (!$record) return true; // Hide if no record (shouldn't happen, but just in case)
-                        
+
                         // Hide if space is not available
                         if ($record->status !== 'available') return true;
-                        
+
                         // Hide if user already has an application for this space
                         return \App\Models\Application::where('user_id', Auth::id())
                             ->where('concourse_id', $this->concourseId)
@@ -143,14 +183,14 @@ class ListSpaces extends Component implements HasTable, HasForms
                 Tables\Actions\Action::make('Check Application')
                     ->link()
                     ->icon('heroicon-o-pencil')
-                    ->url(fn($record) => route('filament.app.pages.edit-requirement', ['concourse_id' => $this->concourseId, 'space_id' => $record->id]))
+                    ->url(fn($record) => route('filament.app.pages.edit-requirement', ['concourse_id' => $this->concourseId, 'space_id' => $record->id, 'user_id' => Auth::id()]))
                     ->openUrlInNewTab()
                     ->visible(function ($record) {
                         // Hide if status is approved
                         if ($record->status === 'approved') {
                             return false;
                         }
-                        
+
                         return \App\Models\Application::where('user_id', Auth::id())
                             ->where('concourse_id', $this->concourseId)
                             ->where('space_id', $record->id)
