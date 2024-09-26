@@ -94,7 +94,7 @@ class ListSpaces extends Component implements HasTable, HasForms
             ->actions([
                 Tables\Actions\CreateAction::make()
                     ->disableCreateAnother()
-                    ->label('Rent Space')
+                    ->label('Apply Now')
                     ->slideOver()
                     ->icon('heroicon-o-plus')
                     ->form(function ($record) {

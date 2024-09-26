@@ -14,17 +14,20 @@ class Tenant extends Model
         'concourse_id',
         'space_id',
         'owner_id',
-        'is_active',
         'lease_start',
         'lease_end',
         'lease_term',
         'lease_status',
         'bills',
         'monthly_payment',
+        'is_active',
     ];
 
     protected $casts = [
         'bills' => 'array',
+        'lease_start' => 'date',
+        'lease_end' => 'date',
+        'is_active' => 'boolean',
     ];
 
     public function tenant()
