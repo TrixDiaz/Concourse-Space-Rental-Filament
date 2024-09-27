@@ -59,6 +59,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('lease_status')
+                    ->extraAttributes(['class' => 'capitalize'])
                     ->searchable()
                     ->badge()
                     ->sortable()
