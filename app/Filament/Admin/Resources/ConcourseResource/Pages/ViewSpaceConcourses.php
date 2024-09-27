@@ -91,6 +91,8 @@ class ViewSpaceConcourses extends Page
             ->send();
 
         $this->spaces = $this->record->spaces()->get();
+
+        return redirect()->route('filament.admin.resources.concourses.view-spaces', ['record' => $this->record->id]);
     }
 
     public function reload()

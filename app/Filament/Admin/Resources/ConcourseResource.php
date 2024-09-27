@@ -42,8 +42,8 @@ class ConcourseResource extends Resource
                                 Forms\Components\TextInput::make('name')
                                     ->required()
                                     ->maxLength(255),
-                                Forms\Components\Select::make('rate')
-                                    ->searchable()
+                                Forms\Components\Select::make('rate_id')
+                                    ->native(false)
                                     ->preload()
                                     ->relationship('concourseRate', 'name')
                                     ->required(),
