@@ -31,11 +31,6 @@ class RequirementResource extends Resource
                     Forms\Components\TextInput::make('name')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('status')
-                        ->default('pending')
-                        ->extraInputAttributes(['class' => 'capitalize'])
-                        ->readOnly()
-                        ->maxLength(255),
                 ])->columnSpan([
                     'sm' => 3,
                     'md' => 3,

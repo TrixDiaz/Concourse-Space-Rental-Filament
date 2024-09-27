@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\DB;
 
 class EditApplication extends EditRecord
 {
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
    
     protected static string $resource = ApplicationResource::class;
 

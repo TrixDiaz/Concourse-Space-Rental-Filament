@@ -12,6 +12,11 @@ use App\Models\User;
 
 class EditConcourse extends EditRecord
 {
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    
     protected static string $resource = ConcourseResource::class;
 
     protected function getHeaderActions(): array

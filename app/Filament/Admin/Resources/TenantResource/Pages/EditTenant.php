@@ -3,9 +3,7 @@
 namespace App\Filament\Admin\Resources\TenantResource\Pages;
 
 use App\Filament\Admin\Resources\TenantResource;
-use App\Filament\Admin\Resources\TenantResource\Widgets\SpaceElectricityChart;
 use App\Filament\Admin\Resources\TenantResource\Widgets\SpaceOverview;
-use App\Filament\Admin\Resources\TenantResource\Widgets\SpaceWaterChart;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -14,6 +12,11 @@ use App\Models\User;
 
 class EditTenant extends EditRecord
 {
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected static string $resource = TenantResource::class;
 
     protected function getHeaderActions(): array
@@ -33,8 +36,7 @@ class EditTenant extends EditRecord
     protected function getFooterWidgets(): array
     {
         return [
-            SpaceElectricityChart::class,
-            SpaceWaterChart::class,
+            
         ];
     }
 

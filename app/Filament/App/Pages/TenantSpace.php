@@ -28,13 +28,46 @@ class TenantSpace extends Page implements HasForms, HasTable
         return $table
             ->query(Tenant::query()
                 ->where('is_active', true)
-                ->when($this->tenantId, function ($query) {
-                    $query->where('tenant_id', auth()->user()->id);
-                }))
+                ->where('tenant_id', auth()->user()->id))
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('concourse.name')
+                    ->label('Concourse')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('space.name')
+                    ->label('Space Name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('lease_start')
+                    ->label('Lease Start')
+                    ->date('F j, Y')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('lease_end')
+                    ->label('Lease Start')
+                    ->date('F j, Y')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                    Tables\Columns\TextColumn::make('bills')
+                    ->searchable()
+                    ->money('PHP')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('tenant.name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('lease_status')
+                    ->searchable()
+                    ->badge()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+            ])
+            ->actions([
+                Tables\Actions\Action::make('payBills')
+                    ->label('Pay Bills')
+                    ->button(),
             ]);
     }
 }

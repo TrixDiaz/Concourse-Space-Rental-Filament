@@ -8,6 +8,11 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditRequirement extends EditRecord
 {
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    
     protected static string $resource = RequirementResource::class;
 
     protected function getHeaderActions(): array

@@ -17,10 +17,14 @@ class ConcourseRateSeeder extends Seeder
             [
                 'name' => 'City Rate',
                 'price' => 200,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'Provincial Rate',
                 'price' => 150,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
     }

@@ -191,8 +191,6 @@ class ConcourseRateResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('price')
-                    ->summarize(Sum::make()->money('PHP'))
             ])
             ->filters([
                 TrashedFilter::make(),
