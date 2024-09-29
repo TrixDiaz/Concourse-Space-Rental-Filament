@@ -10,6 +10,8 @@
         "filament/filament": "^3.2",
         "filament/notifications": "^3.2",
         "filament/widgets": "^3.2",
+        "guzzlehttp/guzzle": "^7.9",
+        "ixudra/curl": "^6.22",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",

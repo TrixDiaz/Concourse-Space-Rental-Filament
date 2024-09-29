@@ -102,6 +102,15 @@ class TenantResource extends Resource
                                 'overdue' => 'Overdue',
                                 'pending' => 'Pending',
                             ]),
+                            Forms\Components\Select::make('payment_status')
+                            ->label('Payment Status')
+                            ->native(false)
+                            ->options([
+                                'paid' => 'Paid',
+                                'unpaid' => 'Unpaid',
+                                'overdue' => 'Overdue',
+                                'pending' => 'Pending',
+                            ]),
                     ]),
                     Forms\Components\Section::make('Visibility')->schema([
                         Forms\Components\Toggle::make('is_active')

@@ -33,13 +33,6 @@ class EditTenant extends EditRecord
         ];
     }
 
-    protected function getFooterWidgets(): array
-    {
-        return [
-            
-        ];
-    }
-
     protected function getSavedNotification(): ?Notification
     {
         $record = $this->getRecord();
@@ -50,10 +43,6 @@ class EditTenant extends EditRecord
             ->title('Tenant Space Updated')
             ->body("Your Tenant Space {$record->name} Updated please review it!")
             ->actions([
-                Action::make('view')
-                    ->label('Mark as read')
-                    ->link()
-                    ->markAsRead(),
                 Action::make('delete')
                     ->label('Delete')
                     ->color('danger')
@@ -77,6 +66,4 @@ class EditTenant extends EditRecord
 
         return $notification;
     }
-
-
 }
