@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\TenantResource\Pages;
 use App\Filament\Admin\Resources\TenantResource\RelationManagers;
 use App\Filament\Admin\Resources\TenantResource\Widgets\TenantsRevenue;
 use App\Models\Tenant;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Form;
@@ -254,12 +255,6 @@ class TenantResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('space.price')
-                    ->label('Rate')
-                    ->prefix('₱')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('owner.name')
                     ->numeric()
                     ->sortable()
@@ -281,6 +276,18 @@ class TenantResource extends Resource
                     ->label('Lease Status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize'])
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('monthly_payment')
+                    ->label('Monthly Payment')
+                    ->prefix('₱')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->label('Payment Status')
+                    ->extraAttributes(['class' => 'capitalize'])
+                    ->badge()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('created_at')
@@ -314,7 +321,7 @@ class TenantResource extends Resource
                             $sevenDaysBefore = $leaseDate->copy()->subDays(7);
 
                             if ($today->gte($sevenDaysBefore) || $today->isSameDay($leaseDate)) {
-                                $rentAmount = $record->concourse->concourseRate->price ?? 0;
+                                $rentAmount = $record->space->price ?? 0;
                                 $bills = $record->bills ?? [];
 
                                 $billExists = collect($bills)->contains(function ($bill) use ($leaseDate) {
@@ -331,7 +338,7 @@ class TenantResource extends Resource
                                     ];
 
                                     $record->bills = $bills;
-                                    $record->monthly_payment = collect($bills)->sum('amount');
+                                    $record->monthly_payment =  $rentAmount;;
                                     $record->lease_status = 'due_soon';
                                     $record->payment_status = 'pending';
                                     $record->save();
@@ -366,7 +373,34 @@ class TenantResource extends Resource
                     ->label('Notify Tenant')
                     ->icon('heroicon-m-envelope')
                     ->color('info')
-                    ->action(fn($record) => dd($record)),
+                    ->action(function (Tenant $record) {
+                        $currentBill = collect($record->bills)->first(function ($bill) {
+                            return $bill['name'] === 'Monthly Rent' &&
+                                Carbon::parse($bill['due_date'])->isPast();
+                        });
+
+                        if ($currentBill) {
+                            $user = User::find($record->tenant_id);
+
+                            Notification::make()
+                                ->title('Tenant Notified')
+                                ->success()
+                                ->body("A notification about the current rent bill has been sent to your {$record->space->name}.")
+                                ->sendToDatabase($user);
+
+                            Notification::make()
+                                ->title('Tenant Notified')
+                                ->success()
+                                ->body("A notification about the current rent bill has been sent to {$record->tenant->name}.")
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('No Current Bill')
+                                ->warning()
+                                ->body('There is no current monthly rent bill for this tenant.')
+                                ->send();
+                        }
+                    }),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
                     Tables\Actions\EditAction::make()->color('primary'),

@@ -18,8 +18,8 @@ class SpaceOverview extends BaseWidget
 
         $pendingMonthlyPayment = $this->record->monthly_payment;
         $totalPaymentPerYear = $this->record->monthly_payment * 12;
-        $concourseRate = $this->record->concourse->concourseRate->price ?? 0;
-        $concourseName = $this->record->concourse->concourseRate->name ?? '';
+        $concourseRate = $this->record->space->price ?? 0;
+        $concourseName = $this->record->space->name ?? '';
       
 
         return [
@@ -31,7 +31,7 @@ class SpaceOverview extends BaseWidget
                 ->description('Annual total')
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('info'),
-            Stat::make('Concourse Rate', '₱' . number_format($concourseRate, 2))
+            Stat::make('Space Rate', '₱' . number_format($concourseRate, 2))
                 ->description($concourseName)
                 ->descriptionIcon('heroicon-m-building-office')
                 ->color('success'),

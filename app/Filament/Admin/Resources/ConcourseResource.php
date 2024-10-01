@@ -76,7 +76,6 @@ class ConcourseResource extends Resource
                                 ->openable()
                                 ->downloadable(),
                         ])->columns(2),
-
                     ])->columnSpan([
                         'sm' => 3,
                         'md' => 3,

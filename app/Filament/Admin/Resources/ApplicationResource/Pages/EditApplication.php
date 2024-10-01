@@ -86,7 +86,7 @@ class EditApplication extends EditRecord
                         ]);
 
                         // Send lease contract email
-                        $this->sendLeaseContractEmail($tenant, $application);
+                        // $this->sendLeaseContractEmail($tenant, $application);
 
                         // Show a success message in the UI
                         Notification::make()

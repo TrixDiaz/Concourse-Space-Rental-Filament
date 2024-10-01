@@ -19,6 +19,7 @@ class Tenant extends Model
         'lease_term',
         'lease_status',
         'bills',
+        'lease_due',
         'monthly_payment',
         'payment_status',
         'is_active',
