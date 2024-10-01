@@ -13,7 +13,10 @@
     <ul>
         <li>Concourse: {{ $tenant->concourse->name }}</li>
         <li>Amount Paid: ₱{{ number_format($tenant->monthly_payment, 2) }}</li>
-        <li>Payment Status: {{ $tenant->payment_status }}</li>
+        <li>Payment Status:
+            Paid
+             <!-- {{ $tenant->payment_status }} -->
+        </li>
     </ul>
     <p>Thank you for your payment.</p>
 </body>

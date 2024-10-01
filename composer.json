@@ -14,6 +14,7 @@
         "ixudra/curl": "^6.22",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
+        "leandrocfe/filament-apex-charts": "^3.1",
         "livewire/livewire": "^3.5",
         "psr/simple-cache": "^2.0",
         "pxlrbt/filament-excel": "^2.3"

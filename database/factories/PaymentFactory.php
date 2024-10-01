@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Tenant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,11 +18,28 @@ class PaymentFactory extends Factory
      */
     public function definition(): array
     {
+        $startDate = Carbon::now()->startOfYear();
+        $endDate = Carbon::now()->endOfYear();
+
+        $paymentDetails = [
+            [
+                'name' => 'water',
+                'amount' => (string) $this->faker->numberBetween(50, 500)
+            ],
+            [
+                'name' => 'electricity',
+                'amount' => (string) $this->faker->numberBetween(50, 500)
+            ]
+        ];
+
         return [
-            'tenant_id' => Tenant::factory(),
-            'payment_type' => $this->faker->randomElement(['Rent', 'Utility', 'Other']),
-            'payment_method' => $this->faker->randomElement(['Cash', 'Bank Transfer', 'Online Payment']),
-            'payment_status' => $this->faker->randomElement(['Pending', 'Paid', 'Late']),
+            'tenant_id' => $this->faker->randomElement(Tenant::pluck('id')),
+            'amount' => collect($paymentDetails)->sum(fn($item) => (int) $item['amount']),
+            'payment_details' => json_encode($paymentDetails),
+            'payment_method' => $this->faker->randomElement(['maya', 'gcash']),
+            'payment_status' => $this->faker->randomElement(['paid', 'unpaid', 'overdue', 'pending']),
+            'payment_type' => $this->faker->randomElement(['cash', 'e-wallet']),
+            'created_at' => $this->faker->dateTimeBetween($startDate, $endDate),
         ];
     }
 }

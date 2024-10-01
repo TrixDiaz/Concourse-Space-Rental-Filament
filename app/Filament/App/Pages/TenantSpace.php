@@ -2,6 +2,8 @@
 
 namespace App\Filament\App\Pages;
 
+use App\Filament\App\Resources\TenantSpaceResource\Widgets\ElectricityMonthlyBills;
+use App\Filament\App\Resources\TenantSpaceResource\Widgets\WaterMonthlyBills;
 use App\Mail\PaymentConfirmation;
 use App\Models\Payment;
 use Filament\Pages\Page;
@@ -21,6 +23,14 @@ class TenantSpace extends Page implements HasForms, HasTable
     public $tenantId;
 
     use InteractsWithForms, InteractsWithTable;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            WaterMonthlyBills::class,
+            ElectricityMonthlyBills::class,
+        ];
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-home-modern';
 
@@ -81,7 +91,8 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->button()
                     ->action(fn($record) => $this->payWithGCash($record))
                     ->visible(fn($record) => $record->payment_status !== 'Paid' && $record->monthly_payment > 0),
-            ]);
+            ])
+            ->poll('30s');
     }
 
     protected function payWithGCash($record)
