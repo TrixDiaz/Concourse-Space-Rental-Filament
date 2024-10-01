@@ -13,6 +13,8 @@ class Payment extends Model
         'tenant_id',
         'payment_type',
         'payment_method',
+        'payment_details',
+        'amount',
         'payment_status',
     ];
 
