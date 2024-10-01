@@ -18,6 +18,11 @@ class Payment extends Model
         'payment_status',
     ];
 
+    protected $casts = [
+        'amount' => 'float',
+        'payment_details' => 'array',
+    ];
+
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

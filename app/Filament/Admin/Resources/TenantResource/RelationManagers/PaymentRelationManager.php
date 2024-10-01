@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -38,17 +39,31 @@ class PaymentRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 Tables\Columns\TextColumn::make('payment_type')
+                    ->searchable()
+                    ->sortable()
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('payment_method')
+                    ->searchable()
+                    ->sortable()
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('payment_status')
+                    ->searchable()
+                    ->sortable()
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('amount')
+                    ->sortable()
+                    ->searchable()
                     ->money('PHP'),
             ])
             ->filters([
-                //
+                SelectFilter::make('payment_status')
+                    ->options([
+                        'paid' => 'Paid',
+                        'unpaid' => 'Unpaid',
+                        'overdue' => 'Overdue',
+                        'pending' => 'Pending',
+                    ]),
             ])
             ->headerActions([
                 // Tables\Actions\CreateAction::make(),
