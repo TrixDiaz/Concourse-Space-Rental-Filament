@@ -347,6 +347,14 @@ class TenantResource extends Resource
                                         ->title('Bills Updated')
                                         ->success()
                                         ->send();
+
+                                    $user = User::find($record->tenant_id);
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Bills Updated')
+                                        ->body('The bills for your lease period has been updated.')
+                                        ->success()
+                                        ->sendToDatabase($user);
                                 } else {
                                     \Filament\Notifications\Notification::make()
                                         ->title('No Update Needed')

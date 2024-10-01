@@ -40,7 +40,7 @@ class CreateConcourse extends CreateRecord
             ]);
 
         // Get all users with the 'panel_user' or 'accountant' role
-        $notifiedUsers = User::role(['panel_user', 'accountant'])->get();
+        $notifiedUsers = User::role(['panel_user'])->get();
 
         // Send notification to all panel users and accountants
         foreach ($notifiedUsers as $user) {
