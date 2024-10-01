@@ -25,6 +25,7 @@ class TenantSeeder extends Seeder
             'lease_end' => now()->addYear(),
             'lease_term' => 1,
             'lease_status' => 'active',
+            'lease_due' => now()->addMonth(),
             'payment_status' => 'paid',
             'monthly_payment' => 100,
             'is_active' => true,

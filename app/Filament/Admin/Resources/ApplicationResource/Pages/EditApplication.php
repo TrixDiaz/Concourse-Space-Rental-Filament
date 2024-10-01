@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\ApplicationResource\Pages;
 
 use App\Filament\Admin\Resources\ApplicationResource;
+use App\Mail\LeaseContractMail;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -11,8 +12,10 @@ use App\Models\User;
 use App\Models\Space;
 use App\Models\ApprovedApplication;
 use App\Models\Tenant;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class EditApplication extends EditRecord
 {
@@ -20,7 +23,7 @@ class EditApplication extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-   
+
     protected static string $resource = ApplicationResource::class;
 
     protected function getHeaderActions(): array
@@ -31,7 +34,7 @@ class EditApplication extends EditRecord
                 ->icon('heroicon-o-check-circle')
                 ->action(function () {
                     $application = $this->getRecord();
-                    
+
                     DB::transaction(function () use ($application) {
                         // Store the application data in ApprovedApplication table
                         ApprovedApplication::create($application->toArray());
@@ -39,7 +42,7 @@ class EditApplication extends EditRecord
                         // Update space status
                         $space = Space::find($application->space_id);
                         if ($space) {
-                            $space->update(['status' => 'approved']);
+                            $space->update(['status' => 'occupied']);
                         }
 
                         // Delete the application from the Application table
@@ -73,29 +76,44 @@ class EditApplication extends EditRecord
                             'space_id' => $application->space_id,
                             'owner_id' => auth()->user()->id,
                             'lease_start' => $application->created_at,
-                            'lease_end' => $application->lease_end,
+                            'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
+                            'lease_end' => Carbon::parse($application->created_at)->addMonths($application->lease_term),
                             'lease_term' => $application->concourse_lease_term,
                             'lease_status' => 'active',
                             'bills' => $application->bills ? json_encode($application->bills) : null,
                             'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : null,
                             'is_active' => true,
                         ]);
+
+                        // Send lease contract email
+                        $this->sendLeaseContractEmail($tenant, $application);
+
+                        // Show a success message in the UI
+                        Notification::make()
+                            ->success()
+                            ->title('Application and Space Approved')
+                            ->body("The application and associated space have been successfully approved and notifications sent.")
+                            ->send();
+
+                        // Redirect to the list view after approval
+                        return redirect()->route('filament.admin.resources.applications.index');
                     });
 
-                    // Show a success message in the UI
-                    Notification::make()
-                        ->success()
-                        ->title('Application and Space Approved')
-                        ->body("The application and associated space have been successfully approved and notifications sent.")
-                        ->send();
-
-                    // Redirect to the list view after approval
-                    return redirect()->route('filament.admin.resources.applications.index');
+                    // ... existing code ...
                 })
                 ->color('success')
                 ->requiresConfirmation(),
             Actions\DeleteAction::make(),
         ];
+    }
+
+    private function sendLeaseContractEmail(Tenant $tenant, $application)
+    {
+        $owner = Auth::user();
+        $tenantUser = User::find($tenant->tenant_id);
+        $space = Space::find($tenant->space_id);
+
+        Mail::to($tenantUser->email)->send(new LeaseContractMail($owner, $tenantUser, $tenant, $space, $application));
     }
 
     protected function getSavedNotification(): ?Notification

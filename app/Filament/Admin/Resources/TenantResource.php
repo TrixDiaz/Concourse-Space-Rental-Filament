@@ -16,6 +16,8 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Carbon\Carbon;
+use Filament\Notifications\Notification;
 
 class TenantResource extends Resource
 {
@@ -274,18 +276,13 @@ class TenantResource extends Resource
                     ->label('Lease Term')
                     ->formatStateUsing(fn($state) => $state . ' Months')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('lease_status')
                     ->label('Lease Status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize'])
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\ToggleColumn::make('is_active')
-                    ->label('Active')
-                    ->onIcon('heroicon-m-bolt')
-                    ->offIcon('heroicon-m-bolt-slash')
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('F j, Y H:i')
                     ->sortable()
@@ -305,6 +302,71 @@ class TenantResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
+                Tables\Actions\Action::make('updateBills')
+                    ->label('Update Bills')
+                    ->icon('heroicon-m-currency-dollar')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->action(function (Tenant $record) {
+                        if ($record->lease_due) {
+                            $leaseDate = \Carbon\Carbon::parse($record->lease_due);
+                            $today = \Carbon\Carbon::today();
+                            $sevenDaysBefore = $leaseDate->copy()->subDays(7);
+
+                            if ($today->gte($sevenDaysBefore) || $today->isSameDay($leaseDate)) {
+                                $rentAmount = $record->concourse->concourseRate->price ?? 0;
+                                $bills = $record->bills ?? [];
+
+                                $billExists = collect($bills)->contains(function ($bill) use ($leaseDate) {
+                                    return isset($bill['name']) && $bill['name'] == 'Monthly Rent' &&
+                                        isset($bill['for_month']) && $bill['for_month'] == $leaseDate->format('Y-m');
+                                });
+
+                                if (!$billExists) {
+                                    $bills[] = [
+                                        'name' => 'Monthly Rent',
+                                        'amount' => $rentAmount,
+                                        'for_month' => $leaseDate->format('Y-m'),
+                                        'due_date' => $leaseDate->toDateString(),
+                                    ];
+
+                                    $record->bills = $bills;
+                                    $record->monthly_payment = collect($bills)->sum('amount');
+                                    $record->lease_status = 'due_soon';
+                                    $record->payment_status = 'pending';
+                                    $record->save();
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Bills Updated')
+                                        ->success()
+                                        ->send();
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('No Update Needed')
+                                        ->info()
+                                        ->body('The bill for this lease period already exists.')
+                                        ->send();
+                                }
+                            } else {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('No Update Needed')
+                                    ->info()
+                                    ->body('It\'s too early to update the bills for this tenant.')
+                                    ->send();
+                            }
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Error')
+                                ->danger()
+                                ->body('Lease due date is not set for this tenant.')
+                                ->send();
+                        }
+                    }),
+                Tables\Actions\Action::make('notifyTenant')
+                    ->label('Notify Tenant')
+                    ->icon('heroicon-m-envelope')
+                    ->color('info')
+                    ->action(fn($record) => dd($record)),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
                     Tables\Actions\EditAction::make()->color('primary'),
