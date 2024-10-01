@@ -37,9 +37,13 @@ class PaymentRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                Tables\Columns\TextColumn::make('payment_type'),
-                Tables\Columns\TextColumn::make('payment_method'),
-                Tables\Columns\TextColumn::make('payment_status'),
+                Tables\Columns\TextColumn::make('payment_type')
+                    ->extraAttributes(['class' => 'capitalize']),
+                Tables\Columns\TextColumn::make('payment_method')
+                    ->extraAttributes(['class' => 'capitalize']),
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->badge()
+                    ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('amount')
                     ->money('PHP'),
             ])
@@ -47,16 +51,16 @@ class PaymentRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 }

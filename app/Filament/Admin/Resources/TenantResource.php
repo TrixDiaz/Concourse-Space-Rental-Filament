@@ -52,13 +52,18 @@ class TenantResource extends Resource
                                 ->preload()
                                 ->required()
                                 ->disabled(),
-                            Forms\Components\Select::make('owner_id')
-                                ->relationship('owner', 'name')
-                                ->label('Owner')
-                                ->preload()
-                                ->required()
+                            Forms\Components\DatePicker::make('lease_start')
+                                ->label('Lease Start')
+                                ->native(false)
                                 ->disabled(),
-                        ])->columns(2),
+                            Forms\Components\DatePicker::make('lease_due')
+                                ->label('Lease Due')
+                                ->native(false)
+                                ->required(),
+                            Forms\Components\TextInput::make('lease_term')
+                                ->label('Lease Term')
+                                ->disabled(),
+                        ])->columns(3),
                     Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
                         Repeater::make('bills')
                             ->schema([
@@ -102,7 +107,7 @@ class TenantResource extends Resource
                                 'overdue' => 'Overdue',
                                 'pending' => 'Pending',
                             ]),
-                            Forms\Components\Select::make('payment_status')
+                        Forms\Components\Select::make('payment_status')
                             ->label('Payment Status')
                             ->native(false)
                             ->options([
