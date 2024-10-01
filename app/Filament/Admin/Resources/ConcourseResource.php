@@ -48,6 +48,7 @@ class ConcourseResource extends Resource
                                     ->relationship('concourseRate', 'name')
                                     ->required(),
                                 Forms\Components\Select::make('lease_term')
+                                    ->default(12)
                                     ->options([
                                         '1' => '1 month',
                                         '2' => '2 months',

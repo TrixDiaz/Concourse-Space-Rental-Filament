@@ -18,8 +18,8 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('status');
-            $table->string('sqm');
-            $table->integer('price');
+            $table->float('sqm');
+            $table->float('price');
             $table->boolean('is_active')->default(true);
             $table->integer('space_width');
             $table->integer('space_length');

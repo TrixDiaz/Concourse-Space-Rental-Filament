@@ -78,7 +78,7 @@
             @foreach($this->spaces as $space)
             <div class="absolute border-2 border-red-500"
                 style="left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
-                <span class="absolute top-0 left-0 text-md p-2 text-center w-full text-wrap">{{ $space->id }}</span>
+                <span class="absolute top-0 left-0 text-md p-2 text-center w-full text-wrap">{{ $space->name }}</span>
             </div>
 
             <x-filament::modal id="{{ $space->id }}">

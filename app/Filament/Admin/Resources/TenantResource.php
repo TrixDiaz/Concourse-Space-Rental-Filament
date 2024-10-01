@@ -247,10 +247,17 @@ class TenantResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('concourse.name')
+                    ->label('Concourse')
                     ->numeric()
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('concourse.address')
+                    ->label('Address')
+                    ->numeric()
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('space.name')
                     ->numeric()
                     ->sortable()

@@ -28,6 +28,11 @@ class Space extends Model
         'space_coordinates_y2',
     ];
 
+    protected $casts = [
+        'sqm' => 'float',
+        'price' => 'float',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

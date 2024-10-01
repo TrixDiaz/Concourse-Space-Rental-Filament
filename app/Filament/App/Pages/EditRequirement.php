@@ -37,7 +37,7 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
             ->firstOrFail();
 
         $this->appRequirements = AppRequirement::where('application_id', $this->application->id)->get();
-        
+
         // Fetch all requirements for the concourse
         // Adjust this query based on your actual database structure
         $this->allRequirements = Requirement::all();
@@ -93,21 +93,21 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                             ->schema(function () {
                                 return $this->allRequirements->map(function ($requirement) {
                                     $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
-                                    return Forms\Components\Group::make([
-                                        Forms\Components\FileUpload::make("requirements.{$requirement->id}")
-                                            ->label($requirement->name)
-                                            ->disk('public')
-                                            ->directory('requirements')
-                                            ->acceptedFileTypes(['application/pdf', 'image/*'])
-                                            ->maxSize(5120),
-                                        Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
-                                            ->label($requirement->name . ' Status')
-                                            ->extraInputAttributes(['class' => 'capitalize'])
-                                            ->disabled(),
-                                    ])->columnSpan(1);
+                                    return Forms\Components\Grid::make(2)
+                                        ->schema([
+                                            Forms\Components\FileUpload::make("requirements.{$requirement->id}")
+                                                ->label('')
+                                                ->disk('public')
+                                                ->directory('requirements')
+                                                ->acceptedFileTypes(['application/pdf', 'image/*'])
+                                                ->maxSize(5120),
+                                            Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
+                                                ->label($requirement->name)
+                                                ->extraInputAttributes(['class' => 'capitalize'])
+                                                ->disabled(),
+                                        ]);
                                 })->toArray();
-                            })
-                            ->columns(2),
+                            }),
                     ])
                     ->columns(2),
             ])
@@ -156,6 +156,6 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
         Notification::make()
             ->success()
             ->title('Application updated successfully')
-            ->sendToDatabase(Auth::user(), );
+            ->sendToDatabase(Auth::user(),);
     }
 }

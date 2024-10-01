@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources;
 use App\Filament\Admin\Resources\ApplicationResource\Pages;
 use App\Filament\Admin\Resources\ApplicationResource\RelationManagers;
 use App\Models\Application;
+use App\Models\AppRequirement;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -102,22 +103,37 @@ class ApplicationResource extends Resource
                         Forms\Components\Repeater::make('appRequirements')
                             ->relationship()
                             ->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->required()
-                                    ->readOnly(),
-                                Forms\Components\Select::make('status')
-                                    ->options([
-                                        'pending' => 'Pending',
-                                        'approved' => 'Approved',
-                                        'rejected' => 'Rejected',
-                                    ])
-                                    ->required(),
-                                Forms\Components\FileUpload::make('file')
-                                    ->disk('public')
-                                    ->directory('app-requirements')
-                                    ->visibility('public')
-                                    ->downloadable()
-                                    ->openable(),
+                                Forms\Components\Grid::make(2)->schema([
+                                    Forms\Components\FileUpload::make('file')
+                                        ->disk('public')
+                                        ->directory('app-requirements')
+                                        ->visibility('public')
+                                        ->downloadable()
+                                        ->disabled()
+                                        ->openable()
+                                        ->columnSpanFull(),
+                                ])->columnSpan([
+                                    'sm' => 3,
+                                    'md' => 3,
+                                    'lg' => 2
+                                ]),
+                                Forms\Components\Grid::make(1)->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->disabled()
+                                        ->readOnly(),
+                                    Forms\Components\Select::make('status')
+                                        ->required()
+                                        ->options([
+                                            'pending' => 'Pending',
+                                            'approved' => 'Approved',
+                                            'rejected' => 'Rejected',
+                                        ]),
+                                ])->columnSpan([
+                                    'sm' => 3,
+                                    'md' => 3,
+                                    'lg' => 1
+                                ]),
                             ])
                             ->columns(3)
                             ->columnSpanFull()
