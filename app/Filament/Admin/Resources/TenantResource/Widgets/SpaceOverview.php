@@ -4,9 +4,12 @@ namespace App\Filament\Admin\Resources\TenantResource\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Models\Tenant; 
 
 class SpaceOverview extends BaseWidget
 {
+    public ?Tenant $record = null;
+
     protected function getStats(): array
     {
         if (!$this->record) {
