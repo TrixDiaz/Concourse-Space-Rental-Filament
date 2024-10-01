@@ -155,6 +155,7 @@ class TenantSpace extends Page implements HasForms, HasTable
     public function handlePaymentSuccess($recordId)
     {
         $tenant = Tenant::findOrFail($recordId);
+        
         $this->sendPaymentConfirmationEmail($tenant);
 
         $tenant = Tenant::findOrFail($recordId);
