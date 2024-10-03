@@ -15,13 +15,15 @@ class UserSeeder extends Seeder
     {
         User::insert([
             [
-                'name' => 'Admin',
+                'first_name' => 'Admin',
+                'last_name' => 'Admin',
                 'email' => 'admin@example.com',
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
             ],
             [
-                'name' => 'User',
+                'first_name' => 'User',
+                'last_name' => 'User',
                 'email' => 'user@example.com',
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),

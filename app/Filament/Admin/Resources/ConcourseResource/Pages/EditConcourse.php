@@ -4,11 +4,13 @@ namespace App\Filament\Admin\Resources\ConcourseResource\Pages;
 
 use App\Filament\Admin\Resources\ConcourseResource;
 use App\Models\Concourse;
+use App\Models\ConcourseRate;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class EditConcourse extends EditRecord
 {
@@ -63,5 +65,28 @@ class EditConcourse extends EditRecord
         $notification->sendToDatabase(auth()->user());
 
         return $notification;
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $concourse = parent::handleRecordUpdate($record, $data);
+
+        if ($concourse instanceof Concourse && $concourse->wasChanged('rate_id')) {
+            $this->updateSpacePrices($concourse);
+        }
+
+        return $concourse;
+    }
+
+    protected function updateSpacePrices(Concourse $concourse): void
+    {
+        $rate = ConcourseRate::find($concourse->rate_id);
+        
+        if ($rate) {
+            $concourse->spaces()->each(function ($space) use ($rate) {
+                $spacePrice = $rate->price * $space->sqm;
+                $space->update(['price' => $spacePrice]);
+            });
+        }
     }
 }

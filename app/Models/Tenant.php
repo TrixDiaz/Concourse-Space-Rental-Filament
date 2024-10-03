@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Tenant extends Model
 {
     use HasFactory, SoftDeletes;
@@ -55,5 +56,16 @@ class Tenant extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function updatePriceBasedOnRate()
+    {
+        $concourse = $this->concourse;
+        if ($concourse && $concourse->rate) {
+            $newPrice = $concourse->rate->price * $this->sqm;
+            if ($this->price != $newPrice) {
+                $this->update(['price' => $newPrice]);
+            }
+        }
     }
 }

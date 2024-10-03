@@ -41,7 +41,6 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
                 'danger' => Color::Red,
                 'gray' => Color::Gray,
-                
             ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
@@ -52,8 +51,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->widgets([
-                // Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class,
                 Widgets\StatsOverviewWidget::class,
             ])
             ->userMenuItems([

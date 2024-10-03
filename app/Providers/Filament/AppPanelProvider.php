@@ -31,7 +31,6 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->registration(Register::class)
-            ->emailVerification()
             ->passwordReset()
             ->topNavigation()
             ->profile(EditProfile::class)

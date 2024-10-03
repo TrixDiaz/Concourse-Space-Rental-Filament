@@ -35,7 +35,10 @@ class UserResource extends Resource
                     ->schema([
                         Forms\Components\Fieldset::make()
                             ->schema([
-                                Forms\Components\TextInput::make('name')
+                                Forms\Components\TextInput::make('first_name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('last_name')
                                     ->required()
                                     ->maxLength(255),
                                 Forms\Components\TextInput::make('email')
@@ -86,6 +89,8 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Full Name')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),

@@ -259,9 +259,16 @@ class TenantResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('space.name')
+                    ->label('Name')
                     ->numeric()
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('space.price')
+                    ->label('Price')
+                    ->prefix('₱')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('owner.name')
                     ->numeric()
                     ->sortable()
