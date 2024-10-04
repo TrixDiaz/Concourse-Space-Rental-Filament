@@ -88,16 +88,15 @@
                 bounds.extend(marker.getPosition());
 
                 const infoWindow = new google.maps.InfoWindow({
-                    content: `<x-filament::fieldset>
-                                <x-slot name="label">
-                                      ${concourse.name}
-                                </x-slot>
-                                                    
-                                <h3 class="text-md font-bold">Spaces: ${concourse.spaces}</h3>
-                                <x-filament::badge class="mt-2">
-                                    <h2 class="text-lg font-bold">Address: ${concourse.address}</h2>
+                    content: `
+                                <h1 class="text-gray-950 text-lg font-bold"> ${concourse.name} </h1> 
+                                <h2 class="text-gray-950 my-2 font-semibold text-md"> Spaces: ${concourse.spaces}</h2>                            
+                                <x-filament::badge>
+                                    <h2 class="text-md">
+                                    Address: ${concourse.address}
+                                    </h2>
                                 </x-filament::badge>
-                            </x-filament::fieldset>
+                            
                              `,
                 });
 
