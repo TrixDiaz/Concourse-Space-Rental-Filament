@@ -82,6 +82,7 @@ class ConcourseResource extends Resource
                                 ->placeholder('Start typing an address ...')
                                 ->required()
                                 ->reactive()
+                                ->default(fn($record) => $record->address ?? null)
                                 ->afterStateUpdated(function ($state, callable $set) {
                                     if (is_array($state) && isset($state['formatted_address'])) {
                                         $set('address', $state['formatted_address']);
@@ -90,7 +91,8 @@ class ConcourseResource extends Resource
                             Forms\Components\TextInput::make('address')
                                 ->label('Address')
                                 ->required()
-                                ->readOnly(),
+                                ->disabled()
+                                ->dehydrated(),
                             Forms\Components\Grid::make()->schema([
                                 Forms\Components\TextInput::make('name')
                                     ->required()
