@@ -35,6 +35,12 @@ class ConcourseResource extends Resource
         return $form
             ->schema([
                 Map::make('location')
+                    ->autocomplete(
+                        fieldName: 'location',
+                        types: ['geocode'],
+                        placeField: 'address',
+                        countries: ['PH'],
+                    )
                     ->mapControls([
                         'mapTypeControl'    => true,
                         'scaleControl'      => true,
@@ -45,7 +51,7 @@ class ConcourseResource extends Resource
                         'zoomControl'       => false,
                     ])
                     ->height(fn() => '400px') // map height (width is controlled by Filament options)
-                    ->defaultZoom(5) // default zoom level when opening form
+                    ->defaultZoom(15) // default zoom level when opening form
                     ->autocomplete('address') // field on form to use as Places geocompletion field
                     ->autocompleteReverse(true) // reverse geocode marker location to autocomplete field
                     ->reverseGeocode([
@@ -56,7 +62,7 @@ class ConcourseResource extends Resource
                     ]) // reverse geocode marker location to form fields, see notes below
                     ->defaultLocation([14.599512, 120.984222]) // default for new forms
                     ->draggable() // allow dragging to move marker
-                    ->clickable(false) // allow clicking to move marker
+                    ->clickable(true) // allow clicking to move marker
                     ->geolocate() // adds a button to request device location and set map marker accordingly
                     ->geolocateLabel('Get Location') // overrides the default label for geolocate button
                     ->geolocateOnLoad(true, false) // geolocate on load, second arg 'always' (default false, only for new form))
@@ -73,9 +79,18 @@ class ConcourseResource extends Resource
                                     'state'  => '%A1',
                                     'street' => '%n %S',
                                 ])
-                                ->prefix('Choose:')
                                 ->placeholder('Start typing an address ...')
-                                ->required(),
+                                ->required()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    if (is_array($state) && isset($state['formatted_address'])) {
+                                        $set('address', $state['formatted_address']);
+                                    }
+                                }),
+                            Forms\Components\TextInput::make('address')
+                                ->label('Address')
+                                ->required()
+                                ->readOnly(),
                             Forms\Components\Grid::make()->schema([
                                 Forms\Components\TextInput::make('name')
                                     ->required()

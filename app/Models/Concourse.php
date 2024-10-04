@@ -23,6 +23,11 @@ class Concourse extends Model
         'is_active',
     ];
 
+    protected $casts = [
+        'lat' => 'float',
+        'lng' => 'float',
+    ];
+
     public function getLocationAttribute()
     {
         return [
@@ -32,15 +37,13 @@ class Concourse extends Model
         ];
     }
 
-    public function getFormattedState(): string
+    public function setLocationAttribute($value)
     {
-        $state = $this->getState();
- 
-        if ($this->getIsLocation()) {
-            return $state['formatted_address'];
+        if (is_array($value)) {
+            $this->attributes['lat'] = $value['lat'] ?? null;
+            $this->attributes['lng'] = $value['lng'] ?? null;
+            $this->attributes['address'] = $value['formatted_address'] ?? null;
         }
- 
-        return $state = $this->address;
     }
 
     public function concourseRate()
