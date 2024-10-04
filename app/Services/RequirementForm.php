@@ -11,7 +11,6 @@ final class RequirementForm
     public static function schema($concourseId = null, $spaceId = null, $concourseLeaseTerm = null): array
     {
         $user = Auth::user();
-
         return [
             Forms\Components\Hidden::make('user_id')
                 ->default(fn() => $user->id),
@@ -21,7 +20,7 @@ final class RequirementForm
                 ->default($concourseId),
             Forms\Components\Hidden::make('status')
                 ->default('pending'),
-            Forms\Components\Section::make('Business Information')
+            Forms\Components\Section::make('Business Information')->description('Security Deposit: 3 months deposit of the total rent amount total')
                 ->schema([
                     Forms\Components\TextInput::make('business_name')
                         ->label('Business Name')

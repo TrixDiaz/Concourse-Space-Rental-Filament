@@ -65,7 +65,7 @@ class ConcourseResource extends Resource
                         'state' => '%A1',
                         'zip' => '%z',
                     ]) // reverse geocode marker location to form fields, see notes below
-                    ->defaultLocation([14.599512, 120.984222]) // default for new forms
+                    ->defaultLocation([14.599512, 120.984222]) // default for new forms Manila
                     ->draggable() // allow dragging to move marker
                     ->clickable(true) // allow clicking to move marker
                     ->geolocate() // adds a button to request device location and set map marker accordingly
@@ -77,6 +77,7 @@ class ConcourseResource extends Resource
                         Forms\Components\Section::make('Concourse Details')->schema([
                             Geocomplete::make('location')
                                 ->isLocation()
+                                ->default(fn($record) => $record->address ?? null)
                                 ->countries(['PH'])
                                 ->reverseGeocode([
                                     'city'   => '%L',
@@ -85,7 +86,6 @@ class ConcourseResource extends Resource
                                     'street' => '%n %S',
                                 ])
                                 ->placeholder('Start typing an address ...')
-                                ->required()
                                 ->reactive()
                                 ->default(fn($record) => $record->address ?? null)
                                 ->afterStateUpdated(function ($state, callable $set) {
@@ -122,7 +122,7 @@ class ConcourseResource extends Resource
                                     ])
                                     ->native(false)
                                     ->required(),
-                                Forms\Components\TextInput::make('lat')
+                                Forms\Components\Hidden::make('lat')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                         $set('location', [
@@ -131,7 +131,7 @@ class ConcourseResource extends Resource
                                         ]);
                                     })
                                     ->lazy(), // important to use lazy, to avoid updates as you type
-                                Forms\Components\TextInput::make('lng')
+                                Forms\Components\Hidden::make('lng')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                         $set('location', [
