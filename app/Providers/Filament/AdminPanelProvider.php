@@ -53,12 +53,12 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\StatsOverviewWidget::class,
             ])
-            ->userMenuItems([
-                MenuItem::make()
-                    ->label('Tenant Portal')
-                    ->url(fn (): string => route('filament.app.pages.dashboard'))
-                    ->icon('heroicon-m-home'),
-            ])
+            // ->userMenuItems([
+            //     MenuItem::make()
+            //         ->label('Tenant Portal')
+            //         ->url(fn (): string => route('filament.app.pages.dashboard'))
+            //         ->icon('heroicon-m-home'),
+            // ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
