@@ -35,6 +35,11 @@ class ConcourseResource extends Resource
         return $form
             ->schema([
                 Map::make('location')
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                        $set('lat', $state['lat']);
+                        $set('lng', $state['lng']);
+                    })
                     ->autocomplete(
                         fieldName: 'location',
                         types: ['geocode'],
@@ -117,6 +122,24 @@ class ConcourseResource extends Resource
                                     ])
                                     ->native(false)
                                     ->required(),
+                                Forms\Components\TextInput::make('lat')
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                        $set('location', [
+                                            'lat' => floatVal($state),
+                                            'lng' => floatVal($get('lng')),
+                                        ]);
+                                    })
+                                    ->lazy(), // important to use lazy, to avoid updates as you type
+                                Forms\Components\TextInput::make('lng')
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                        $set('location', [
+                                            'lat' => floatval($get('lat')),
+                                            'lng' => floatVal($state),
+                                        ]);
+                                    })
+                                    ->lazy(), // important to use lazy, to avoid updates as you type
                             ])->columns(3),
                         ]),
 

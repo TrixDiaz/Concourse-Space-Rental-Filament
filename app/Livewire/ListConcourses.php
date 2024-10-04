@@ -18,6 +18,13 @@ class ListConcourses extends Component implements HasTable, HasForms
 {
     use InteractsWithForms, InteractsWithTable;
 
+    public $concourses;
+
+    public function mount()
+    {
+        $this->concourses = Concourse::where('is_active', true)->get();
+    }
+
     public function render()
     {
         return view('livewire.list-concourses');
@@ -77,7 +84,6 @@ class ListConcourses extends Component implements HasTable, HasForms
                 //         \Filament\Forms\Components\TextInput::make('name')
                 //             ->required(),
                 //     ]),
-            ])
-            ->poll('3s');
+            ]);
     }
 }
