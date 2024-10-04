@@ -17,6 +17,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
 
 class ConcourseResource extends Resource
 {
@@ -32,11 +34,47 @@ class ConcourseResource extends Resource
     {
         return $form
             ->schema([
+                Map::make('location')
+                    ->mapControls([
+                        'mapTypeControl'    => true,
+                        'scaleControl'      => true,
+                        'streetViewControl' => true,
+                        'rotateControl'     => true,
+                        'fullscreenControl' => true,
+                        'searchBoxControl'  => false, // creates geocomplete field inside map
+                        'zoomControl'       => false,
+                    ])
+                    ->height(fn() => '400px') // map height (width is controlled by Filament options)
+                    ->defaultZoom(5) // default zoom level when opening form
+                    ->autocomplete('address') // field on form to use as Places geocompletion field
+                    ->autocompleteReverse(true) // reverse geocode marker location to autocomplete field
+                    ->reverseGeocode([
+                        'street' => '%n %S',
+                        'city' => '%L',
+                        'state' => '%A1',
+                        'zip' => '%z',
+                    ]) // reverse geocode marker location to form fields, see notes below
+                    ->defaultLocation([14.599512, 120.984222]) // default for new forms
+                    ->draggable() // allow dragging to move marker
+                    ->clickable(false) // allow clicking to move marker
+                    ->geolocate() // adds a button to request device location and set map marker accordingly
+                    ->geolocateLabel('Get Location') // overrides the default label for geolocate button
+                    ->geolocateOnLoad(true, false) // geolocate on load, second arg 'always' (default false, only for new form))
+                    ->columnSpanFull(),
                 Forms\Components\Grid::make(2)->schema([
                     Forms\Components\Section::make()->schema([
                         Forms\Components\Section::make('Concourse Details')->schema([
-                            Forms\Components\TextInput::make('address')
-                                ->maxLength(255)
+                            Geocomplete::make('location')
+                                ->isLocation()
+                                ->countries(['PH'])
+                                ->reverseGeocode([
+                                    'city'   => '%L',
+                                    'zip'    => '%z',
+                                    'state'  => '%A1',
+                                    'street' => '%n %S',
+                                ])
+                                ->prefix('Choose:')
+                                ->placeholder('Start typing an address ...')
                                 ->required(),
                             Forms\Components\Grid::make()->schema([
                                 Forms\Components\TextInput::make('name')

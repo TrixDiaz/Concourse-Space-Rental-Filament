@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('address')->nullable();
             $table->integer('spaces')->default(0);
-            $table->string('latitude')->nullable();
-            $table->string('longitude')->nullable();
+            $table->string('lat')->nullable();
+            $table->string('lng')->nullable();
             $table->string('image')->nullable();
             $table->string('layout')->nullable();
             $table->integer('lease_term')->nullable();
