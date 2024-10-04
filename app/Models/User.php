@@ -20,11 +20,24 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') {
-            return $this->hasRole('super_admin') || $this->hasRole('panel_user');
+            return $this->hasRole('super_admin') || $this->hasRole('accountant');
         }
+        
+        if ($panel->getId() === 'app' && $this->hasRole('panel_user')) {
+            return true;
+        } 
+        
+        // Allow access to all other panels
+        return false;
+    }
 
-        // Allow access to all other panels (including 'app')
-        return true;
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($user) {
+            $user->assignRole('panel_user');
+        });
     }
 
     public function spaces()
