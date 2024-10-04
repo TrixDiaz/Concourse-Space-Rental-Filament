@@ -220,7 +220,7 @@ class ConcourseRateResource extends Resource
                     ExportBulkAction::make()
                 ]),
             ])
-            ->poll('30s');
+            ->poll('3s');
     }
 
     public static function getRelations(): array

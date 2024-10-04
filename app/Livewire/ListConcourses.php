@@ -77,6 +77,7 @@ class ListConcourses extends Component implements HasTable, HasForms
                 //         \Filament\Forms\Components\TextInput::make('name')
                 //             ->required(),
                 //     ]),
-            ]);
+            ])
+            ->poll('3s');
     }
 }

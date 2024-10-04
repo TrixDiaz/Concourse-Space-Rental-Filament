@@ -46,6 +46,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                 }))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Space Name')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
@@ -58,6 +59,11 @@ class ListSpaces extends Component implements HasTable, HasForms
                     ->searchable()
                     ->sortable()
                     ->money('PHP'),
+                Tables\Columns\TextColumn::make('sqm')
+                    ->label('Size (sqm)')
+                    ->searchable()
+                    ->sortable()
+                    ->suffix(' sqm'),
                 Tables\Columns\TextColumn::make('concourse.lease_term')
                     ->label('Lease Term')
                     ->searchable()
@@ -196,6 +202,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                             ->where('space_id', $record->id)
                             ->exists();
                     }),
-            ]);
+            ])
+            ->poll('3s');
     }
 }

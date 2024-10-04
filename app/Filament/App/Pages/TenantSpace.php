@@ -92,7 +92,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->action(fn($record) => $this->payWithGCash($record))
                     ->visible(fn($record) => $record->payment_status !== 'Paid' && $record->monthly_payment > 0),
             ])
-            ->poll('30s');
+            ->poll('3s');
     }
 
     protected function payWithGCash($record)

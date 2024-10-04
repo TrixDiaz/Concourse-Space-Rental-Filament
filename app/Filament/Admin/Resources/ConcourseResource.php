@@ -46,6 +46,8 @@ class ConcourseResource extends Resource
                                     ->native(false)
                                     ->preload()
                                     ->relationship('concourseRate', 'name')
+                                    ->getOptionLabelFromRecordUsing(fn(ConcourseRate $record) => "{$record->name} - ₱{$record->price}")
+                                    ->getSearchResultsUsing(fn(string $search) => ConcourseRate::where('name', 'like', "%{$search}%")->limit(50)->pluck('name', 'id'))
                                     ->required(),
                                 Forms\Components\Select::make('lease_term')
                                     ->default(12)
@@ -229,6 +231,7 @@ class ConcourseResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('concourseRate.price')
                     ->label('Rate')
+                    ->prefix('₱')
                     ->money('PHP')
                     ->numeric()
                     ->sortable(),
@@ -282,7 +285,7 @@ class ConcourseResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ])
-            ->poll('30s');
+            ->poll('3s');
     }
 
     public static function getRelations(): array
