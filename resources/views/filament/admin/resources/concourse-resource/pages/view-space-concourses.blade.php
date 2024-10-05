@@ -73,12 +73,11 @@
 
         @if($this->record->layout)
         <div class="relative" wire:ignore>
-            <canvas id="floorMapCanvas" class="absolute top-0 left-0 z-10"></canvas>
-            <img id="concourseLayout" src="{{ Storage::url($this->record->layout) }}" alt="Concourse Layout" class="max-w-full h-auto">
+            <canvas id="floorMapCanvas" style="position: absolute; top: 0; left: 0; z-index: 10;"></canvas>
+            <img id="concourseLayout" src="{{ Storage::url($this->record->layout) }}" alt="Concourse Layout" style="width: 100%; height: auto; position: relative;">
             @foreach($this->spaces as $space)
-            <div class="absolute border-2 border-red-500"
-                style="left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
-                <span class="absolute top-0 left-0 text-md p-2 text-center w-full text-wrap">{{ $space->name }}</span>
+            <div style="position: absolute; border: 2px solid blue; left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
+                <span style="color: blue; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
             </div>
 
             <x-filament::modal id="{{ $space->id }}">
