@@ -60,18 +60,21 @@ class WaterMonthlyBills extends ApexChartWidget
         $debug = "Year: {$currentYear}";
 
         $payments = Payment::where('tenant_id', $userId)
-            // ->where('payment_type', 'Monthly Rent')
             ->whereYear('created_at', $currentYear)
             ->get();
 
         $debug .= ", Payments found: " . $payments->count();
 
         $waterBills = $payments->map(function ($payment) {
-            $details = json_decode($payment->payment_details, true);
-            $waterBill = collect($details)->firstWhere('name', 'water');
+            $details = $payment->payment_details;
+            // Check if $details is already an array
+            if (!is_array($details)) {
+                $details = json_decode($details, true);
+            }
+            $waterBill = $details['water_bill'] ?? 0;
             return [
                 'month' => Carbon::parse($payment->created_at)->format('M'),
-                'amount' => $waterBill ? floatval($waterBill['amount']) : 0,
+                'amount' => floatval($waterBill),
             ];
         })
         ->groupBy('month')

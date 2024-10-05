@@ -17,6 +17,8 @@ class SpaceRelationManager extends RelationManager
 {
     protected static string $relationship = 'spaces';
 
+
+
     public function form(Form $form): Form
     {
         return $form
@@ -49,27 +51,28 @@ class SpaceRelationManager extends RelationManager
                                 ])
                                 ->disabled(),
                         ])->columns(2),
-                        Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
-                            Forms\Components\Repeater::make('bills')
-                                ->schema([
-                                    Forms\Components\Grid::make(2)->schema([
-                                        Forms\Components\TextInput::make('name')
-                                            ->label('Name')
-                                            ->required(),
-                                        Forms\Components\TextInput::make('amount')
-                                            ->label('Amount')
-                                            ->prefix('₱')
-                                            ->numeric()
-                                            ->required(),
-                                    ])
+                    Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
+                        Forms\Components\Repeater::make('bills')
+                            ->schema([
+                                Forms\Components\Grid::make(2)->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Name')
+                                        ->required(),
+                                    Forms\Components\TextInput::make('amount')
+                                        ->label('Amount')
+                                        ->prefix('₱')
+                                        ->numeric()
+                                        ->required(),
                                 ])
-                                ->columnSpanFull()
-                                ->live()
-                                ->afterStateUpdated(function ($state, callable $set) {
-                                    $total = collect($state)->sum('amount');
-                                    $set('monthly_payment', $total);
-                                })
-                        ])->columns(2),
+                            ])
+                            ->columnSpanFull()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $total = collect($state)->sum('amount');
+                                $set('monthly_payment', $total);
+                                $set('payment_status', 'unpaid');
+                            })
+                    ])->columns(2),
                 ])->columnSpan([
                     'sm' => 3,
                     'md' => 3,
@@ -86,7 +89,6 @@ class SpaceRelationManager extends RelationManager
                         Forms\Components\Select::make('lease_status')
                             ->label('Lease Status')
                             ->native(false)
-                            ->disabled()
                             ->options([
                                 'paid' => 'Paid',
                                 'unpaid' => 'Unpaid',
@@ -96,7 +98,6 @@ class SpaceRelationManager extends RelationManager
                         Forms\Components\Select::make('payment_status')
                             ->label('Payment Status')
                             ->native(false)
-                            ->disabled()
                             ->options([
                                 'paid' => 'Paid',
                                 'unpaid' => 'Unpaid',
@@ -219,7 +220,8 @@ class SpaceRelationManager extends RelationManager
                     'md' => 3,
                     'lg' => 1
                 ])
-            ])->columns(3);
+            ])->columns(3)
+            ;
     }
 
     public function table(Table $table): Table
@@ -315,7 +317,7 @@ class SpaceRelationManager extends RelationManager
                                         // Add Monthly Rent bill
                                         $bills[] = [
                                             'name' => 'Monthly Rent',
-                                            'amount' => $rentAmount, 
+                                            'amount' => $rentAmount,
                                         ];
 
                                         $record->bills = $bills; // Update the bills array
@@ -358,38 +360,6 @@ class SpaceRelationManager extends RelationManager
                                     ->send();
                             }
                         }),
-                    // Tables\Actions\Action::make('notifyTenant')
-                    //     ->label('Notify Tenant')
-                    //     ->icon('heroicon-m-envelope')
-                    //     ->color('info')
-                    //     ->action(function (Tenant $record) {
-                    //         $currentBill = collect($record->bills)->first(function ($bill) {
-                    //             return $bill['name'] === 'Monthly Rent' &&
-                    //                 Carbon::parse($bill['due_date'])->isPast();
-                    //         });
-
-                    //         if ($currentBill) {
-                    //             $user = User::find($record->tenant_id);
-
-                    //             Notification::make()
-                    //                 ->title('Tenant Notified')
-                    //                 ->success()
-                    //                 ->body("A notification about the current rent bill has been sent to your {$record->space->name}.")
-                    //                 ->sendToDatabase($user);
-
-                    //             Notification::make()
-                    //                 ->title('Tenant Notified')
-                    //                 ->success()
-                    //                 ->body("A notification about the current rent bill has been sent to {$record->tenant->name}.")
-                    //                 ->send();
-                    //         } else {
-                    //             Notification::make()
-                    //                 ->title('No Current Bill')
-                    //                 ->warning()
-                    //                 ->body('There is no current monthly rent bill for this tenant.')
-                    //                 ->send();
-                    //         }
-                    //     }),
                     Tables\Actions\EditAction::make()->color('gray')->label('Add Monthly Bills'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),

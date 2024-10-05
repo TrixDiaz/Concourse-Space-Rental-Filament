@@ -168,27 +168,28 @@ class TenantSpace extends Page implements HasForms, HasTable
     {
         $tenant = Space::findOrFail($recordId);
         
-        $this->sendPaymentConfirmationEmail($tenant);
+        // $this->sendPaymentConfirmationEmail($tenant);
 
-        // Initialize totals
-        $totalWaterBill = 0;
-        $totalElectricityBill = 0;
+        // Get the concourse associated with this space
+        $concourse = $tenant->concourse;
 
-        // Calculate total water and electricity bills
+        // Extract water and electricity bill amounts
+        $waterBillAmount = 0;
+        $electricityBillAmount = 0;
         foreach ($tenant->bills as $bill) {
-            if ($bill['type'] === 'water') {
-                $totalWaterBill += $bill['amount'];
-            } elseif ($bill['type'] === 'electricity') {
-                $totalElectricityBill += $bill['amount'];
+            if ($bill['name'] === 'water') {
+                $waterBillAmount = $bill['amount'];
+            } elseif ($bill['name'] === 'electricity') {
+                $electricityBillAmount = $bill['amount'];
             }
         }
 
-        // Update concourse total bills
-        $concourse = $tenant->concourse; // Assuming there's a relationship to get the concourse
-        $concourse->total_monthly_water += $totalWaterBill;
-        $concourse->total_monthly_electricity += $totalElectricityBill;
+        // Update concourse totals
+        $concourse->total_monthly_water -= $waterBillAmount;
+        $concourse->total_monthly_electricity -= $electricityBillAmount;
         $concourse->save();
 
+        // Update tenant space
         $tenant->bills = [];
         $tenant->monthly_payment = 0;
         $tenant->payment_status = 'Paid';
@@ -196,10 +197,15 @@ class TenantSpace extends Page implements HasForms, HasTable
 
         // Create a new Payment record
         Payment::create([
-            'tenant_id' => $tenant->id,
+            'tenant_id' => $tenant->user_id,
             'payment_type' => 'Monthly Rent',
             'payment_method' => 'GCash',
+            'amount' => $tenant->monthly_payment,
             'payment_status' => 'Completed',
+            'payment_details' => [
+                'water' => $waterBillAmount,
+                'electricity' => $electricityBillAmount,
+            ],
         ]);
 
         $this->notify('success', 'Payment Successful', 'Your payment has been processed successfully.');

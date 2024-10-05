@@ -63,18 +63,21 @@ class ElectricityMonthlyBills extends ApexChartWidget
         $debug = "Year: {$currentYear}";
 
         $payments = Payment::where('tenant_id', $userId)
-            // ->where('payment_type', 'Monthly Rent')
             ->whereYear('created_at', $currentYear)
             ->get();
 
         $debug .= ", Payments found: " . $payments->count();
 
         $electricityBills = $payments->map(function ($payment) {
-            $details = json_decode($payment->payment_details, true);
-            $electricityBill = collect($details)->firstWhere('name', 'electricity');
+            $details = $payment->payment_details;
+            // Check if $details is already an array
+            if (!is_array($details)) {
+                $details = json_decode($details, true);
+            }
+            $electricityBill = $details['electricity_bill'] ?? 0;
             return [
                 'month' => Carbon::parse($payment->created_at)->format('M'),
-                'amount' => $electricityBill ? floatval($electricityBill['amount']) : 0,
+                'amount' => floatval($electricityBill),
             ];
         })
         ->groupBy('month')
