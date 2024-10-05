@@ -17,6 +17,14 @@ class Space extends Model
         'price',
         'sqm',
         'status',
+        'lease_start',
+        'lease_end',
+        'lease_due',
+        'lease_term',
+        'lease_status',
+        'bills',
+        'monthly_payment',
+        'payment_status',
         'is_active',
         'space_width',
         'space_length',
@@ -31,6 +39,7 @@ class Space extends Model
     protected $casts = [
         'sqm' => 'float',
         'price' => 'float',
+        'bills' => 'array',
     ];
 
     public function user()

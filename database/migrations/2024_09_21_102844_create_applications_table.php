@@ -25,9 +25,9 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->integer('concourse_lease_term')->nullable();
             $table->string('remarks')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('concourse_id')->references('id')->on('concourses')->onDelete('cascade');
-            $table->foreign('space_id')->references('id')->on('spaces')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('concourse_id')->references('id')->on('concourses')->cascadeOnDelete();
+            $table->foreign('space_id')->references('id')->on('spaces')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

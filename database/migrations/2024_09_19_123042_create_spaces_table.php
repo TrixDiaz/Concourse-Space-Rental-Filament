@@ -20,6 +20,14 @@ return new class extends Migration
             $table->string('status');
             $table->float('sqm');
             $table->float('price');
+            $table->date('lease_start')->nullable();
+            $table->date('lease_end')->nullable();
+            $table->date('lease_due')->nullable();
+            $table->integer('lease_term')->nullable();
+            $table->string('lease_status')->nullable();
+            $table->json('bills')->nullable();
+            $table->integer('monthly_payment')->nullable();
+            $table->string('payment_status')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('space_width');
             $table->integer('space_length');
@@ -31,8 +39,8 @@ return new class extends Migration
             $table->integer('space_coordinates_y2');
            
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('concourse_id')->references('id')->on('concourses')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('concourse_id')->references('id')->on('concourses')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

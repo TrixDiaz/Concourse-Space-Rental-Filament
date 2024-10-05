@@ -42,13 +42,7 @@ class EditTenant extends EditRecord
             ->icon('heroicon-o-user-circle')
             ->title('Tenant Space Updated')
             ->body("Your Tenant Space {$record->name} Updated please review it!")
-            ->actions([
-                Action::make('delete')
-                    ->label('Delete')
-                    ->color('danger')
-                    ->icon('heroicon-o-trash')
-                    ->action(fn(Notification $notification) => $notification->delete()),
-            ]);
+            ;
 
         // Get the selected user's ID
         $selectedUserId = $this->record->user_id;

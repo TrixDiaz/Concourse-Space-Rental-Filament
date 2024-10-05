@@ -39,11 +39,6 @@ class EditConcourseRate extends EditRecord
                     ->label('Mark as read')
                     ->link()
                     ->markAsRead(),
-                Action::make('delete')
-                    ->label('Delete')
-                    ->color('danger')
-                    ->icon('heroicon-o-trash')
-                    ->action(fn(Notification $notification) => $notification->delete()),
             ]);
 
         // Get all users with the 'panel_user' or 'accountant' role

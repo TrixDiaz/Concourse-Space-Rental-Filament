@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\ConcourseResource\Pages;
 use App\Filament\Admin\Resources\ConcourseResource\RelationManagers;
+use App\Filament\Admin\Resources\ConcourseResource\RelationManagers\SpaceRelationManager;
 use App\Models\Concourse;
 use App\Models\ConcourseRate;
 use Filament\Forms;
@@ -369,7 +370,7 @@ class ConcourseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SpaceRelationManager::class,
         ];
     }
 

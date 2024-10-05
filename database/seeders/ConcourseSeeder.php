@@ -16,8 +16,8 @@ class ConcourseSeeder extends Seeder
     {
         Concourse::create([
             'rate_id' => ConcourseRate::select('id')->inRandomOrder()->first()->id,
-            'name' => 'Concourse 1',
-            'address' => 'Concourse 1 description',
+            'name' => 'PUP - Main Concourse',
+            'address' => 'General Luna St. , Sampaloc, Manila, 1003 Metro Manila',
             'spaces' => 100,
             'image' => 'https://placehold.co/600x400',
             'layout' => 'https://placehold.co/600x400',

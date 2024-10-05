@@ -20,12 +20,15 @@ return new class extends Migration
             $table->integer('spaces')->default(0);
             $table->string('lat')->nullable();
             $table->string('lng')->nullable();
+            $table->string('total_monthly_rent')->nullable();
+            $table->string('total_monthly_water')->nullable();
+            $table->string('total_monthly_electricity')->nullable();
             $table->string('image')->nullable();
             $table->string('layout')->nullable();
             $table->integer('lease_term')->nullable();
             $table->boolean('is_active')->default(true);
             
-            $table->foreign('rate_id')->references('id')->on('concourse_rates')->onDelete('cascade');
+            $table->foreign('rate_id')->references('id')->on('concourse_rates')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -16,12 +16,19 @@ class SpaceSeeder extends Seeder
     public function run(): void
     {
         Space::create([
-            'user_id' => User::select('id')->inRandomOrder()->first()->id,
             'concourse_id' => Concourse::select('id')->inRandomOrder()->first()->id,
             'name' => 'Space 1',
             'price' => rand(1000, 10000),
             'status' => 'available',
             'sqm' => rand(10, 100),
+            'lease_start' => now(),
+            'lease_end' => now()->addYears(rand(1, 10)),
+            'lease_due' => now()->addMonths(rand(1, 12)),
+            'lease_term' => rand(1, 10),
+            'lease_status' => 'active',
+            'bills' => json_encode(['water', 'electricity']),
+            'monthly_payment' => rand(1000, 10000),
+            'payment_status' => 'paid',
             'is_active' => true,
             'space_width' => rand(10, 100),
             'space_length' => rand(10, 100),

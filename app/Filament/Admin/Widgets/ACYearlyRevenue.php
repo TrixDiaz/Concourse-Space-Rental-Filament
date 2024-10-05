@@ -19,7 +19,7 @@ class ACYearlyRevenue extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Yearly Revenue';
+    protected static ?string $heading = 'Payment Platforms';
 
     /**
      * Chart options (series, labels, types, size, animations...)

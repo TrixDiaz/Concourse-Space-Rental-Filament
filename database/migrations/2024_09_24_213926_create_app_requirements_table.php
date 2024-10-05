@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('app_requirements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('requirement_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('space_id')->constrained()->onDelete('cascade');
-            $table->foreignId('application_id')->constrained()->onDelete('cascade');
-            $table->foreignId('concourse_id')->constrained()->onDelete('cascade');
+            $table->foreignId('requirement_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('space_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('application_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('concourse_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('file')->nullable();
             $table->string('status');
