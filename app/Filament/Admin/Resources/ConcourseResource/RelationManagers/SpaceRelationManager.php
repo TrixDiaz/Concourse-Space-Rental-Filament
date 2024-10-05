@@ -65,6 +65,19 @@ class SpaceRelationManager extends RelationManager
                                         ->required(),
                                 ])
                             ])
+                            ->defaultItems(2)
+                            ->createItemButtonLabel('Add Bill')
+                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                return $data;
+                            })
+                            ->afterStateHydrated(function (Forms\Components\Repeater $component, $state) {
+                                if (empty($state)) {
+                                    $component->state([
+                                        ['name' => 'Water', 'amount' => 0],
+                                        ['name' => 'Electricity', 'amount' => 0],
+                                    ]);
+                                }
+                            })
                             ->columnSpanFull()
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -98,6 +111,7 @@ class SpaceRelationManager extends RelationManager
                         Forms\Components\Select::make('payment_status')
                             ->label('Payment Status')
                             ->native(false)
+                            ->hidden()
                             ->options([
                                 'paid' => 'Paid',
                                 'unpaid' => 'Unpaid',
