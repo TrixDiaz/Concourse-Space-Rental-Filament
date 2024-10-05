@@ -108,6 +108,14 @@ class SpaceRelationManager extends RelationManager
                                 'overdue' => 'Overdue',
                                 'pending' => 'Pending',
                             ]),
+                        Forms\Components\Select::make('status')
+                            ->label('Space Status')
+                            ->native(false)
+                            ->options([
+                                'available' => 'Available',
+                                'occupied' => 'Occupied',
+                                'under_maintenance' => 'Under Maintenance',
+                            ]),
                         Forms\Components\Select::make('payment_status')
                             ->label('Payment Status')
                             ->native(false)
@@ -235,7 +243,7 @@ class SpaceRelationManager extends RelationManager
                     'lg' => 1
                 ])
             ])->columns(3)
-            ;
+        ;
     }
 
     public function table(Table $table): Table
@@ -262,7 +270,7 @@ class SpaceRelationManager extends RelationManager
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('lease_end')
+                Tables\Columns\TextColumn::make('lease_due')
                     ->label('Monthly Due')
                     ->date('F j, Y')
                     ->sortable(),
@@ -307,17 +315,16 @@ class SpaceRelationManager extends RelationManager
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
                     Tables\Actions\Action::make('updateBills')
-                        ->label('Update Bills')
+                        ->label('Update Monthly Rent')
                         ->icon('heroicon-m-currency-dollar')
                         ->color('primary')
                         ->requiresConfirmation()
                         ->action(function (Space $record) {
-                            if ($record->lease_end) {
-                                $leaseDate = \Carbon\Carbon::parse($record->lease_end);
+                            if ($record->lease_due) {
+                                $leaseDate = \Carbon\Carbon::parse($record->lease_due);
                                 $today = \Carbon\Carbon::today();
-                                $sevenDaysBefore = $leaseDate->copy()->subDays(7);
 
-                                if ($today->gte($sevenDaysBefore) || $today->isSameDay($leaseDate)) {
+                                if ($leaseDate->lte($today)) {
                                     $rentAmount = $record->price ?? 0; // Corrected to use $record->price
                                     $bills = $record->bills ?? [];
 
