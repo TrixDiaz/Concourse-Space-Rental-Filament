@@ -177,9 +177,9 @@ class TenantSpace extends Page implements HasForms, HasTable
         $waterBillAmount = 0;
         $electricityBillAmount = 0;
         foreach ($tenant->bills as $bill) {
-            if ($bill['name'] === 'water') {
+            if ($bill['name'] === 'Water') {
                 $waterBillAmount = $bill['amount'];
-            } elseif ($bill['name'] === 'electricity') {
+            } elseif ($bill['name'] === 'Electricity') {
                 $electricityBillAmount = $bill['amount'];
             }
         }
