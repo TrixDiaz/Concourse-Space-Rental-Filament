@@ -43,27 +43,6 @@ class Space extends Model
         'monthly_payment' => 'float',
     ];
 
-    public function getWaterBillAttribute()
-    {
-        return $this->bills['water'] ?? 0;
-    }
-
-    public function getElectricityBillAttribute()
-    {
-        return $this->bills['electricity'] ?? 0;
-    }
-
-    public function getAdditionalBillsAttribute()
-    {
-        return $this->bills['additional'] ?? [];
-    }
-
-    public function getTotalBillsAttribute()
-    {
-        $additionalTotal = collect($this->additional_bills)->sum('amount');
-        return $this->water_bill + $this->electricity_bill + $additionalTotal;
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class);

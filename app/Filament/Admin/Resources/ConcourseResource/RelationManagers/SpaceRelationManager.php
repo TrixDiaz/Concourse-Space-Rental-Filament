@@ -49,26 +49,8 @@ class SpaceRelationManager extends RelationManager
                                 ])
                                 ->disabled(),
                         ])->columns(2),
-                    Forms\Components\Section::make('Bills Utility')
-                        ->description('Add the utility bills for the tenant')
-                        ->schema([
-                            Forms\Components\Grid::make(2)->schema([
-                                Forms\Components\TextInput::make('bills.water')
-                                    ->label('Water Bill')
-                                    ->prefix('₱')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(0)
-                                    ->live(),
-                                Forms\Components\TextInput::make('bills.electricity')
-                                    ->label('Electricity Bill')
-                                    ->prefix('₱')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(0)
-                                    ->live(),
-                            ]),
-                            Forms\Components\Repeater::make('bills.additional')
+                        Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
+                            Forms\Components\Repeater::make('bills')
                                 ->schema([
                                     Forms\Components\Grid::make(2)->schema([
                                         Forms\Components\TextInput::make('name')
@@ -82,22 +64,12 @@ class SpaceRelationManager extends RelationManager
                                     ])
                                 ])
                                 ->columnSpanFull()
-                                ->default([])
                                 ->live()
-                                ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                                    // Calculate total from all bills
-                                    if (is_string($state)) {
-                                        $state = json_decode($state, true);
-                                    }
-
-                                    $additionalTotal = collect($state)->sum('amount');
-                                    $waterBill = floatval($get('bills.water') ?? 0);
-                                    $electricityBill = floatval($get('bills.electricity') ?? 0);
-
-                                    $total = $additionalTotal + $waterBill + $electricityBill;
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    $total = collect($state)->sum('amount');
                                     $set('monthly_payment', $total);
                                 })
-                        ])->columns(2)
+                        ])->columns(2),
                 ])->columnSpan([
                     'sm' => 3,
                     'md' => 3,
@@ -324,32 +296,32 @@ class SpaceRelationManager extends RelationManager
                         ->color('primary')
                         ->requiresConfirmation()
                         ->action(function (Space $record) {
-                            if ($record->lease_due) {
-                                $leaseDate = \Carbon\Carbon::parse($record->lease_due);
+                            if ($record->lease_end) {
+                                $leaseDate = \Carbon\Carbon::parse($record->lease_end);
                                 $today = \Carbon\Carbon::today();
                                 $sevenDaysBefore = $leaseDate->copy()->subDays(7);
 
                                 if ($today->gte($sevenDaysBefore) || $today->isSameDay($leaseDate)) {
-                                    $rentAmount = $record->space->price ?? 0;
+                                    $rentAmount = $record->price ?? 0; // Corrected to use $record->price
                                     $bills = $record->bills ?? [];
 
+                                    // Check if the Monthly Rent bill already exists
                                     $billExists = collect($bills)->contains(function ($bill) use ($leaseDate) {
                                         return isset($bill['name']) && $bill['name'] == 'Monthly Rent' &&
                                             isset($bill['for_month']) && $bill['for_month'] == $leaseDate->format('Y-m');
                                     });
 
                                     if (!$billExists) {
+                                        // Add Monthly Rent bill
                                         $bills[] = [
                                             'name' => 'Monthly Rent',
-                                            'amount' => $rentAmount,
-                                            'for_month' => $leaseDate->format('Y-m'),
-                                            'due_date' => $leaseDate->toDateString(),
+                                            'amount' => $rentAmount, 
                                         ];
 
-                                        $record->bills = $bills;
-                                        $record->monthly_payment =  $rentAmount;;
-                                        $record->lease_status = 'due_soon';
-                                        $record->payment_status = 'pending';
+                                        $record->bills = $bills; // Update the bills array
+                                        $record->monthly_payment = $rentAmount; // Set the monthly payment
+                                        $record->lease_status = 'active';
+                                        $record->payment_status = 'unpaid';
                                         $record->save();
 
                                         \Filament\Notifications\Notification::make()
@@ -357,11 +329,11 @@ class SpaceRelationManager extends RelationManager
                                             ->success()
                                             ->send();
 
-                                        $user = User::find($record->tenant_id);
+                                        $user = User::find($record->user_id);
 
                                         \Filament\Notifications\Notification::make()
                                             ->title('Bills Updated')
-                                            ->body('The bills for your lease period has been updated.')
+                                            ->body('The bills for your lease period have been updated.')
                                             ->success()
                                             ->sendToDatabase($user);
                                     } else {

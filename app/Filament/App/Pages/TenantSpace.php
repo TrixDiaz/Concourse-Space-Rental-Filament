@@ -6,6 +6,7 @@ use App\Filament\App\Resources\TenantSpaceResource\Widgets\ElectricityMonthlyBil
 use App\Filament\App\Resources\TenantSpaceResource\Widgets\WaterMonthlyBills;
 use App\Mail\PaymentConfirmation;
 use App\Models\Payment;
+use App\Models\Space;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -39,9 +40,9 @@ class TenantSpace extends Page implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Tenant::query()
+            ->query(Space::query()
                 ->where('is_active', true)
-                ->where('tenant_id', auth()->user()->id))
+                ->where('user_id', auth()->user()->id))
             ->columns([
                 Tables\Columns\TextColumn::make('concourse.name')
                     ->label('Concourse')
@@ -165,11 +166,29 @@ class TenantSpace extends Page implements HasForms, HasTable
 
     public function handlePaymentSuccess($recordId)
     {
-        $tenant = Tenant::findOrFail($recordId);
+        $tenant = Space::findOrFail($recordId);
         
         $this->sendPaymentConfirmationEmail($tenant);
 
-        $tenant = Tenant::findOrFail($recordId);
+        // Initialize totals
+        $totalWaterBill = 0;
+        $totalElectricityBill = 0;
+
+        // Calculate total water and electricity bills
+        foreach ($tenant->bills as $bill) {
+            if ($bill['type'] === 'water') {
+                $totalWaterBill += $bill['amount'];
+            } elseif ($bill['type'] === 'electricity') {
+                $totalElectricityBill += $bill['amount'];
+            }
+        }
+
+        // Update concourse total bills
+        $concourse = $tenant->concourse; // Assuming there's a relationship to get the concourse
+        $concourse->total_monthly_water += $totalWaterBill;
+        $concourse->total_monthly_electricity += $totalElectricityBill;
+        $concourse->save();
+
         $tenant->bills = [];
         $tenant->monthly_payment = 0;
         $tenant->payment_status = 'Paid';
@@ -182,7 +201,6 @@ class TenantSpace extends Page implements HasForms, HasTable
             'payment_method' => 'GCash',
             'payment_status' => 'Completed',
         ]);
-
 
         $this->notify('success', 'Payment Successful', 'Your payment has been processed successfully.');
         return redirect()->route('filament.app.pages.tenant-space');
