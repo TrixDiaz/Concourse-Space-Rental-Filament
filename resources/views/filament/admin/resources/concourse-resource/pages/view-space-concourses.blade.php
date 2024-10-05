@@ -76,7 +76,20 @@
             <canvas id="floorMapCanvas" style="position: absolute; top: 0; left: 0; z-index: 10;"></canvas>
             <img id="concourseLayout" src="{{ Storage::url($this->record->layout) }}" alt="Concourse Layout" style="width: 100%; height: auto; position: relative;">
             @foreach($this->spaces as $space)
-            <div style="position: absolute; border: 2px solid blue; left: {{ $space->space_coordinates_x }}%; top: {{ $space->space_coordinates_y }}%; width: {{ $space->space_width }}%; height: {{ $space->space_length }}%;">
+            <div 
+                style="
+                    z-index: 100;
+                    position: absolute; 
+                    border: 2px solid blue; 
+                    left: {{ $space->space_coordinates_x }}%; 
+                    top: {{ $space->space_coordinates_y }}%; 
+                    width: {{ $space->space_width }}%; 
+                    height: {{ $space->space_length }}%;
+                    transition: background-color 0.3s ease;
+                "
+                onmouseover="this.style.backgroundColor='gray'" 
+                onmouseout="this.style.backgroundColor='rgba(255, 255, 255, 0.3)'"
+            >
                 <span style="color: blue; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
             </div>
 
