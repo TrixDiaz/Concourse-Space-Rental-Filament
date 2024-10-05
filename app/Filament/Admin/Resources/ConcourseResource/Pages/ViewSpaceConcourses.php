@@ -119,4 +119,24 @@ class ViewSpaceConcourses extends Page
         $this->price = $this->sqm * $this->rate;
     }
 
+    public function deleteSpace($spaceId)
+    {
+        $space = Space::find($spaceId);
+        
+        if ($space) {
+            $space->delete();
+            
+            Notification::make()
+                ->title('Space deleted successfully')
+                ->success()
+                ->send();
+            
+            $this->reload();
+        } else {
+            Notification::make()
+                ->title('Space not found')
+                ->danger()
+                ->send();
+        }
+    }
 }

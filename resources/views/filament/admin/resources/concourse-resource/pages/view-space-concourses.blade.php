@@ -45,8 +45,8 @@
                                 placeholder="SQM"
                                 min="0"
                                 wire:model.live="sqm" />
-                            <x-slot name="suffix" > 
-                               X Rate {{ $rate }} 
+                            <x-slot name="suffix">
+                                X Rate {{ $rate }}
                             </x-slot>
                         </x-filament::input.wrapper>
 
@@ -76,7 +76,7 @@
             <canvas id="floorMapCanvas" style="position: absolute; top: 0; left: 0; z-index: 10;"></canvas>
             <img id="concourseLayout" src="{{ Storage::url($this->record->layout) }}" alt="Concourse Layout" style="width: 100%; height: auto; position: relative;">
             @foreach($this->spaces as $space)
-            <div 
+            <div
                 style="
                     z-index: 100;
                     position: absolute; 
@@ -86,18 +86,17 @@
                     width: {{ $space->space_width }}%; 
                     height: {{ $space->space_length }}%;
                     transition: background-color 0.3s ease;
+                    cursor: pointer;
                 "
-                onmouseover="this.style.backgroundColor='gray'" 
+                onmouseover="this.style.backgroundColor='gray'"
                 onmouseout="this.style.backgroundColor='rgba(255, 255, 255, 0.3)'"
-            >
+                x-on:click="$dispatch('open-modal', { id: '{{ $space->id }}' })">
                 <span style="color: blue; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
             </div>
 
             <x-filament::modal id="{{ $space->id }}">
-                <x-slot name="trigger" wire:ignore>
-                    <x-filament::button class="mt-3">
-                        {{ $space->id }}
-                    </x-filament::button>
+                <x-slot name="heading">
+                    {{ $space->name }}
                 </x-slot>
 
                 <x-filament::section>
@@ -105,7 +104,41 @@
                     <p>Price: ₱{{ number_format($space->price, 2) }}</p>
                     <p>Sqm: {{ $space->sqm }}</p>
                     <p>Status: {{ ucfirst($space->status) }}</p>
-                    </x-filament::section>
+
+                    <div class="mt-4">
+                        <x-filament::button
+                            color="danger"
+                            x-on:click="$dispatch('open-modal', { id: 'delete-space-{{ $space->id }}' })">
+                            Delete Space
+                        </x-filament::button>
+                    </div>
+                </x-filament::section>
+            </x-filament::modal>
+
+            <x-filament::modal id="delete-space-{{ $space->id }}">
+                <x-slot name="heading">
+                    Confirm Deletion
+                </x-slot>
+
+                <x-filament::section>
+                    <p>Are you sure you want to delete the space "{{ $space->name }}"? This action cannot be undone.</p>
+
+                    <div class="mt-4 flex justify-end space-x-2">
+                        <x-filament::button
+                            color="gray"
+                            x-on:click="$dispatch('close-modal', { id: 'delete-space-{{ $space->id }}' })">
+                            Cancel
+                        </x-filament::button>
+                        <x-filament::button
+                            color="danger"
+                            wire:click="deleteSpace({{ $space->id }})"
+                            wire:loading.attr="disabled"
+                            wire:target="deleteSpace"
+                            x-on:click="$dispatch('close-modal', { id: 'delete-space-{{ $space->id }}' })">
+                            Confirm Delete
+                        </x-filament::button>
+                    </div>
+                </x-filament::section>
             </x-filament::modal>
             @endforeach
         </div>
@@ -198,7 +231,14 @@
                 <p>Price: ₱{{ number_format($space->price, 2) }}</p>
                 <p>Sqm: {{ $space->sqm }}</p>
                 <p>Status: {{ ucfirst($space->status) }}</p>
-                  </div>
+                <div class="mt-4">
+                    <x-filament::button
+                        color="danger"
+                        x-on:click="$dispatch('open-modal', { id: 'delete-space-{{ $space->id }}' })">
+                        Delete Space
+                    </x-filament::button>
+                </div>
+            </div>
             @endforeach
         </div>
         @else
