@@ -171,10 +171,6 @@ class ConcourseResource extends Resource
                                 ->default(true),
                         ]),
                         Forms\Components\Section::make('Billing')->schema([
-                            Forms\Components\TextInput::make('total_monthly_rent')
-                                ->label('Total Space Bill')
-                                ->prefix('₱')
-                                ->numeric(),
                             Forms\Components\TextInput::make('total_water_bill')
                                 ->label('Total Water Bill')
                                 ->prefix('₱')

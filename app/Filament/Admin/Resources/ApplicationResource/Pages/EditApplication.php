@@ -70,18 +70,18 @@ class EditApplication extends EditRecord
                             ->sendToDatabase($applicationUser);
 
                         // Create a new Tenant instance
-                        $tenant = Tenant::create([
-                            'tenant_id' => $application->user_id,
+                        $space = Space::find($application->space_id);
+                        $space->update([
+                            'user_id' => $application->user_id,
                             'concourse_id' => $application->concourse_id,
-                            'space_id' => $application->space_id,
-                            'owner_id' => auth()->user()->id,
                             'lease_start' => $application->created_at,
                             'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
                             'lease_end' => Carbon::parse($application->created_at)->addMonths($application->lease_term),
                             'lease_term' => $application->concourse_lease_term,
                             'lease_status' => 'active',
                             'bills' => $application->bills ? json_encode($application->bills) : null,
-                            'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : null,
+                            'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : 0,
+                            'payment_status' => 'Paid',
                             'is_active' => true,
                         ]);
 
