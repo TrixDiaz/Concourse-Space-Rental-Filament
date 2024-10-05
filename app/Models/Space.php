@@ -37,10 +37,32 @@ class Space extends Model
     ];
 
     protected $casts = [
+        'bills' => 'array',
         'sqm' => 'float',
         'price' => 'float',
-        'bills' => 'array',
+        'monthly_payment' => 'float',
     ];
+
+    public function getWaterBillAttribute()
+    {
+        return $this->bills['water'] ?? 0;
+    }
+
+    public function getElectricityBillAttribute()
+    {
+        return $this->bills['electricity'] ?? 0;
+    }
+
+    public function getAdditionalBillsAttribute()
+    {
+        return $this->bills['additional'] ?? [];
+    }
+
+    public function getTotalBillsAttribute()
+    {
+        $additionalTotal = collect($this->additional_bills)->sum('amount');
+        return $this->water_bill + $this->electricity_bill + $additionalTotal;
+    }
 
     public function user()
     {
@@ -50,5 +72,16 @@ class Space extends Model
     public function concourse()
     {
         return $this->belongsTo(Concourse::class, 'concourse_id');
+    }
+
+    public function updatePriceBasedOnRate()
+    {
+        $concourse = $this->concourse;
+        if ($concourse && $concourse->rate) {
+            $newPrice = $concourse->rate->price * $this->sqm;
+            if ($this->price != $newPrice) {
+                $this->update(['price' => $newPrice]);
+            }
+        }
     }
 }

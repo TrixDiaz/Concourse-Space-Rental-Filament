@@ -112,17 +112,15 @@ class ConcourseResource extends Resource
                                     ->required(),
                                 Forms\Components\Select::make('lease_term')
                                     ->default(12)
+                                    ->native(false)
+                                    ->required()
                                     ->options([
-                                        '1' => '1 month',
-                                        '2' => '2 months',
                                         '3' => '3 months',
                                         '6' => '6 months',
                                         '12' => '1 year',
                                         '24' => '2 years',
                                         '36' => '3 years',
-                                    ])
-                                    ->native(false)
-                                    ->required(),
+                                    ]),
                                 Forms\Components\Hidden::make('lat')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
@@ -165,13 +163,27 @@ class ConcourseResource extends Resource
                     ]),
 
                     Forms\Components\Grid::make(1)->schema([
-                        Forms\Components\Section::make('Visibility')->schema([
+                        Forms\Components\Section::make('Visibility in Tenant')->schema([
                             Forms\Components\Toggle::make('is_active')
                                 ->onIcon('heroicon-s-eye')
                                 ->offIcon('heroicon-s-eye-slash')
                                 ->label('Visible')
                                 ->default(true),
                         ]),
+                        Forms\Components\Section::make('Billing')->schema([
+                            Forms\Components\TextInput::make('total_monthly_rent')
+                                ->label('Total Space Bill')
+                                ->prefix('₱')
+                                ->numeric(),
+                            Forms\Components\TextInput::make('total_water_bill')
+                                ->label('Total Water Bill')
+                                ->prefix('₱')
+                                ->numeric(),
+                            Forms\Components\TextInput::make('total_electricity_bill')
+                                ->label('Total Electricity Bill')
+                                ->prefix('₱')
+                                ->numeric(),
+                        ])->collapsible(),
                         Forms\Components\Section::make()->schema([
                             Forms\Components\Placeholder::make('created_at')
                                 ->label('Created at')

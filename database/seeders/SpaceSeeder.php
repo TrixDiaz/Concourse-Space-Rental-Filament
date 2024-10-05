@@ -26,7 +26,6 @@ class SpaceSeeder extends Seeder
             'lease_due' => now()->addMonths(rand(1, 12)),
             'lease_term' => rand(1, 10),
             'lease_status' => 'active',
-            'bills' => json_encode(['water', 'electricity']),
             'monthly_payment' => rand(1000, 10000),
             'payment_status' => 'paid',
             'is_active' => true,

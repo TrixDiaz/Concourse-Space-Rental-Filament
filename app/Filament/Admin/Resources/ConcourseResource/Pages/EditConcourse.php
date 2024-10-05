@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\ConcourseResource\Pages;
 
 use App\Filament\Admin\Resources\ConcourseResource;
+use App\Filament\Admin\Resources\ConcourseResource\Widgets\SpaceOverview;
 use App\Models\Concourse;
 use App\Models\ConcourseRate;
 use Filament\Actions;
@@ -18,6 +19,13 @@ class EditConcourse extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            SpaceOverview::class,
+        ];
+    }
     
     protected static string $resource = ConcourseResource::class;
 
@@ -28,7 +36,7 @@ class EditConcourse extends EditRecord
             ->label('View Layout')
             ->url(fn () => $this->getResource()::getUrl('view-spaces', ['record' => $this->getRecord()]))
             ->color('success'),
-            Actions\DeleteAction::make(),
+            // Actions\DeleteAction::make(),
         ];
     }
 

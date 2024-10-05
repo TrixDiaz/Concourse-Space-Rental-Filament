@@ -16,4 +16,5 @@ class ListConcourses extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
 }

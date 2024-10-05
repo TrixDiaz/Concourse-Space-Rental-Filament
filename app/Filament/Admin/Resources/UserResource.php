@@ -68,7 +68,7 @@ class UserResource extends Resource
                                 'male' => 'Male',
                                 'female' => 'Female',
                             ]),
-                        Forms\Components\DateTimePicker::make('birth_date')
+                        Forms\Components\DatePicker::make('birth_date')
                             ->required()
                             ->label('Birth Date')
                             ->native(false),
