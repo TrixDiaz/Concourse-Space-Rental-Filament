@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources\TenantSpaceResource\Widgets;
+namespace App\Filament\App\Widgets;
 
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use App\Models\Payment;
@@ -8,28 +8,28 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class ElectricityMonthlyBills extends ApexChartWidget
+class WaterMonthlyBills extends ApexChartWidget
 {
-    protected static ?string $chartId = 'electricityMonthlyBills';
-    protected static ?string $heading = 'Electricity Monthly Bills';
+    protected static ?string $chartId = 'waterMonthlyBills';
+    protected static ?string $heading = 'Water Monthly Bills';
 
     protected function getOptions(): array
     {
-        $electricityBills = $this->getElectricityBills();
+        $waterBills = $this->getWaterBills();
 
         return [
             'chart' => [
-                'type' => 'line',
+                'type' => 'bar',
                 'height' => 300,
             ],
             'series' => [
                 [
-                    'name' => 'Electricity Bills',
-                    'data' => array_values($electricityBills['data']),
+                    'name' => 'Water Bills',
+                    'data' => array_values($waterBills['data']),
                 ],
             ],
             'xaxis' => [
-                'categories' => array_keys($electricityBills['data']),
+                'categories' => array_keys($waterBills['data']),
                 'labels' => [
                     'style' => [
                         'fontFamily' => 'inherit',
@@ -44,17 +44,14 @@ class ElectricityMonthlyBills extends ApexChartWidget
                 ],
             ],
             'colors' => ['#f59e0b'],
-            'stroke' => [
-                'curve' => 'smooth',
-            ],
             'title' => [
-                'text' => $electricityBills['debug'],
+                'text' => $waterBills['debug'],
                 'align' => 'center',
             ],
         ];
     }
 
-    private function getElectricityBills(): array
+    private function getWaterBills(): array
     {
         $userId = Auth::id();
         $currentYear = Carbon::now()->year;
@@ -68,16 +65,16 @@ class ElectricityMonthlyBills extends ApexChartWidget
 
         $debug .= ", Payments found: " . $payments->count();
 
-        $electricityBills = $payments->map(function ($payment) {
+        $waterBills = $payments->map(function ($payment) {
             $details = $payment->payment_details;
             // Check if $details is already an array
             if (!is_array($details)) {
                 $details = json_decode($details, true);
             }
-            $electricityBill = $details['electricity_bill'] ?? 0;
+            $waterBill = $details['water_bill'] ?? 0;
             return [
                 'month' => Carbon::parse($payment->created_at)->format('M'),
-                'amount' => floatval($electricityBill),
+                'amount' => floatval($waterBill),
             ];
         })
         ->groupBy('month')
@@ -86,12 +83,12 @@ class ElectricityMonthlyBills extends ApexChartWidget
         });
 
         $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        $result = collect($months)->mapWithKeys(function ($month) use ($electricityBills) {
-            return [$month => $electricityBills->get($month, 0)];
+        $result = collect($months)->mapWithKeys(function ($month) use ($waterBills) {
+            return [$month => $waterBills->get($month, 0)];
         })->toArray();
 
         // Log debugging information
-        Log::info('ElectricityMonthlyBills Debug: ' . $debug);
+        Log::info('WaterMonthlyBills Debug: ' . $debug);
 
         return [
             'data' => $result,

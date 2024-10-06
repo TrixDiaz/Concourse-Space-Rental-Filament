@@ -35,52 +35,58 @@ class UserResource extends Resource
                     ->schema([
                         Forms\Components\Fieldset::make()
                             ->schema([
-                                Forms\Components\TextInput::make('first_name')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('last_name')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('email')
-                                    ->email()
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('phone_number')
-                                    ->prefix('+63')
-                                    ->placeholder('9123456789')
-                                    ->label('Phone Number')
-                                    ->maxLength(255),
-                            ])->columns(3),
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->default('password')
-                            ->prefix('password')
-                            ->visibleOn(['create'])
-                            ->readOnly(),
-                        Forms\Components\TextInput::make('address')
-                            ->label('Address')
-                            ->columnSpanFull()
-                            ->maxLength(255),
-                        Forms\Components\Select::make('gender')
-                            ->label('Gender')
-                            ->native(false)
-                            ->options([
-                                'male' => 'Male',
-                                'female' => 'Female',
+                                Forms\Components\Section::make()->schema([
+                                    Forms\Components\TextInput::make('first_name')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('last_name')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('email')
+                                        ->email()
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('phone_number')
+                                        ->prefix('+63')
+                                        ->placeholder('9123456789')
+                                        ->label('Phone Number')
+                                        ->maxLength(255),
+                                ])->columns(2),
                             ]),
-                        Forms\Components\DatePicker::make('birth_date')
-                            ->required()
-                            ->label('Birth Date')
-                            ->native(false),
-                        Forms\Components\DateTimePicker::make('email_verified_at')
-                            ->label('Email Verified At')
-                            ->native(false),
-                        Forms\Components\Select::make('roles')
-                            ->multiple()
-                            ->relationship('roles', 'name')
-                            ->preload(),
-                    ])->columns(2),
-
+                        Forms\Components\Fieldset::make()->schema([
+                            Forms\Components\Section::make()->schema([
+                                Forms\Components\TextInput::make('password')
+                                    ->password()
+                                    ->default('password')
+                                    ->prefix('password')
+                                    ->visibleOn(['create'])
+                                    ->readOnly(),
+                                Forms\Components\TextInput::make('address')
+                                    ->label('Address')
+                                    ->columnSpanFull()
+                                    ->maxLength(255),
+                                Forms\Components\Select::make('gender')
+                                    ->label('Gender')
+                                    ->native(false)
+                                    ->options([
+                                        'male' => 'Male',
+                                        'female' => 'Female',
+                                    ]),
+                                Forms\Components\DatePicker::make('birth_date')
+                                    ->label('Birth Date')
+                                    ->native(false)
+                                    ->maxDate(now()->subYears(18))
+                                    ->displayFormat('d/m/Y'),
+                                Forms\Components\DateTimePicker::make('email_verified_at')
+                                    ->label('Email Verified At')
+                                    ->native(false),
+                                Forms\Components\Select::make('roles')
+                                    ->multiple()
+                                    ->relationship('roles', 'name')
+                                    ->preload(),
+                            ])->columns(2),
+                        ]),
+                    ])
             ]);
     }
 

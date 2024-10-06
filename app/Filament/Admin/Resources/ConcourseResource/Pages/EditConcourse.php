@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class EditConcourse extends EditRecord
 {
@@ -26,18 +27,43 @@ class EditConcourse extends EditRecord
             SpaceOverview::class,
         ];
     }
-    
+
     protected static string $resource = ConcourseResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
             Actions\Action::make('viewSpaces')
-            ->label('View Layout')
-            ->url(fn () => $this->getResource()::getUrl('view-spaces', ['record' => $this->getRecord()]))
-            ->color('success'),
+                ->label('View Layout')
+                ->url(fn() => $this->getResource()::getUrl('view-spaces', ['record' => $this->getRecord()]))
+                ->color('success'),
+            Actions\Action::make('notifySpaces')
+                ->label('Notify Spaces')
+                ->action(function () {
+                    $this->notifySpacesAboutBills();
+                })
+                ->color('warning')
+                ->icon('heroicon-o-bell')
+                ->visible(fn () => $this->hasSpacesWithBills())
+                ->requiresConfirmation(),
             // Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function hasSpacesWithBills(): bool
+    {
+        $concourse = $this->getRecord();
+        $spacesCount = $concourse->spaces()->count();
+        $spacesWithValidBills = $concourse->spaces()
+            ->where(function ($query) {
+                $query->whereRaw("JSON_CONTAINS(bills, '{\"name\": \"Water\"}', '$')")
+                    ->whereRaw("JSON_CONTAINS(bills, '{\"name\": \"Electricity\"}', '$')")
+                    ->whereNotNull('bills')
+                    ->where('bills', '!=', '[]');
+            })
+            ->count();
+
+        return $spacesCount > 0 && $spacesCount === $spacesWithValidBills;
     }
 
     protected function getSavedNotification(): ?Notification
@@ -84,12 +110,37 @@ class EditConcourse extends EditRecord
     protected function updateSpacePrices(Concourse $concourse): void
     {
         $rate = ConcourseRate::find($concourse->rate_id);
-        
+
         if ($rate) {
             $concourse->spaces()->each(function ($space) use ($rate) {
                 $spacePrice = $rate->price * $space->sqm;
                 $space->update(['price' => $spacePrice]);
             });
         }
+    }
+
+    protected function notifySpacesAboutBills(): void
+    {
+        $concourse = $this->getRecord();
+        $spaces = $concourse->spaces()->where('is_active', true)->where('deleted_at', '=', null)->where('user_id', '!=', null)->get();
+        // dd($spaces);
+        foreach ($spaces as $space) {
+            $notification = Notification::make()
+                ->warning()
+                ->title('Monthly Bill Available')
+                ->body("Your monthly bill for space {$space->name} in {$concourse->name} is now available for review.");
+
+            // Send notification to the space owner or associated user
+            $spaceUser = User::find($space->user_id);
+            if ($spaceUser) {
+                $notification->sendToDatabase($spaceUser);
+            }
+        }
+
+        Notification::make()
+            ->success()
+            ->title('Notifications Sent')
+            ->body('All spaces have been notified about their monthly bills.')
+            ->send();
     }
 }
