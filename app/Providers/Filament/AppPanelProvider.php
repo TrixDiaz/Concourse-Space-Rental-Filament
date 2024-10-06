@@ -33,6 +33,7 @@ class AppPanelProvider extends PanelProvider
             ->registration(Register::class)
             ->passwordReset()
             ->topNavigation()
+            ->emailVerification()
             ->profile(EditProfile::class)
             ->colors([
                 'primary' => Color::Emerald,

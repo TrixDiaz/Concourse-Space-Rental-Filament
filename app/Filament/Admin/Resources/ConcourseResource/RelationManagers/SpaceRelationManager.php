@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -296,6 +297,7 @@ class SpaceRelationManager extends RelationManager
                     ->extraAttributes(['class' => 'capitalize']),
             ])
             ->filters([
+                TrashedFilter::make(),
                 SelectFilter::make('status')
                     ->options([
                         'available' => 'Available',
