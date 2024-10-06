@@ -211,6 +211,10 @@
                 Livewire.on('reload-page', () => {
                     window.location.reload();
                 });
+
+                Livewire.on('open-create-space-modal', () => {
+                    Livewire.dispatch('open-modal', { id: 'create-space-modal' });
+                });
             });
         </script>
         @else
@@ -245,4 +249,51 @@
         <p class="text-gray-500">No spaces available for this concourse.</p>
         @endif
     </x-filament::section>
+
+    <x-filament::modal id="create-space-modal" width="5xl">
+        <x-slot name="heading">
+            Add Space
+        </x-slot>
+
+        <form wire:submit.prevent="createSpace">
+            <x-filament::section class="grid grid-cols-2 gap-2">
+                <label for="name">Name</label>
+                <x-filament::input.wrapper class="mb-2">
+                    <x-filament::input
+                        type="text"
+                        placeholder="Name"
+                        wire:model="name" />
+                </x-filament::input.wrapper>
+
+                <label for="sqm">SQM</label>
+                <x-filament::input.wrapper class="mb-2">
+                    <x-filament::input
+                        type="text"
+                        placeholder="SQM"
+                        min="0"
+                        wire:model.live="sqm" />
+                    <x-slot name="suffix">
+                        X Rate {{ $rate }}
+                    </x-slot>
+                </x-filament::input.wrapper>
+
+                <label for="price">Price</label>
+                <x-filament::input.wrapper disabled class="mb-2">
+                    <x-filament::input
+                        type="number"
+                        placeholder="Price"
+                        wire:model="price"
+                        disabled />
+                </x-filament::input.wrapper>
+
+                <x-filament::button
+                    type="submit"
+                    wire:loading.attr="disabled"
+                    wire:loading.class="opacity-70 cursor-wait">
+                    <span wire:loading.remove>Create Space</span>
+                    <span wire:loading>Loading...</span>
+                </x-filament::button>
+            </x-filament::section>
+        </form>
+    </x-filament::modal>
 </x-filament-panels::page>

@@ -45,6 +45,7 @@ class ViewSpaceConcourses extends Page
     public function setSpaceDimensions($dimensions)
     {
         $this->spaceDimensions = $dimensions;
+        $this->dispatch('open-create-space-modal');
     }
 
     public function createSpace()
