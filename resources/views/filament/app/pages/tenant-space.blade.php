@@ -4,8 +4,8 @@
             <section class="mb-6">
                 <div class="bg-white rounded-lg shadow-md p-4">
                     <h2 class="text-xl font-semibold mb-4">{{ $this->concourseLayout->name }} Layout</h2>
-                    <div class="relative">
-                        <img src="{{ Storage::url($this->concourseLayout->layout) }}" alt="{{ $this->concourseLayout->name }} Layout" class="w-full h-auto rounded-lg">
+                    <div class="relative">   
+                        <img src="{{ Storage::url($this->concourseLayout->layout) }}" alt="{{ $this->concourseLayout->name }} Layout" class="w-full max-h-auto rounded-lg">
                         @foreach($this->tenantSpaces as $space)
                             <div
                                 style="

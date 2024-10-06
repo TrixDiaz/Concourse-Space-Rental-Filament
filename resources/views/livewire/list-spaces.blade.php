@@ -4,7 +4,7 @@
             <div class="bg-white rounded-lg shadow-md p-4">
                 <h2 class="text-xl font-semibold mb-4">{{ $concourse->name }} Layout</h2>
                 <div class="relative">
-                    <img id="concourseLayout" src="{{ Storage::url($concourse->layout) }}" alt="{{ $concourse->name }} Layout" class="w-full h-auto rounded-lg">
+                    <img id="concourseLayout" src="{{ Storage::url($concourse->layout) }}" alt="{{ $concourse->name }} Layout" class="w-full max-h-auto rounded-lg">
                     @foreach($spaces as $space)
                         <div
                             style="
