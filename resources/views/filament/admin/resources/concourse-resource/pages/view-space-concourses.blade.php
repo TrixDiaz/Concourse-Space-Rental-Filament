@@ -41,7 +41,7 @@
                         <label for="sqm">SQM</label>
                         <x-filament::input.wrapper class="mb-2">
                             <x-filament::input
-                                type="number"
+                                type="text"
                                 placeholder="SQM"
                                 min="0"
                                 wire:model.live="sqm" />
@@ -78,7 +78,7 @@
             @foreach($this->spaces as $space)
             <div
                 style="
-                    z-index: 100;
+                    z-index: 10;
                     position: absolute; 
                     border: 2px solid blue; 
                     left: {{ $space->space_coordinates_x }}%; 
@@ -94,7 +94,7 @@
                 <span style="color: blue; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
             </div>
 
-            <x-filament::modal id="{{ $space->id }}">
+            <x-filament::modal id="{{ $space->id }}" style="z-index: 20;">
                 <x-slot name="heading">
                     {{ $space->name }}
                 </x-slot>
