@@ -24,11 +24,15 @@ class ListSpaces extends Component implements HasTable, HasForms
 
     public $concourseId;
     public $concourse_lease_term;
+    public $concourse;
+    public $spaces;
 
     public function mount()
     {
         $this->concourseId = request()->query('concourse_id');
-        $this->concourse_lease_term = Concourse::find($this->concourseId)->lease_term;
+        $this->concourse = Concourse::find($this->concourseId);
+        $this->concourse_lease_term = $this->concourse->lease_term;
+        $this->spaces = Space::where('concourse_id', $this->concourseId)->get();
     }
 
     public function render()

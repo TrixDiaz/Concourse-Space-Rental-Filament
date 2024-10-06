@@ -27,6 +27,20 @@ class TenantSpace extends Page implements HasForms, HasTable
 
     protected static string $view = 'filament.app.pages.tenant-space';
 
+    public function getTenantSpacesProperty()
+    {
+        return Space::with('concourse')
+            ->where('user_id', auth()->id())
+            ->where('is_active', true)
+            ->get();
+    }
+
+    public function getConcourseLayoutProperty()
+    {
+        $firstSpace = $this->tenantSpaces->first();
+        return $firstSpace ? $firstSpace->concourse : null;
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -38,7 +52,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->label('Concourse')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('space.name')
+                Tables\Columns\TextColumn::make('name')
                     ->label('Space Name')
                     ->searchable()
                     ->sortable(),
@@ -208,8 +222,4 @@ class TenantSpace extends Page implements HasForms, HasTable
         return redirect()->route('filament.app.pages.tenant-space');
     }
 
-    public function getTenantProperty()
-    {
-        return Space::with('concourse')->where('user_id', auth()->user()->id)->first();
-    }
 }
