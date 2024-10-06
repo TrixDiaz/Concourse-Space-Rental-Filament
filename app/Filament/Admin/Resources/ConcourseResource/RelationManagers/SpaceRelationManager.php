@@ -13,6 +13,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class SpaceRelationManager extends RelationManager
 {
@@ -392,6 +393,7 @@ class SpaceRelationManager extends RelationManager
                     ->tooltip('Actions')
             ])
             ->bulkActions([
+                ExportBulkAction::make()->label('Generate Selected Records'),
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
