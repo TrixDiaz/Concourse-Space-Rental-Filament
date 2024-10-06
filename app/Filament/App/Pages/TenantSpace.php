@@ -208,4 +208,8 @@ class TenantSpace extends Page implements HasForms, HasTable
         return redirect()->route('filament.app.pages.tenant-space');
     }
 
+    public function getTenantProperty()
+    {
+        return Space::with('concourse')->where('user_id', auth()->user()->id)->first();
+    }
 }
