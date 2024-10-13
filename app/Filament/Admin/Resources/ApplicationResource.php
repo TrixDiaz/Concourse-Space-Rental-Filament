@@ -67,36 +67,28 @@ class ApplicationResource extends Resource
                                 ->email()
                                 ->maxLength(255)
                                 ->default(null),
+                            Forms\Components\TextInput::make('phone_number')
+                                ->tel()
+                                ->maxLength(255)
+                                ->default(null),
+                            Forms\Components\Select::make('business_type')
+                                ->label('Business Type')
+                                ->extraInputAttributes(['class' => 'capitalize'])
+                                ->options([
+                                    'food' => 'Food',
+                                    'non-food' => 'Non Food',
+                                    'other' => 'Other',
+                                ])
+                                ->native(false),
+                            Forms\Components\TextInput::make('concourse_lease_term')
+                                ->label('Concourse Lease Term')
+                                ->disabled()
+                                ->suffix('Months'),
                         ])->columns(3),
                         Forms\Components\TextInput::make('address')
                             ->maxLength(255)
                             ->default(null)
                             ->columnSpanFull(),
-                        Forms\Components\TextInput::make('phone_number')
-                            ->tel()
-                            ->maxLength(255)
-                            ->default(null),
-                        Forms\Components\Select::make('business_type')
-                            ->label('Business Type')
-                            ->extraInputAttributes(['class' => 'capitalize'])
-                            ->options([
-                                'food' => 'Food',
-                                'non-food' => 'Non Food',
-                                'other' => 'Other',
-                            ])
-                            ->native(false),
-                        Forms\Components\TextInput::make('concourse_lease_term')
-                            ->label('Concourse Lease Term')
-                            ->disabled()
-                            ->suffix('Months'),
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'pending' => 'Pending',
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ])
-                            ->native(false)
-                            ->extraInputAttributes(['class' => 'capitalize']),
                         Forms\Components\TextInput::make('remarks')
                             ->maxLength(255)
                             ->default(null)
@@ -189,12 +181,19 @@ class ApplicationResource extends Resource
                         }
                         return null;
                     }),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\TextColumn::make('requirements_status')
                     ->searchable()
                     ->badge()
+                    ->color(fn($state) => $state === 'approved' ? 'success' : 'warning')
+                    ->extraAttributes(['class' => 'capitalize']),
+                Tables\Columns\TextColumn::make('application_status')
+                    ->searchable()
+                    ->badge()
+                    ->color(fn($state) => $state === 'approved' ? 'secondary' : 'danger')
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('remarks')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active')
                     ->onIcon('heroicon-m-bolt')

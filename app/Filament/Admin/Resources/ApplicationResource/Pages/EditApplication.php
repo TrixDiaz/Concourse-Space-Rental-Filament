@@ -29,15 +29,61 @@ class EditApplication extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('approveApplication')
-                ->label('Approve Application')
+            Actions\Action::make('approveRequirements')
+                ->label('Approve Requirements')
                 ->icon('heroicon-o-check-circle')
+                ->visible(fn($record) => $record->requirements_status === 'pending')
                 ->action(function () {
                     $application = $this->getRecord();
 
                     DB::transaction(function () use ($application) {
-                        // Store the application data in ApprovedApplication table
-                        ApprovedApplication::create($application->toArray());
+                        // Update application status
+                        $application->update(['requirements_status' => 'approved']);
+
+                        // Notify the authenticated user
+                        $authUser = Auth::user();
+                        Notification::make()
+                            ->success()
+                            ->title('Application Requirements Approved')
+                            ->body("You successfully approved the application requirements.")
+                            ->actions([
+                                Action::make('view')
+                                    ->button()
+                                    ->url(route('filament.admin.resources.applications.index')),
+                            ])
+                            ->sendToDatabase($authUser);
+
+                        // Notify the application's user
+                        $applicationUser = User::find($application->user_id);
+                        Notification::make()
+                            ->success()
+                            ->title('Application Requirements Approved')
+                            ->body("Your application requirements have been approved.")
+                            ->sendToDatabase($applicationUser);
+
+                        // Show a success message in the UI
+                        Notification::make()
+                            ->success()
+                            ->title('Application Requirements Approved')
+                            ->body("The application requirements have been successfully approved and notifications sent.")
+                            ->send();
+
+                        // Redirect to the list view after approval
+                        return redirect()->route('filament.admin.resources.applications.index');
+                    });
+                })
+                ->color('success')
+                ->requiresConfirmation(),
+            Actions\Action::make('approveApplication')
+                ->label('Approve Application')
+                ->icon('heroicon-o-check-circle')
+                ->visible(fn($record) => $record->requirements_status === 'approved')
+                ->action(function () {
+                    $application = $this->getRecord();
+
+                    DB::transaction(function () use ($application) {
+                        // Update application status
+                        $application->update(['application_status' => 'Approved']);
 
                         // Update space status
                         $space = Space::find($application->space_id);
@@ -79,6 +125,8 @@ class EditApplication extends EditRecord
                             'lease_end' => Carbon::parse($application->created_at)->addMonths($application->lease_term),
                             'lease_term' => $application->concourse_lease_term,
                             'lease_status' => 'active',
+                            'application_status' => 'approved',
+                            'requirements_status' => 'approved',
                             'bills' => $application->bills ? json_encode($application->bills) : null,
                             'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : 0,
                             'payment_status' => 'Paid',
@@ -86,7 +134,7 @@ class EditApplication extends EditRecord
                         ]);
 
                         // Send lease contract email
-                        // $this->sendLeaseContractEmail($tenant, $application);
+                        $this->sendLeaseContractEmail($space, $application);
 
                         // Show a success message in the UI
                         Notification::make()
@@ -99,7 +147,6 @@ class EditApplication extends EditRecord
                         return redirect()->route('filament.admin.resources.applications.index');
                     });
 
-                    // ... existing code ...
                 })
                 ->color('success')
                 ->requiresConfirmation(),
@@ -107,13 +154,26 @@ class EditApplication extends EditRecord
         ];
     }
 
-    private function sendLeaseContractEmail(Tenant $tenant, $application)
+    private function sendLeaseContractEmail(Space $space, $application)
     {
         $owner = Auth::user();
-        $tenantUser = User::find($tenant->tenant_id);
-        $space = Space::find($tenant->space_id);
+        $tenantUser = User::find($space->user_id);
+        $space = Space::find($space->id);
 
-        Mail::to($tenantUser->email)->send(new LeaseContractMail($owner, $tenantUser, $tenant, $space, $application));
+        // Fetch additional information
+        $ownerAddress = $owner->address ?? 'Address not provided';
+        $tenantAddress = $tenantUser->address ?? 'Address not provided';
+        $businessName = $application->business_name ?? 'Business name not provided';
+
+        Mail::to($tenantUser->email)->send(new LeaseContractMail(
+            $owner,
+            $tenantUser,
+            $space,
+            $application,
+            $ownerAddress,
+            $tenantAddress,
+            $businessName
+        ));
     }
 
     protected function getSavedNotification(): ?Notification

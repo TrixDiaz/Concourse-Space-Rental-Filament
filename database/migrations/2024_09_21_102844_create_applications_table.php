@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
             $table->string('business_type')->nullable();
-            $table->string('status')->default('pending');
+            $table->string('requirements_status')->default('pending');
+            $table->string('application_status')->default('pending');
             $table->integer('concourse_lease_term')->nullable();
             $table->string('remarks')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();

@@ -23,19 +23,19 @@
 <body>
     <h1>Lease Agreement</h1>
 
-    <p>This Lease Agreement ("Agreement") is made and entered into on this {{ $tenant->lease_start->format('F j, Y') }} by and between:</p>
+    <p>This Lease Agreement ("Agreement") is made and entered into on this {{ $space->lease_start instanceof \DateTime ? $space->lease_start->format('F j, Y') : \Carbon\Carbon::parse($space->lease_start)->format('F j, Y') }} by and between:</p>
 
     <p>
         <strong>Owner Name:</strong> {{ $owner->name }}, hereinafter referred to as "Owner"<br>
-        <strong>Owner Address:</strong> {{ $owner->address }}
+        <strong>Owner Address:</strong> {{ $ownerAddress }}
     </p>
 
     <p>and</p>
 
     <p>
         <strong>Tenant Name:</strong> {{ $tenantUser->name }}, hereinafter referred to as "Tenant"<br>
-        <strong>Business Name:</strong> {{ $application->business_name }}<br>
-        <strong>Tenant Address:</strong> {{ $tenantUser->address }}
+        <strong>Business Name:</strong> {{ $businessName }}<br>
+        <strong>Tenant Address:</strong> {{ $tenantAddress }}
     </p>
 
     <h2>Recitals:</h2>
@@ -44,10 +44,10 @@
     <h2>NOW, THEREFORE, the parties agree as follows:</h2>
 
     <h3>1. Lease Term</h3>
-    <p>The lease term shall commence on {{ $tenant->lease_start->format('F j, Y') }} and continue until {{ $tenant->lease_end->format('F j, Y') }} unless terminated earlier as provided herein ("Lease Term").</p>
+    <p>The lease term shall commence on {{ $space->lease_start instanceof \DateTime ? $space->lease_start->format('F j, Y') : \Carbon\Carbon::parse($space->lease_start)->format('F j, Y') }} and continue until {{ $space->lease_end instanceof \DateTime ? $space->lease_end->format('F j, Y') : \Carbon\Carbon::parse($space->lease_end)->format('F j, Y') }} unless terminated earlier as provided herein ("Lease Term").</p>
 
     <h3>2. Rent</h3>
-    <p>The Tenant agrees to pay monthly rent of {{ $tenant->monthly_payment }} on or before the 1st of each month to the Owner at {{ $owner->payment_address }}. Any late payment shall be subject to a penalty of 5% of the monthly rent.</p>
+    <p>The Tenant agrees to pay monthly rent of {{ $space->monthly_payment }} on or before the 1st of each month to the Owner at {{ $owner->payment_address }}. Any late payment shall be subject to a penalty of 5% of the monthly rent.</p>
 
     <h3>3. Security Deposit</h3>
     <p>Tenant shall provide a security deposit of {{ $application->security_deposit }} to be held by the Owner as security for the performance of Tenant's obligations under this Lease. The deposit will be refunded at the end of the Lease Term, provided no damage beyond normal wear and tear has occurred.</p>
@@ -56,13 +56,13 @@
     <p>The Premises shall be used exclusively for the operation of {{ $application->business_name }} and for no other purpose without prior written consent from the Owner.</p>
 
     <h3>5. Maintenance and Repairs</h3>
-    <p>The Tenant shall maintain the Premises in good and tenantable condition. The Tenant shall be responsible for any repairs needed due to negligence or intentional acts. The Owner shall be responsible for structural repairs and other maintenance necessary for the general upkeep of the property.</p>
+    <p>Tenant shall maintain the Premises in good and spaceable condition. Tenant shall be responsible for any repairs needed due to negligence or intentional acts. The Owner shall be responsible for structural repairs and other maintenance necessary for the general upkeep of the property.</p>
 
     <h3>6. Alterations</h3>
     <p>Tenant shall not make any substantial alterations, additions, or improvements to the Premises without the prior written consent of the Owner.</p>
 
     <h3>7. Utilities</h3>
-    <p>The Tenant shall be responsible for the payment of all utilities, including electricity, water, gas, and other services used on the Premises during the Lease Term.</p>
+    <p>Tenant shall be responsible for the payment of all utilities, including electricity, water, gas, and other services used on the Premises during the Lease Term.</p>
 
     <h3>8. Insurance</h3>
     <p>Tenant agrees to maintain adequate business liability insurance during the Lease Term and provide proof of such insurance to the Owner upon request.</p>
@@ -85,7 +85,7 @@
         <p>
             <strong>Owner Signature:</strong> {{ $owner->name }}<br>
             <strong>Owner Name:</strong> {{ $owner->name }}<br>
-            <strong>Date:</strong> {{ $tenant->lease_start->format('F j, Y') }}
+            <strong>Date:</strong> {{ $space->lease_start instanceof \DateTime ? $space->lease_start->format('F j, Y') : \Carbon\Carbon::parse($space->lease_start)->format('F j, Y') }}
         </p>
     </div>
 
@@ -94,7 +94,7 @@
             <strong>Tenant Signature:</strong> {{ $tenantUser->name }}<br>
             <strong>Tenant Name:</strong> {{ $tenantUser->name }}<br>
             <strong>Space Name:</strong> {{ $space->name }}<br>
-            <strong>Date:</strong> {{ $tenant->lease_start->format('F j, Y') }}
+            <strong>Date:</strong> {{ $space->lease_start instanceof \DateTime ? $space->lease_start->format('F j, Y') : \Carbon\Carbon::parse($space->lease_start)->format('F j, Y') }}
         </p>
     </div>
 </body>

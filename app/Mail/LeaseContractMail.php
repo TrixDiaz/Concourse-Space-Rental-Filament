@@ -15,20 +15,24 @@ class LeaseContractMail extends Mailable
 
     public $owner;
     public $tenantUser;
-    public $tenant;
     public $space;
     public $application;
+    public $ownerAddress;
+    public $tenantAddress;
+    public $businessName;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($owner, $tenantUser, $tenant, $space, $application)
+    public function __construct($owner, $tenantUser, $space, $application, $ownerAddress, $tenantAddress, $businessName)
     {
         $this->owner = $owner;
         $this->tenantUser = $tenantUser;
-        $this->tenant = $tenant;
         $this->space = $space;
         $this->application = $application;
+        $this->ownerAddress = $ownerAddress;
+        $this->tenantAddress = $tenantAddress;
+        $this->businessName = $businessName;
     }
 
     /**
@@ -59,5 +63,22 @@ class LeaseContractMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    /**
+     * Build the message.
+     */
+    public function build()
+    {
+        return $this->view('emails.lease-contract')
+                    ->with([
+                        'owner' => $this->owner,
+                        'tenantUser' => $this->tenantUser,
+                        'space' => $this->space,
+                        'application' => $this->application,
+                        'ownerAddress' => $this->ownerAddress,
+                        'tenantAddress' => $this->tenantAddress,
+                        'businessName' => $this->businessName
+                    ]);
     }
 }

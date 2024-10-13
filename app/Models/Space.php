@@ -41,6 +41,9 @@ class Space extends Model
         'sqm' => 'float',
         'price' => 'float',
         'monthly_payment' => 'float',
+        'lease_start' => 'datetime',
+        'lease_end' => 'datetime',
+        'lease_due' => 'datetime',
     ];
 
     public function user()

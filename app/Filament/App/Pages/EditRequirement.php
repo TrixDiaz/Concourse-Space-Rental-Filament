@@ -86,6 +86,14 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                             ->label('Lease Agreement Date')
                             ->disabled()
                             ->suffix('Months'),
+                        Forms\Components\TextInput::make('requirements_status')
+                            ->label('Requirements Status')
+                            ->disabled()
+                            ->extraInputAttributes(['class' => 'capitalize']),
+                        Forms\Components\TextInput::make('application_status')
+                            ->label('Application Status')
+                            ->disabled()
+                            ->extraInputAttributes(['class' => 'capitalize']),
                         Forms\Components\TextInput::make('remarks')
                             ->label('Remarks')
                             ->columnSpanFull(),
