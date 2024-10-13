@@ -3,18 +3,12 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\ApplicationResource\Pages;
-use App\Filament\Admin\Resources\ApplicationResource\RelationManagers;
 use App\Models\Application;
-use App\Models\AppRequirement;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ApplicationResource extends Resource
 {
@@ -191,6 +185,10 @@ class ApplicationResource extends Resource
                     ->badge()
                     ->color(fn($state) => $state === 'approved' ? 'secondary' : 'danger')
                     ->extraAttributes(['class' => 'capitalize']),
+                Tables\Columns\TextColumn::make('space_type')
+                    ->searchable()
+                    ->extraAttributes(['class' => 'capitalize'])
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('remarks')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -214,13 +212,14 @@ class ApplicationResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
-                SelectFilter::make('is_active')
+                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\SelectFilter::make('is_active')
                     ->options([
                         '1' => 'Active',
                         '0' => 'Inactive',
                     ])
                     ->label('Active'),
+               
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
