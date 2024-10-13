@@ -12,8 +12,11 @@ class Space extends Model
 
     protected $fillable = [
         'user_id',
+        'application_id',
         'concourse_id',
         'name',
+        'email',
+        'space_type',
         'price',
         'sqm',
         'status',
@@ -49,6 +52,11 @@ class Space extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function application()
+    {
+        return $this->belongsTo(Application::class);
     }
 
     public function concourse()

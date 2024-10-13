@@ -118,19 +118,28 @@ class EditApplication extends EditRecord
                         // Create a new Tenant instance
                         $space = Space::find($application->space_id);
                         $space->update([
+                            'application_id' => $application->id,
                             'user_id' => $application->user_id,
                             'concourse_id' => $application->concourse_id,
                             'lease_start' => $application->created_at,
+                            'email' => $application->email,
+                            'owner_name' => $application->owner_name,
+                            'business_name' => $application->business_name,
+                            'address' => $application->address,
+                            'phone_number' => $application->phone_number,
+                            'business_type' => $application->business_type,
                             'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
                             'lease_end' => Carbon::parse($application->created_at)->addMonths($application->lease_term),
                             'lease_term' => $application->concourse_lease_term,
                             'lease_status' => 'active',
                             'application_status' => 'approved',
                             'requirements_status' => 'approved',
+                            'space_type' => 'new',
                             'bills' => $application->bills ? json_encode($application->bills) : null,
                             'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : 0,
                             'payment_status' => 'Paid',
                             'is_active' => true,
+                            'remarks' => $application->remarks,
                         ]);
 
                         // Send lease contract email
@@ -161,9 +170,15 @@ class EditApplication extends EditRecord
         $space = Space::find($space->id);
 
         // Fetch additional information
-        $ownerAddress = $owner->address ?? 'Address not provided';
+        $ownerAddress = $application->address ?? 'Address not provided';
         $tenantAddress = $tenantUser->address ?? 'Address not provided';
         $businessName = $application->business_name ?? 'Business name not provided';
+        $ownerName = $application->owner_name ?? 'Owner name not provided';
+        $phoneNumber = $application->phone_number ?? 'Phone number not provided';
+        $businessType = $application->business_type ?? 'Business type not provided';
+        $email = $application->email ?? 'Email not provided';
+        $applicationId = $application->id;
+        $remarks = $application->remarks ?? 'Remarks not provided';
 
         Mail::to($tenantUser->email)->send(new LeaseContractMail(
             $owner,
@@ -172,7 +187,13 @@ class EditApplication extends EditRecord
             $application,
             $ownerAddress,
             $tenantAddress,
-            $businessName
+            $businessName,
+            $ownerName,
+            $phoneNumber,
+            $businessType,
+            $email,
+            $applicationId,
+            $remarks
         ));
     }
 

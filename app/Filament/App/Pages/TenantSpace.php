@@ -13,9 +13,10 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Ixudra\Curl\Facades\Curl;
-use App\Models\Tenant;
+use App\Services\RenewForm;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Application;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -96,8 +97,70 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->button()
                     ->action(fn($record) => $this->payWithGCash($record))
                     ->visible(fn($record) => $record->payment_status !== 'Paid' && $record->monthly_payment > 0),
-            ])
-            ->poll('3s');
+                Tables\Actions\Action::make('renew')
+                    ->label('Renew Lease')
+                    ->button()
+                    ->form(fn ($record) => RenewForm::schema($record))
+                    ->action(function (array $data, $record) {
+                        // Get the application_id from the Space record
+                        $applicationId = $record->application_id;
+                        
+                        // Try to find the application, including soft-deleted ones
+                        $application = Application::withTrashed()->find($applicationId);
+
+                        if ($application) {
+                            // If the application exists (even if soft-deleted), restore and update it
+                            $application->restore();
+                            $application->update([
+                                'user_id' => auth()->id(),
+                                'space_id' => $record->id,
+                                'concourse_id' => $record->concourse_id,
+                                'business_name' => $data['business_name'] ?? null,
+                                'owner_name' => $data['owner_name'] ?? null,
+                                'address' => $data['address'] ?? null,
+                                'phone_number' => $data['phone_number'] ?? null,
+                                'email' => $data['email'] ?? null,
+                                'business_type' => $data['business_type'] ?? null,
+                                'requirements_status' => 'pending',
+                                'application_status' => 'pending',
+                                'space_type' => 'renewal',
+                                'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
+                                'remarks' => $data['remarks'] ?? null,
+                            ]);
+                        } else {
+                            // If no application exists, create a new one
+                            $application = Application::create([
+                                'user_id' => auth()->id(),
+                                'space_id' => $record->id,
+                                'concourse_id' => $record->concourse_id,
+                                'business_name' => $data['business_name'] ?? null,
+                                'owner_name' => $data['owner_name'] ?? null,
+                                'address' => $data['address'] ?? null,
+                                'phone_number' => $data['phone_number'] ?? null,
+                                'email' => $data['email'] ?? null,
+                                'business_type' => $data['business_type'] ?? null,
+                                'requirements_status' => 'pending',
+                                'application_status' => 'pending',
+                                'space_type' => 'renewal',
+                                'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
+                                'remarks' => $data['remarks'] ?? null,
+                            ]);
+
+                            // Update the Space with the new application_id
+                            $record->update(['application_id' => $application->id]);
+                        }
+
+                        Notification::make()
+                            ->title('Lease Renewal Application Submitted')
+                            ->body('Your application for lease renewal has been submitted successfully.')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn($record) => 
+                        $record->lease_end->isBetween(now(), now()->addMonths(3)) &&
+                        $record->lease_end->isFuture() 
+                    ),
+            ]);
     }
 
     protected function payWithGCash($record)

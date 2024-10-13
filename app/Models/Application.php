@@ -16,6 +16,7 @@ class Application extends Model
         'concourse_id',
         'business_name',
         'owner_name',
+        'space_type',
         'email',
         'phone_number',
         'address',

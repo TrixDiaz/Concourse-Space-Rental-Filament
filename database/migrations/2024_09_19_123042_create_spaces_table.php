@@ -14,12 +14,20 @@ return new class extends Migration
         Schema::create('spaces', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('concourse_id');
+            $table->unsignedBigInteger('application_id')->nullable();
             $table->id();
 
             $table->string('name');
             $table->string('status');
             $table->float('sqm');
             $table->float('price');
+            $table->string('business_name')->nullable();
+            $table->string('owner_name')->nullable();
+            $table->string('address')->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('email')->nullable();
+            $table->string('space_type')->nullable();
+            $table->string('business_type')->nullable();
             $table->date('lease_start')->nullable();
             $table->date('lease_end')->nullable();
             $table->date('lease_due')->nullable();
@@ -38,7 +46,6 @@ return new class extends Migration
             $table->integer('space_coordinates_x2');
             $table->integer('space_coordinates_y2');
            
-
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreign('concourse_id')->references('id')->on('concourses')->cascadeOnDelete();
             $table->softDeletes();

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('business_name')->nullable();
             $table->string('owner_name')->nullable();
+            $table->string('space_type')->nullable();
             $table->string('address')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
