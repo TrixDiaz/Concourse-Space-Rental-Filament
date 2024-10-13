@@ -156,10 +156,25 @@ class TenantSpace extends Page implements HasForms, HasTable
                             ->success()
                             ->send();
                     })
-                    ->visible(fn($record) => 
-                        $record->lease_end->isBetween(now(), now()->addMonths(3)) &&
-                        $record->lease_end->isFuture() 
-                    ),
+                    ->visible(function ($record) {
+                        // Check if the lease end date is within the next 3 months
+                        $isWithinRenewalPeriod = $record->lease_end->isBetween(now(), now()->addMonths(3)) &&
+                            $record->lease_end->isFuture();
+
+                        // Check if there's an associated application
+                        if ($record->application_id) {
+                            // Find the application, including soft-deleted ones
+                            $application = Application::withTrashed()->find($record->application_id);
+
+                            // If an application exists and belongs to the current user, hide the button
+                            if ($application && $application->user_id === auth()->id()) {
+                                return false;
+                            }
+                        }
+
+                        // Show the button if within renewal period and no matching application found
+                        return $isWithinRenewalPeriod;
+                    }),
             ]);
     }
 
