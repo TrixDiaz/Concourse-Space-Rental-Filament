@@ -250,7 +250,7 @@ class TenantSpace extends Page implements HasForms, HasTable
     {
         $tenant = Space::findOrFail($recordId);
         
-        // $this->sendPaymentConfirmationEmail($tenant);
+         $this->sendPaymentConfirmationEmail($tenant);
 
         // Get the concourse associated with this space
         $concourse = $tenant->concourse;
