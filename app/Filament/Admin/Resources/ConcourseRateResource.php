@@ -23,10 +23,14 @@ class ConcourseRateResource extends Resource
 
     protected static ?string $navigationLabel = 'Rates';
 
-
     protected static ?string $model = ConcourseRate::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {

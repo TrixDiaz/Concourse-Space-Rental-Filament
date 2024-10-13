@@ -18,13 +18,18 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ApplicationResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Tenants Settings';
+    protected static ?string $navigationGroup = 'Applications Settings';
 
-    protected static ?string $navigationLabel = 'Applications';
+    protected static ?string $navigationLabel = 'Pending';
 
     protected static ?string $model = Application::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
