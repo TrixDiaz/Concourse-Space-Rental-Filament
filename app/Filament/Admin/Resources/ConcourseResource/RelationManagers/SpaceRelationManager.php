@@ -118,16 +118,9 @@ class SpaceRelationManager extends RelationManager
                                 'occupied' => 'Occupied',
                                 'under_maintenance' => 'Under Maintenance',
                             ]),
-                        Forms\Components\Select::make('payment_status')
+                        Forms\Components\TextInput::make('payment_status')
                             ->label('Payment Status')
-                            ->native(false)
-                            ->hidden()
-                            ->options([
-                                'paid' => 'Paid',
-                                'unpaid' => 'Unpaid',
-                                'overdue' => 'Overdue',
-                                'pending' => 'Pending',
-                            ]),
+                            ->readOnly(),
                     ]),
                     Forms\Components\Section::make('Visibility')->schema([
                         Forms\Components\Toggle::make('is_active')
@@ -328,7 +321,7 @@ class SpaceRelationManager extends RelationManager
                                 $today = \Carbon\Carbon::today();
 
                                 if ($leaseDate->lte($today)) {
-                                    $rentAmount = $record->price ?? 0; // Corrected to use $record->price
+                                    $rentAmount = $record->price ?? 0;
                                     $bills = $record->bills ?? [];
 
                                     // Check if the Monthly Rent bill already exists
@@ -342,33 +335,36 @@ class SpaceRelationManager extends RelationManager
                                         $bills[] = [
                                             'name' => 'Monthly Rent',
                                             'amount' => $rentAmount,
+                                            'for_month' => $leaseDate->format('Y-m'),
                                         ];
-
-                                        $record->bills = $bills; // Update the bills array
-                                        $record->monthly_payment = $rentAmount; // Set the monthly payment
-                                        $record->lease_status = 'active';
-                                        $record->payment_status = 'unpaid';
-                                        $record->save();
-
-                                        \Filament\Notifications\Notification::make()
-                                            ->title('Bills Updated')
-                                            ->success()
-                                            ->send();
-
-                                        $user = User::find($record->user_id);
-
-                                        \Filament\Notifications\Notification::make()
-                                            ->title('Bills Updated')
-                                            ->body('The bills for your lease period have been updated.')
-                                            ->success()
-                                            ->sendToDatabase($user);
                                     } else {
-                                        \Filament\Notifications\Notification::make()
-                                            ->title('No Update Needed')
-                                            ->info()
-                                            ->body('The bill for this lease period already exists.')
-                                            ->send();
+                                        // Update existing Monthly Rent bill
+                                        $bills = collect($bills)->map(function ($bill) use ($rentAmount, $leaseDate) {
+                                            if ($bill['name'] == 'Monthly Rent' && $bill['for_month'] == $leaseDate->format('Y-m')) {
+                                                $bill['amount'] = $rentAmount;
+                                            }
+                                            return $bill;
+                                        })->toArray();
                                     }
+
+                                    $record->bills = $bills;
+                                    $record->monthly_payment = $rentAmount;
+                                    $record->lease_status = 'active';
+                                    $record->payment_status = 'unpaid'; 
+                                    $record->save();
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Bills Updated')
+                                        ->success()
+                                        ->send();
+
+                                    $user = User::find($record->user_id);
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Bills Updated')
+                                        ->body('The bills for your lease period have been updated.')
+                                        ->success()
+                                        ->sendToDatabase($user);
                                 } else {
                                     \Filament\Notifications\Notification::make()
                                         ->title('No Update Needed')
