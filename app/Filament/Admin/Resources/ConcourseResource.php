@@ -153,13 +153,15 @@ class ConcourseResource extends Resource
                                 ->label('Concourse Image')
                                 ->imageEditor()
                                 ->openable()
-                                ->downloadable(),
+                                ->downloadable()
+                                ->disk('public'),
                             Forms\Components\FileUpload::make('layout')
                                 ->image()
                                 ->label('Space Layout')
                                 ->imageEditor()
                                 ->openable()
-                                ->downloadable(),
+                                ->downloadable()
+                                ->disk('public'),
                         ])->columns(2),
                     ])->columnSpan([
                         'sm' => 3,
