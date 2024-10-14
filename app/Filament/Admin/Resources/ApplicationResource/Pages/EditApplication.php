@@ -117,7 +117,7 @@ class EditApplication extends EditRecord
 
                         // Create a new Tenant instance
                         $space = Space::find($application->space_id);
-                        $space->update([
+                        $space->updateOrCreate([
                             'application_id' => $application->id,
                             'user_id' => $application->user_id,
                             'concourse_id' => $application->concourse_id,
@@ -129,7 +129,7 @@ class EditApplication extends EditRecord
                             'phone_number' => $application->phone_number,
                             'business_type' => $application->business_type,
                             'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
-                            'lease_end' => Carbon::parse($application->created_at)->addMonths($application->lease_term),
+                            'lease_end' => Carbon::parse($application->created_at)->addMonths($application->concourse_lease_term),
                             'lease_term' => $application->concourse_lease_term,
                             'lease_status' => 'active',
                             'application_status' => 'approved',
