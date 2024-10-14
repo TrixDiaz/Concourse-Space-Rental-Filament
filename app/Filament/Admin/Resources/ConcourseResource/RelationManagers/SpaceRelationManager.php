@@ -271,7 +271,7 @@ class SpaceRelationManager extends RelationManager
                     ->sortable(),
                 Tables\Columns\TextColumn::make('Lease Term')
                     ->label('Lease Term')
-                    ->default(fn($record) => 'Lease Due:' . $record->lease_due->format('F j, Y'))
+                    ->default(fn($record) => 'Lease Due:' . \Carbon\Carbon::parse($record->lease_due)->format('F j, Y'))
                     ->description(fn($record) => 'Lease End: ' . \Carbon\Carbon::parse($record->lease_end)->format('F j, Y'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('Monthly Payment')
