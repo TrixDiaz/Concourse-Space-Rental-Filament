@@ -117,7 +117,7 @@ class EditApplication extends EditRecord
 
                         // Create a new Tenant instance
                         $space = Space::find($application->space_id);
-                        $space->updateOrCreate([
+                        $space->update([
                             'application_id' => $application->id,
                             'user_id' => $application->user_id,
                             'concourse_id' => $application->concourse_id,
