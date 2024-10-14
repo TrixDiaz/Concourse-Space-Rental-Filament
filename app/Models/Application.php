@@ -27,6 +27,8 @@ class Application extends Model
         'concourse_lease_term',
     ];
 
+    protected $dates = ['deleted_at'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
