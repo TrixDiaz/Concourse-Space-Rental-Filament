@@ -36,21 +36,18 @@ class ApplicationResource extends Resource
                                 ->relationship('concourse', 'name')
                                 ->required()
                                 ->searchable()
-                                ->preload()
-                                ->disabledOn('edit'),
+                                ->preload(),
                             Forms\Components\Select::make('space_id')
                                 ->relationship('space', 'name')
                                 ->required()
                                 ->searchable()
-                                ->preload()
-                                ->disabledOn('edit'),
+                                ->preload(),
                             Forms\Components\Select::make('user_id')
                                 ->relationship('user', 'name')
                                 ->required()
                                 ->searchable()
                                 ->preload()
-                                ->label('Tenant')
-                                ->disabledOn('edit'),
+                                ->label('Tenant'),
                             Forms\Components\TextInput::make('business_name')
                                 ->maxLength(255)
                                 ->default(null),

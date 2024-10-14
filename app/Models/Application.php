@@ -23,6 +23,12 @@ class Application extends Model
         'requirements_status',
         'application_status',
         'remarks',
+        'monthly_payment',
+        'payment_status',
+        'payment_due',
+        'application_status',
+        'payment_due_date',
+        'payment_due_status',
         'business_type',
         'concourse_lease_term',
     ];

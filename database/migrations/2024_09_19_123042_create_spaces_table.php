@@ -37,6 +37,9 @@ return new class extends Migration
             $table->integer('monthly_payment')->nullable();
             $table->string('payment_status')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->string('requirements_status')->nullable();
+            $table->string('application_status')->nullable();
+            $table->string('remarks')->nullable();
             $table->integer('space_width');
             $table->integer('space_length');
             $table->float('space_area');
