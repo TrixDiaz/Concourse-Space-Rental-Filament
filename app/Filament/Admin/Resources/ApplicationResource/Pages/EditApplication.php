@@ -137,7 +137,7 @@ class EditApplication extends EditRecord
                             'space_type' => 'new',
                             'bills' => $application->bills ? json_encode($application->bills) : null,
                             'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : 0,
-                            'payment_status' => 'Paid',
+                            'payment_status' => '',
                             'is_active' => true,
                             'remarks' => $application->remarks,
                         ]);
