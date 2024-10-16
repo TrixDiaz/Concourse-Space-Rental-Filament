@@ -319,7 +319,8 @@ class ConcourseResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->description(fn($record) => $record->address),
                 Tables\Columns\TextColumn::make('address')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),

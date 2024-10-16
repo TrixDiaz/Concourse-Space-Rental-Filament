@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 
 final class RequirementForm
 {
+   
+
     public static function schema($concourseId = null, $spaceId = null, $concourseLeaseTerm = null): array
     {
         $user = Auth::user();

@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\CreateRecord;
 
 class ListSpaces extends Component implements HasTable, HasForms
 {
@@ -104,6 +105,7 @@ class ListSpaces extends Component implements HasTable, HasForms
             ->actions([
                 Tables\Actions\CreateAction::make()
                     ->disableCreateAnother()
+                    ->modalSubmitActionLabel('Submit')
                     ->label('Apply Now')
                     ->slideOver()
                     ->icon('heroicon-o-plus')
@@ -140,7 +142,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                             ]);
                         }
 
-                        $applicationUrl = route('filament.admin.resources.applications.edit', ['record' => $application->id]); 
+                        $applicationUrl = route('filament.admin.resources.applications.edit', ['record' => $application->id]);
 
                         Notification::make()
                             ->title('Application Submitted')

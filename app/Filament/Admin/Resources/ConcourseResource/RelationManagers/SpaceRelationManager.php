@@ -264,11 +264,7 @@ class SpaceRelationManager extends RelationManager
                     ->label('Sqm')
                     ->numeric()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('lease_due')
-                    ->label('Monthly Due')
-                    ->date('F j, Y')
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('Lease Term')
                     ->label('Lease Term')
                     ->default(fn($record) => 'Lease Due:' . \Carbon\Carbon::parse($record->lease_due)->format('F j, Y'))
