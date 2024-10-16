@@ -24,6 +24,8 @@ class TenantSpace extends Page implements HasForms, HasTable
 
     use InteractsWithForms, InteractsWithTable;
 
+    protected static ?string $navigationLabel = 'My Space';
+
     protected static ?string $navigationIcon = 'heroicon-o-home-modern';
 
     protected static string $view = 'filament.app.pages.tenant-space';

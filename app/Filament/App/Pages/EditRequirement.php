@@ -96,7 +96,8 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                             ->extraInputAttributes(['class' => 'capitalize']),
                         Forms\Components\TextInput::make('remarks')
                             ->label('Remarks')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled(),
                         Forms\Components\Section::make('Requirements')
                             ->schema(function () {
                                 return $this->allRequirements->map(function ($requirement) {

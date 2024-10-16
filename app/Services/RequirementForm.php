@@ -29,6 +29,8 @@ final class RequirementForm
                         ->required(),
                     Forms\Components\TextInput::make('owner_name')
                         ->label('Owner Name')
+                        ->default(fn() => $user->name)
+                        ->readOnly()
                         ->required(),
                     Forms\Components\TextInput::make('email')
                         ->label('Email')

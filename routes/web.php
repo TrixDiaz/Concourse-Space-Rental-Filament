@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Filament\App\Pages\TenantSpace;
@@ -7,7 +8,7 @@ use App\Http\Controllers\PolicyController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 
 Route::get('/terms', [TermsController::class, 'show'])->name('terms.show');

@@ -9,19 +9,19 @@
                         <div
                             style="
                                 position: absolute; 
-                                border: 2px solid {{ $space->status === 'available' ? 'green' : 'blue' }}; 
+                                border: 2px solid {{ $space->status === 'available' ? 'blue' : 'green' }}; 
                                 left: {{ $space->space_coordinates_x }}%; 
                                 top: {{ $space->space_coordinates_y }}%; 
                                 width: {{ $space->space_width }}%; 
                                 height: {{ $space->space_length }}%;
-                                background-color: {{ $space->status === 'available' ? 'rgba(0, 255, 0, 0.3)' : 'rgba(0, 0, 255, 0.3)' }};
+                                background-color: {{ $space->status === 'available' ? 'rgba(0, 0, 255, 0.3)' : 'rgba(0, 255, 0, 0.3)' }};
                                 transition: background-color 0.3s ease;
                                 cursor: pointer;
                             "
-                            onmouseover="this.style.backgroundColor='{{ $space->status === 'available' ? 'rgba(0, 255, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)' }}'"
-                            onmouseout="this.style.backgroundColor='{{ $space->status === 'available' ? 'rgba(0, 255, 0, 0.3)' : 'rgba(0, 0, 255, 0.3)' }}'"
+                            onmouseover="this.style.backgroundColor='{{ $space->status === 'available' ? 'rgba(0, 0, 255, 0.5)' : 'rgba(0, 255, 0, 0.5)' }}'"
+                            onmouseout="this.style.backgroundColor='{{ $space->status === 'available' ? 'rgba(0, 0, 255, 0.3)' : 'rgba(0, 255, 0, 0.3)' }}'"
                         >
-                            <span style="color: {{ $space->status === 'available' ? 'green' : 'blue' }}; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
+                            <span style="color: {{ $space->status === 'available' ? 'blue' : 'green' }}; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
                         </div>
                     @endforeach
                 </div>
