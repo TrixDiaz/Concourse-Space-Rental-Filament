@@ -35,7 +35,7 @@ class ConcourseRate extends Model
         $this->concourses()->each(function ($concourse) {
             $concourse->spaces()->each(function ($space) {
                 $spacePrice = $this->calculateSpacePrice($space->sqm);
-                $space->update(['price' => $spacePrice]);
+                $space->update(['rent_bills' => $spacePrice]);
             });
         });
     }
