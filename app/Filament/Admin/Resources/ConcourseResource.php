@@ -177,16 +177,7 @@ class ConcourseResource extends Resource
                                 ->label('Visible')
                                 ->default(true),
                         ]),
-                        Forms\Components\Section::make('Billing')->schema([
-                            Forms\Components\TextInput::make('total_monthly_water')
-                                ->label('Total Water Bill')
-                                ->prefix('₱')
-                                ->numeric(),
-                            Forms\Components\TextInput::make('total_monthly_electricity')
-                                ->label('Total Electricity Bill')
-                                ->prefix('₱')
-                                ->numeric(),
-                        ])->collapsible(),
+                        
                         Forms\Components\Section::make()->schema([
                             Forms\Components\Placeholder::make('created_at')
                                 ->label('Created at')

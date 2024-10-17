@@ -270,14 +270,14 @@ class SpaceRelationManager extends RelationManager
                     ->default(fn($record) => 'Lease Due:' . \Carbon\Carbon::parse($record->lease_due)->format('F j, Y'))
                     ->description(fn($record) => 'Lease End: ' . \Carbon\Carbon::parse($record->lease_end)->format('F j, Y'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('Monthly Payment')
-                    ->label('Monthly Payment')
-                    ->default(fn($record) => $record->monthly_payment . ' ' . $record->payment_status)
-                    ->extraAttributes(['class' => 'capitalize'])
-                    ->prefix('₱')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                // Tables\Columns\TextColumn::make('Monthly Payment')
+                //     ->label('Monthly Payment')
+                //     ->default(fn($record) => $record->water_bills + $record->electricity_bills + $record->rent_bills . ' ' . $record->payment_status)
+                //     ->extraAttributes(['class' => 'capitalize'])
+                //     ->prefix('₱')
+                //     ->numeric()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize']),
@@ -306,77 +306,7 @@ class SpaceRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
-                    Tables\Actions\Action::make('updateBills')
-                        ->label('Update Monthly Rent')
-                        ->icon('heroicon-m-currency-dollar')
-                        ->color('primary')
-                        ->requiresConfirmation()
-                        ->action(function (Space $record) {
-                            if ($record->lease_due) {
-                                $leaseDate = \Carbon\Carbon::parse($record->lease_due);
-                                $today = \Carbon\Carbon::today();
-
-                                if ($leaseDate->lte($today)) {
-                                    $rentAmount = $record->price ?? 0;
-                                    $bills = $record->bills ?? [];
-
-                                    // Check if the Monthly Rent bill already exists
-                                    $billExists = collect($bills)->contains(function ($bill) use ($leaseDate) {
-                                        return isset($bill['name']) && $bill['name'] == 'Monthly Rent' &&
-                                            isset($bill['for_month']) && $bill['for_month'] == $leaseDate->format('Y-m');
-                                    });
-
-                                    if (!$billExists) {
-                                        // Add Monthly Rent bill
-                                        $bills[] = [
-                                            'name' => 'Monthly Rent',
-                                            'amount' => $rentAmount,
-                                            'for_month' => $leaseDate->format('Y-m'),
-                                        ];
-                                    } else {
-                                        // Update existing Monthly Rent bill
-                                        $bills = collect($bills)->map(function ($bill) use ($rentAmount, $leaseDate) {
-                                            if ($bill['name'] == 'Monthly Rent' && $bill['for_month'] == $leaseDate->format('Y-m')) {
-                                                $bill['amount'] = $rentAmount;
-                                            }
-                                            return $bill;
-                                        })->toArray();
-                                    }
-
-                                    $record->bills = $bills;
-                                    $record->monthly_payment = $rentAmount;
-                                    $record->lease_status = 'active';
-                                    $record->payment_status = 'unpaid'; 
-                                    $record->save();
-
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Bills Updated')
-                                        ->success()
-                                        ->send();
-
-                                    $user = User::find($record->user_id);
-
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Bills Updated')
-                                        ->body('The bills for your lease period have been updated.')
-                                        ->success()
-                                        ->sendToDatabase($user);
-                                } else {
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('No Update Needed')
-                                        ->info()
-                                        ->body('It\'s too early to update the bills for this tenant.')
-                                        ->send();
-                                }
-                            } else {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Error')
-                                    ->danger()
-                                    ->body('Lease due date is not set for this tenant.')
-                                    ->send();
-                            }
-                        }),
-                    Tables\Actions\EditAction::make()->color('gray')->label('Add Monthly Bills'),
+                    Tables\Actions\EditAction::make()->color('warning'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),

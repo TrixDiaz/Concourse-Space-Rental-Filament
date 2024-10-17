@@ -25,12 +25,13 @@ class Space extends Model
         'lease_due',
         'lease_term',
         'lease_status',
-        'bills',
-        'monthly_payment',
         'payment_status',
         'application_status',
         'requirements_status',
         'remarks',
+        'water_bills',
+        'electricity_bills',
+        'rent_bills',
         'payment_due',
         'payment_due_date',
         'payment_due_status',
@@ -46,10 +47,8 @@ class Space extends Model
     ];
 
     protected $casts = [
-        'bills' => 'array',
         'sqm' => 'float',
         'price' => 'float',
-        'monthly_payment' => 'float',
         'lease_start' => 'datetime',
         'lease_end' => 'datetime',
         'lease_due' => 'datetime',

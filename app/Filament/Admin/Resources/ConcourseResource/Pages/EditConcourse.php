@@ -44,27 +44,27 @@ class EditConcourse extends EditRecord
                 })
                 ->color('warning')
                 ->icon('heroicon-o-bell')
-                ->visible(fn () => $this->hasSpacesWithBills())
+                // ->visible(fn () => $this->hasSpacesWithBills())
                 ->requiresConfirmation(),
             // Actions\DeleteAction::make(),
         ];
     }
 
-    protected function hasSpacesWithBills(): bool
-    {
-        $concourse = $this->getRecord();
-        $spacesCount = $concourse->spaces()->count();
-        $spacesWithValidBills = $concourse->spaces()
-            ->where(function ($query) {
-                $query->whereRaw("JSON_CONTAINS(bills, '{\"name\": \"Water\"}', '$')")
-                    ->whereRaw("JSON_CONTAINS(bills, '{\"name\": \"Electricity\"}', '$')")
-                    ->whereNotNull('bills')
-                    ->where('bills', '!=', '[]');
-            })
-            ->count();
+    // protected function hasSpacesWithBills(): bool
+    // {
+    //     $concourse = $this->getRecord();
+    //     $spacesCount = $concourse->spaces()->count();
+    //     $spacesWithValidBills = $concourse->spaces()
+    //         ->where(function ($query) {
+    //             $query->whereRaw("JSON_CONTAINS(bills, '{\"name\": \"Water\"}', '$')")
+    //                 ->whereRaw("JSON_CONTAINS(bills, '{\"name\": \"Electricity\"}', '$')")
+    //                 ->whereNotNull('bills')
+    //                 ->where('bills', '!=', '[]');
+    //         })
+    //         ->count();
 
-        return $spacesCount > 0 && $spacesCount === $spacesWithValidBills;
-    }
+    //     return $spacesCount > 0 && $spacesCount === $spacesWithValidBills;
+    // }
 
     protected function getSavedNotification(): ?Notification
     {

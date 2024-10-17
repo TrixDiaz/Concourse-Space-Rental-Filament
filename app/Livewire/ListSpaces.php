@@ -27,6 +27,8 @@ class ListSpaces extends Component implements HasTable, HasForms
     public $concourse_lease_term;
     public $concourse;
     public $spaces;
+    public $selectedSpace = null;
+    public $showModal = false;
 
     public function mount()
     {
@@ -39,6 +41,18 @@ class ListSpaces extends Component implements HasTable, HasForms
     public function render()
     {
         return view('livewire.list-spaces');
+    }
+
+    public function showSpaceDetails($spaceId)
+    {
+        $this->selectedSpace = Space::find($spaceId);
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->selectedSpace = null;
     }
 
     public function table(Table $table): Table
