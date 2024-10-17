@@ -54,39 +54,15 @@ class SpaceRelationManager extends RelationManager
                                 ->disabled(),
                         ])->columns(2),
                     Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
-                        Forms\Components\Repeater::make('bills')
-                            ->schema([
-                                Forms\Components\Grid::make(2)->schema([
-                                    Forms\Components\TextInput::make('name')
-                                        ->label('Name')
-                                        ->required(),
-                                    Forms\Components\TextInput::make('amount')
-                                        ->label('Amount')
-                                        ->prefix('₱')
-                                        ->numeric()
-                                        ->required(),
-                                ])
-                            ])
-                            ->defaultItems(2)
-                            ->createItemButtonLabel('Add Bill')
-                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                                return $data;
-                            })
-                            ->afterStateHydrated(function (Forms\Components\Repeater $component, $state) {
-                                if (empty($state)) {
-                                    $component->state([
-                                        ['name' => 'Water', 'amount' => 0],
-                                        ['name' => 'Electricity', 'amount' => 0],
-                                    ]);
-                                }
-                            })
-                            ->columnSpanFull()
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                $total = collect($state)->sum('amount');
-                                $set('monthly_payment', $total);
-                                $set('payment_status', 'unpaid');
-                            })
+                        Forms\Components\TextInput::make('water_consumption')
+                            ->label('Water Consumption')
+                            ->prefix('m3')
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\TextInput::make('electricity_consumption')
+                            ->label('Electricity Consumption')
+                            ->prefix('kWh')
+                            ->numeric(),
                     ])->columns(2),
                 ])->columnSpan([
                     'sm' => 3,
@@ -95,12 +71,6 @@ class SpaceRelationManager extends RelationManager
                 ]),
                 Forms\Components\Grid::make(1)->schema([
                     Forms\Components\Section::make('Monthly Payment')->schema([
-                        Forms\Components\TextInput::make('monthly_payment')
-                            ->label('Monthly Payment')
-                            ->prefix('₱')
-                            ->numeric()
-                            ->readOnly()
-                            ->default(0),
                         Forms\Components\Select::make('lease_status')
                             ->label('Lease Status')
                             ->native(false)
@@ -118,9 +88,6 @@ class SpaceRelationManager extends RelationManager
                                 'occupied' => 'Occupied',
                                 'under_maintenance' => 'Under Maintenance',
                             ]),
-                        Forms\Components\TextInput::make('payment_status')
-                            ->label('Payment Status')
-                            ->readOnly(),
                     ]),
                     Forms\Components\Section::make('Visibility')->schema([
                         Forms\Components\Toggle::make('is_active')
@@ -334,6 +301,7 @@ class SpaceRelationManager extends RelationManager
                             $record->rent_payment_status = 'unpaid';
                             $record->save();
                         }),
+                    Tables\Actions\EditAction::make()->label('Add Utility Bill'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
