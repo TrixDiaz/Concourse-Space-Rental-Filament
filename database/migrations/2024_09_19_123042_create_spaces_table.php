@@ -33,10 +33,14 @@ return new class extends Migration
             $table->date('lease_due')->nullable();
             $table->integer('lease_term')->nullable();
             $table->string('lease_status')->nullable();
+            $table->integer('water_consumption')->nullable();
             $table->integer('water_bills')->nullable();
+            $table->integer('electricity_consumption')->nullable();
             $table->integer('electricity_bills')->nullable();
             $table->integer('rent_bills')->nullable();
-            $table->string('payment_status')->nullable();
+            $table->string('water_payment_status')->nullable();
+            $table->string('electricity_payment_status')->nullable();
+            $table->string('rent_payment_status')->nullable();
             $table->boolean('is_active')->default(true);
             $table->string('requirements_status')->nullable();
             $table->string('application_status')->nullable();

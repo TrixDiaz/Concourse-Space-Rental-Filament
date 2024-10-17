@@ -269,22 +269,39 @@ class SpaceRelationManager extends RelationManager
                     ->label('Lease Term')
                     ->default(fn($record) => 'Lease Due:' . \Carbon\Carbon::parse($record->lease_due)->format('F j, Y'))
                     ->description(fn($record) => 'Lease End: ' . \Carbon\Carbon::parse($record->lease_end)->format('F j, Y'))
-                    ->sortable(),
-                // Tables\Columns\TextColumn::make('Monthly Payment')
-                //     ->label('Monthly Payment')
-                //     ->default(fn($record) => $record->water_bills + $record->electricity_bills + $record->rent_bills . ' ' . $record->payment_status)
-                //     ->extraAttributes(['class' => 'capitalize'])
-                //     ->prefix('₱')
-                //     ->numeric()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: false),
+                    ->numeric(),
+                Tables\Columns\TextColumn::make('water_bills')
+                    ->label('Water Bills')
+                    ->default(fn($record) => 'Water: ' . '₱' . number_format($record->water_bills ?? 0, 2))
+                    ->description(fn($record) => 'Status: ' . $record->water_payment_status ?? null)
+                    ->numeric()
+                    ->sortable()
+                    ->money('PHP')
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('electricity_bills')
+                    ->label('Electricity Bills')
+                    ->default(fn($record) => 'Electricity: ' . '₱' . number_format($record->electricity_bills ?? 0, 2))
+                    ->description(fn($record) => 'Status: ' . $record->electricity_payment_status ?? null)
+                    ->numeric()
+                    ->sortable()
+                    ->money('PHP')
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('rent_bills')
+                    ->label('Rent Bills')
+                    ->numeric()
+                    ->sortable()
+                    ->money('PHP')
+                    ->default(fn($record) => 'Rent: ' . number_format($record->rent_bills ?? 0, 2))
+                    ->description(fn($record) => 'Status: ' . $record->rent_payment_status ?? null)
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Visible in Tenant')
                     ->boolean()
-                    ->extraAttributes(['class' => 'capitalize']),
+                    ->extraAttributes(['class' => 'capitalize'])
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -306,7 +323,16 @@ class SpaceRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
-                    Tables\Actions\EditAction::make()->color('warning'),
+                    Tables\Actions\Action::make('Add Monthly Rent')
+                        ->icon('heroicon-m-currency-dollar')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (Space $record) {
+                            $rentAmount = $record->price ?? 0;
+                            $record->rent_bills = $rentAmount;
+                            $record->rent_payment_status = 'unpaid';
+                            $record->save();
+                        }),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),

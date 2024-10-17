@@ -38,8 +38,8 @@ class PaymentFactory extends Factory
             'tenant_id' => $this->faker->randomElement(User::pluck('id')),
             'amount' => collect($paymentDetails)->sum(fn($item) => (int) $item['amount']),
             'payment_details' => json_encode($paymentDetails),
-            'payment_method' => $this->faker->randomElement(['maya', 'gcash']),
-            'payment_status' => $this->faker->randomElement(['paid', 'unpaid', 'overdue', 'pending']),
+            'payment_method' => $this->faker->randomElement(['cash', 'gcash']),
+            'payment_status' => $this->faker->randomElement(['paid', 'unpaid']),
             'payment_type' => $this->faker->randomElement(['cash', 'e-wallet']),
             'created_at' => $this->faker->dateTimeBetween($startDate, $endDate),
         ];

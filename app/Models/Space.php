@@ -25,7 +25,6 @@ class Space extends Model
         'lease_due',
         'lease_term',
         'lease_status',
-        'payment_status',
         'application_status',
         'requirements_status',
         'remarks',
@@ -44,6 +43,11 @@ class Space extends Model
         'space_coordinates_y',
         'space_coordinates_x2',
         'space_coordinates_y2',
+        'water_consumption',
+        'electricity_consumption',
+        'water_payment_status',
+        'electricity_payment_status',
+        'rent_payment_status',
     ];
 
     protected $casts = [

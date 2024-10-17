@@ -32,13 +32,12 @@ class ACYearlyRevenue extends ApexChartWidget
         // Get payment data dynamically from the database
         $paymentData = Payment::selectRaw('COUNT(*) as count, payment_method')
             ->groupBy('payment_method')
-            ->whereIn('payment_method', ['maya', 'gcash']) // Adjust the payment options as needed
+            ->whereIn('payment_method', ['cash', 'gcash']) 
             ->get();
 
         $datasets = $paymentData->pluck('count')->toArray();
         $labels = $paymentData->pluck('payment_method')->toArray();
-
-        // Now merge the datasets and labels with the rest of the chart options
+        
         return [
             'chart' => [
                 'type' => 'donut',
