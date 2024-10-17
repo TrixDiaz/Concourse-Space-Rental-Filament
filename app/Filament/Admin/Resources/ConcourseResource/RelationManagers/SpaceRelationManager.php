@@ -264,6 +264,7 @@ class SpaceRelationManager extends RelationManager
                     ->label('Sqm')
                     ->numeric()
                     ->sortable()
+                    ->description(fn($record) => 'Price: ' . '₱' . number_format($record->price ?? 0, 2))
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('Lease Term')
                     ->label('Lease Term')
