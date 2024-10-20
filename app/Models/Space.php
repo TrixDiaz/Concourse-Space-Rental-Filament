@@ -96,7 +96,13 @@ class Space extends Model
 
         $waterRate = $concourse->calculateWaterRate();
         $waterBill = $waterRate * $this->water_consumption;
-        $this->update(['water_bills' => round($waterBill, 2)]);
+        
+        $waterPaymentStatus = ($this->water_consumption > 0) ? 'unpaid' : null;
+        
+        $this->update([
+            'water_bills' => round($waterBill, 2),
+            'water_payment_status' => $waterPaymentStatus,
+        ]);
     }
 
     public function calculateElectricityBill()
@@ -108,6 +114,12 @@ class Space extends Model
 
         $electricityRate = $concourse->calculateElectricityRate();
         $electricityBill = $electricityRate * $this->electricity_consumption;
-        $this->update(['electricity_bills' => round($electricityBill, 2)]);
+        
+        $electricityPaymentStatus = ($this->electricity_consumption > 0) ? 'unpaid' : null;
+        
+        $this->update([
+            'electricity_bills' => round($electricityBill, 2),
+            'electricity_payment_status' => $electricityPaymentStatus,
+        ]);
     }
 }
