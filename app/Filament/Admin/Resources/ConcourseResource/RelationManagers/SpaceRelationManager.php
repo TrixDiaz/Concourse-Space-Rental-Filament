@@ -126,11 +126,12 @@ class SpaceRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize']),
-                Tables\Columns\TextColumn::make('water_consumption')
-                    ->label('Water Consumption')
+                Tables\Columns\TextColumn::make('Consumptions')
+                    ->label('Consumptions')
                     ->numeric()
                     ->sortable()
-                    ->default(fn($record) => number_format($record->water_consumption ?? 0, 2)),
+                    ->default(fn($record) => 'Water: ' . number_format($record->water_consumption ?? 0, 2) . ' m3')
+                    ->description(fn($record) => 'Electricity: ' . number_format($record->electricity_consumption ?? 0, 2) . ' kWh'),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Visible in Tenant')
                     ->boolean()

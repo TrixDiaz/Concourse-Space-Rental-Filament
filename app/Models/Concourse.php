@@ -62,16 +62,18 @@ class Concourse extends Model
 
     public function calculateWaterRate()
     {
-        $totalMonthlyWater = $this->water_bills ?? 0;
-        $totalWaterConsumption = $this->spaces()
-            ->where('status', 'occupied')
-            ->sum('water_consumption');
+        $totalWaterBill = $this->water_bills ?? 0;
+        $totalWaterConsumption = $this->total_water_consumption;
 
-        if ($totalWaterConsumption <= 0) {
-            return 0;
+        if ($totalWaterConsumption > 0) {
+            return $totalWaterBill / $totalWaterConsumption;
         }
 
-        return $totalMonthlyWater / $totalWaterConsumption;
+        return 0;
     }
 
+    public function getTotalWaterConsumptionAttribute()
+    {
+        return $this->spaces()->sum('water_consumption');
+    }
 }
