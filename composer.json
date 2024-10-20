@@ -8,6 +8,7 @@
         "php": "^8.2",
         "bezhansalleh/filament-shield": "^3.2",
         "cheesegrits/filament-google-maps": "^3.0",
+        "eightynine/filament-reports": "^3.0",
         "filament/filament": "^3.2",
         "filament/notifications": "^3.2",
         "filament/widgets": "^3.2",
