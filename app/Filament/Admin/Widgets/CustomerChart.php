@@ -37,23 +37,27 @@ class CustomerChart extends ApexChartWidget
      * @return array
      */
 
-    protected function getOptions(): array
+     protected function getOptions(): array
     {
         return [
             'chart' => [
                 'type' => 'line',
-                'height' => 300,
+                'height' => 250,
+                'toolbar' => [
+                    'show' => false,
+                ],
             ],
             'series' => [
                 [
-                    'name' => 'CustomerChart',
-                    'data' => [2, 4, 6, 10, 14, 7, 2, 9, 10, 15, 13, 18],
+                    'name' => 'Customers',
+                    'data' => [4344, 5676, 6798, 7890, 8987, 9388, 10343, 10524, 13664, 14345, 15753, 16398],
                 ],
             ],
             'xaxis' => [
                 'categories' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 'labels' => [
                     'style' => [
+                        'fontWeight' => 400,
                         'fontFamily' => 'inherit',
                     ],
                 ],
@@ -61,14 +65,41 @@ class CustomerChart extends ApexChartWidget
             'yaxis' => [
                 'labels' => [
                     'style' => [
+                        'fontWeight' => 400,
                         'fontFamily' => 'inherit',
                     ],
                 ],
             ],
-            'colors' => ['#f59e0b'],
-            'stroke' => [
-                'curve' => 'smooth',
+            'fill' => [
+                'type' => 'gradient',
+                'gradient' => [
+                    'shade' => 'dark',
+                    'type' => 'horizontal',
+                    'shadeIntensity' => 1,
+                    'gradientToColors' => ['#ea580c'],
+                    'inverseColors' => true,
+                    'opacityFrom' => 1,
+                    'opacityTo' => 1,
+                    'stops' => [0, 100, 100, 100],
+                ],
             ],
+
+            'dataLabels' => [
+                'enabled' => false,
+            ],
+            'grid' => [
+                'show' => false,
+            ],
+            'markers' => [
+                'size' => 2,
+            ],
+            'tooltip' => [
+                'enabled' => true,
+            ],
+            'stroke' => [
+                'width' => 4,
+            ],
+            'colors' => ['#f59e0b'],
         ];
     }
 }
