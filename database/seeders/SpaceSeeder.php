@@ -21,7 +21,7 @@ class SpaceSeeder extends Seeder
                     'concourse_id' => Concourse::select('id')->inRandomOrder()->first()->id,
                     'name' => "Space $i",
                     'price' => rand(1000, 10000),
-                    'status' => 'available',
+                    'status' => 'occupied',
                     'sqm' => rand(10, 100),
                     'business_name' => 'Business Name',
                     'owner_name' => 'Owner Name',

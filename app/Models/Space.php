@@ -60,17 +60,6 @@ class Space extends Model
         'lease_due' => 'datetime',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::saved(function ($space) {
-            if ($space->wasChanged('water_consumption')) {
-                $space->calculateWaterBill();
-            }
-        });
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -97,11 +86,43 @@ class Space extends Model
         }
     }
 
+    
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($space) {
+            if ($space->wasChanged('water_consumption')) {
+                $space->calculateWaterBill();
+            }
+        });
+    }
+
+
+    public static function updateWaterBillsForOccupiedSpaces()
+    {
+        $occupiedSpaces = self::where('status', 'occupied')->get();
+        $allConsumptionSupplied = $occupiedSpaces->every(function ($space) {
+            return $space->water_consumption !== null && $space->water_consumption > 0;
+        });
+
+        if ($allConsumptionSupplied) {
+            foreach ($occupiedSpaces as $space) {
+                $space->calculateWaterBill();
+            }
+            return true;
+        }
+
+        return false;
+    }
+
     public function calculateWaterBill()
     {
         $concourse = $this->concourse;
         $totalMonthlyWater = $concourse->total_monthly_water;
-        $totalWaterConsumption = $concourse->spaces()->sum('water_consumption');
+        $totalWaterConsumption = $concourse->spaces()
+            ->where('status', 'occupied')
+            ->sum('water_consumption');
 
         if ($totalWaterConsumption <= 0) {
             $this->update(['water_bills' => 0]);
