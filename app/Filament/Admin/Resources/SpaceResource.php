@@ -31,13 +31,13 @@ class SpaceResource extends Resource
     {
         if ($record && $record->status === 'occupied') {
             $concourse = $record->concourse;
-            
+
             // Update the space's water consumption
             $record->update(['water_consumption' => $state]);
-            
+
             // Recalculate the concourse's total water consumption
             $concourse->updateTotalWaterConsumption();
-            
+
             // Recalculate water bills for all occupied spaces in this concourse
             $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
             foreach ($occupiedSpaces as $space) {
@@ -58,13 +58,13 @@ class SpaceResource extends Resource
     {
         if ($record && $record->status === 'occupied') {
             $concourse = $record->concourse;
-            
+
             // Update the space's electricity consumption
             $record->update(['electricity_consumption' => $state]);
-            
+
             // Recalculate the concourse's total electricity consumption
             $concourse->updateTotalElectricityConsumption();
-            
+
             // Recalculate electricity bills for all occupied spaces in this concourse
             $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
             foreach ($occupiedSpaces as $space) {
@@ -99,9 +99,13 @@ class SpaceResource extends Resource
                     ->label('Electricity Consumption')
                     ->prefix('kWh')
                     ->minValue(0)
-                    ->numeric(),
-            ])->columns(2),
-        ]);
+                    ->numeric()
+                    ->required()
+                    ->afterStateUpdated(function ($state, $set, $get, $record) {
+                        $this->updateElectricityBills($state, $set, $get, $record);
+                    }),
+                ])->columns(2),
+            ]);
     }
 
     public static function table(Table $table): Table
