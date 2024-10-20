@@ -14,6 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Filament\Notifications\Notification;
 
 class SpaceRelationManager extends RelationManager
 {
@@ -30,16 +31,42 @@ class SpaceRelationManager extends RelationManager
                         ->label('Water Consumption')
                         ->prefix('m3')
                         ->minValue(0)
-                        ->step(100)
-                        ->numeric(),
+                        ->step(0.01)
+                        ->numeric()
+                        ->required()
+                        ->afterStateUpdated(function ($state, $set, $get, $record) {
+                            $this->updateWaterBills($state, $set, $get, $record);
+                        }),
                     Forms\Components\TextInput::make('electricity_consumption')
                         ->label('Electricity Consumption')
                         ->prefix('kWh')
                         ->minValue(0)
-                        ->step(100)
+                        ->step(0.01)
                         ->numeric(),
                 ])->columns(2),
             ]);
+    }
+
+    protected function updateWaterBills($state, $set, $get, $record)
+    {
+        if ($record && $record->status === 'occupied') {
+            $concourse = $record->concourse;
+            $waterRate = $concourse->calculateWaterRate();
+            $waterBill = $waterRate * $state;
+            $set('water_bills', round($waterBill, 2));
+
+            // Update all occupied spaces in this concourse
+            $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
+            foreach ($occupiedSpaces as $space) {
+                $spaceBill = $waterRate * $space->water_consumption;
+                $space->update(['water_bills' => round($spaceBill, 2)]);
+            }
+
+            Notification::make()
+                ->title('Water bills updated')
+                ->success()
+                ->send();
+        }
     }
 
     public function table(Table $table): Table

@@ -91,11 +91,12 @@ class Space extends Model
     {
         parent::boot();
 
-        static::saved(function ($space) {
-            if ($space->wasChanged('water_consumption')) {
-                $space->calculateWaterBill();
-            }
-        });
+        // Remove the saved event listener as we're now handling this in SpaceRelationManager
+        // static::saved(function ($space) {
+        //     if ($space->wasChanged('water_consumption')) {
+        //         $space->calculateWaterBill();
+        //     }
+        // });
     }
 
 
@@ -119,17 +120,11 @@ class Space extends Model
     public function calculateWaterBill()
     {
         $concourse = $this->concourse;
-        $totalMonthlyWater = $concourse->total_monthly_water;
-        $totalWaterConsumption = $concourse->spaces()
-            ->where('status', 'occupied')
-            ->sum('water_consumption');
-
-        if ($totalWaterConsumption <= 0) {
-            $this->update(['water_bills' => 0]);
+        if (!$concourse) {
             return;
         }
 
-        $waterRate = $totalMonthlyWater / $totalWaterConsumption;
+        $waterRate = $concourse->calculateWaterRate();
         $waterBill = $waterRate * $this->water_consumption;
 
         $this->update(['water_bills' => round($waterBill, 2)]);
