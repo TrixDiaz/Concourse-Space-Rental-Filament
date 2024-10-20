@@ -76,4 +76,10 @@ class Concourse extends Model
     {
         return $this->spaces()->sum('water_consumption');
     }
+
+    public function updateTotalWaterConsumption()
+    {
+        $this->total_water_consumption = $this->getTotalWaterConsumptionAttribute();
+        $this->save();
+    }
 }

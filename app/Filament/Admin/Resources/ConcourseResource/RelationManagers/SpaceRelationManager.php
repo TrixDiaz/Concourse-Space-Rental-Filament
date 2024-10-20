@@ -51,16 +51,21 @@ class SpaceRelationManager extends RelationManager
     {
         if ($record && $record->status === 'occupied') {
             $concourse = $record->concourse;
-            $waterRate = $concourse->calculateWaterRate();
-            $waterBill = $waterRate * $state;
-            $set('water_bills', round($waterBill, 2));
-
-            // Update all occupied spaces in this concourse
+            
+            // Update the space's water consumption
+            $record->update(['water_consumption' => $state]);
+            
+            // Recalculate the concourse's total water consumption
+            $concourse->updateTotalWaterConsumption();
+            
+            // Recalculate water bills for all occupied spaces in this concourse
             $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
             foreach ($occupiedSpaces as $space) {
-                $spaceBill = $waterRate * $space->water_consumption;
-                $space->update(['water_bills' => round($spaceBill, 2)]);
+                $space->calculateWaterBill();
             }
+
+            // Update the form field
+            $set('water_bills', $record->water_bills);
 
             Notification::make()
                 ->title('Water bills updated')
