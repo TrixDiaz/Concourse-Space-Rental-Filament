@@ -74,6 +74,33 @@ class SpaceRelationManager extends RelationManager
         }
     }
 
+    protected function updateElectricityBills($state, $set, $get, $record)
+    {
+        if ($record && $record->status === 'occupied') {
+            $concourse = $record->concourse;
+            
+            // Update the space's electricity consumption
+            $record->update(['electricity_consumption' => $state]);
+            
+            // Recalculate the concourse's total electricity consumption
+            $concourse->updateTotalElectricityConsumption();
+            
+            // Recalculate electricity bills for all occupied spaces in this concourse
+            $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
+            foreach ($occupiedSpaces as $space) {
+                $space->calculateElectricityBill();
+            }
+
+            // Update the form field
+            $set('electricity_bills', $record->electricity_bills);
+
+            Notification::make()
+                ->title('Electricity bills updated')
+                ->success()
+                ->send();
+        }
+    }
+
     public function table(Table $table): Table
     {
         return $table

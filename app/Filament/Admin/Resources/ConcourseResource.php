@@ -184,15 +184,13 @@ class ConcourseResource extends Resource
                                 ->default(0)
                                 ->minValue(0)
                                 ->numeric()
-                                ->prefix('₱')
-                                ->step(100),
+                                ->prefix('₱'),
                             Forms\Components\TextInput::make('electricity_bills')
                                 ->label('Monthly Electricity Bill')
                                 ->default(0)
                                 ->minValue(0)
                                 ->numeric()
-                                ->prefix('₱')
-                                ->step(100),
+                                ->prefix('₱'),
                         ]),
                         
                         Forms\Components\Section::make()->schema([

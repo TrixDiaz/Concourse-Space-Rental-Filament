@@ -127,4 +127,16 @@ class Space extends Model
         $waterBill = $waterRate * $this->water_consumption;
         $this->update(['water_bills' => round($waterBill, 2)]);
     }
+
+    public function calculateElectricityBill()
+    {
+        $concourse = $this->concourse;
+        if (!$concourse) {
+            return;
+        }
+
+        $electricityRate = $concourse->calculateElectricityRate();
+        $electricityBill = $electricityRate * $this->electricity_consumption;
+        $this->update(['electricity_bills' => round($electricityBill, 2)]);
+    }
 }

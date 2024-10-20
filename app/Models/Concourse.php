@@ -82,4 +82,27 @@ class Concourse extends Model
         $this->total_water_consumption = $this->getTotalWaterConsumptionAttribute();
         $this->save();
     }
+
+    public function calculateElectricityRate()
+    {
+        $totalElectricityBill = $this->electricity_bills ?? 0;
+        $totalElectricityConsumption = $this->total_electricity_consumption;
+
+        if ($totalElectricityConsumption > 0) {
+            return $totalElectricityBill / $totalElectricityConsumption;
+        }
+
+        return 0;
+    }
+
+    public function getTotalElectricityConsumptionAttribute()
+    {
+        return $this->spaces()->sum('electricity_consumption');
+    }
+
+    public function updateTotalElectricityConsumption()
+    {
+        $this->total_electricity_consumption = $this->getTotalElectricityConsumptionAttribute();
+        $this->save();
+    }
 }
