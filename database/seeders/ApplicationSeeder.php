@@ -6,7 +6,6 @@ use App\Models\Application;
 use App\Models\Concourse;
 use App\Models\Space;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ApplicationSeeder extends Seeder
@@ -16,21 +15,6 @@ class ApplicationSeeder extends Seeder
      */
     public function run(): void
     {
-        Application::create([
-            'user_id' => User::select('id')->inRandomOrder()->first()->id,
-            'concourse_id' => Concourse::select('id')->inRandomOrder()->first()->id,
-            'space_id' => Space::select('id')->inRandomOrder()->first()->id,
-            'requirements_status' => 'pending',
-            'application_status' => 'pending',
-            'business_name' => 'Business 1',
-            'owner_name' => 'Owner 1',
-            'email' => 'owner1@gmail.com',
-            'phone_number' => '081234567890',
-            'address' => 'Jl. Raya No. 1',
-            'business_type' => 'Restaurant',
-            'concourse_lease_term' => rand(1, 10),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        Application::factory()->count(10)->create();
     }
 }

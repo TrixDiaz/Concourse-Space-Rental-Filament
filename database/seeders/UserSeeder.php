@@ -29,6 +29,9 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $user->assignRole('panel_user');
+        // Create 500 fake users
+        User::factory()->count(500)->create()->each(function ($user) {
+            $user->assignRole('panel_user');
+        });
     }
 }

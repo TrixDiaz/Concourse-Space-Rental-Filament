@@ -5,6 +5,8 @@ namespace App\Filament\Admin\Widgets;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Payment;
+use App\Models\Application;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class StatsOverview extends BaseWidget
@@ -22,13 +24,13 @@ class StatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        $totalRevenue = Payment::where('payment_status', 'completed')->sum('amount');
-        $newCustomers = Payment::distinct('tenant_id')->count();
-        $newOrders = Payment::count();
+        $totalRevenue = Payment::where('payment_status', 'paid')->sum('amount');
+        $newCustomers = User::role('panel_user')->count();
+        $newApplications = Application::count();
 
-        $revenueChart = $this->getChartData('amount');
-        $customersChart = $this->getChartData('tenant_id', 'count');
-        $ordersChart = $this->getChartData('id', 'count');
+        $revenueChart = $this->getChartData(Payment::class, 'amount');
+        $customersChart = $this->getChartData(User::class, 'id', 'count');
+        $applicationsChart = $this->getChartData(Application::class, 'id', 'count');
 
         return [
             Stat::make('Revenue', '₱' . number_format($totalRevenue, 2))
@@ -41,18 +43,25 @@ class StatsOverview extends BaseWidget
                 ->descriptionIcon($this->getChangeIcon($customersChart))
                 ->chart($customersChart)
                 ->color($this->getChangeColor($customersChart)),
-            Stat::make('New orders', $newOrders)
-                ->description($this->getChangeDescription($ordersChart))
-                ->descriptionIcon($this->getChangeIcon($ordersChart))
-                ->chart($ordersChart)
-                ->color($this->getChangeColor($ordersChart)),
+            Stat::make('New Applications', $newApplications)
+                ->description($this->getChangeDescription($applicationsChart))
+                ->descriptionIcon($this->getChangeIcon($applicationsChart))
+                ->chart($applicationsChart)
+                ->color($this->getChangeColor($applicationsChart)),
         ];
     }
 
-    private function getChartData(string $column, string $aggregation = 'sum'): array
+    private function getChartData(string $model, string $column, string $aggregation = 'sum'): array
     {
-        return Payment::where('payment_status', 'completed')
-            ->where('created_at', '>=', now()->subDays(7))
+        $query = $model::query();
+        
+        if ($model === Payment::class) {
+            $query->where('payment_status', 'paid');
+        } elseif ($model === User::class) {
+            $query->role('panel_user');
+        }
+
+        return $query->where('created_at', '>=', now()->subDays(7))
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderBy('created_at')
             ->pluck(DB::raw("$aggregation($column) as total"))
