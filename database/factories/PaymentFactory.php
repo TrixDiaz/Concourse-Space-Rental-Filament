@@ -44,4 +44,18 @@ class PaymentFactory extends Factory
             'created_at' => $this->faker->dateTimeBetween($startDate, $endDate),
         ];
     }
+
+    /**
+     * Configure the factory to generate 500 records with numeric tenant IDs.
+     *
+     * @return $this
+     */
+    public function configure()
+    {
+        return $this->count(500)->state(function (array $attributes) {
+            return [
+                'tenant_id' => User::find(2)->id,
+            ];
+        });
+    }
 }

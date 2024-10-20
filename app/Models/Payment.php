@@ -13,7 +13,10 @@ class Payment extends Model
         'tenant_id',
         'payment_type',
         'payment_method',
-        'payment_details',
+        'water_bill',
+        'electricity_bill',
+        'water_consumption',
+        'electricity_consumption',
         'amount',
         'payment_status',
     ];

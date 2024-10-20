@@ -18,7 +18,10 @@ return new class extends Migration
             $table->string('payment_type');
             $table->string('payment_method');
             $table->string('payment_status');
-            $table->json('payment_details')->nullable();
+            $table->string('water_bill')->nullable();
+            $table->string('electricity_bill')->nullable();
+            $table->string('water_consumption')->nullable();
+            $table->string('electricity_consumption')->nullable();
             $table->foreign('tenant_id')->references('id')->on('users');
             $table->timestamps();
         });
