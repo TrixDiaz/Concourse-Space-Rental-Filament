@@ -105,4 +105,40 @@ class Concourse extends Model
         $this->total_electricity_consumption = $this->getTotalElectricityConsumptionAttribute();
         $this->save();
     }
+
+    protected static function booted()
+    {
+        static::saving(function ($concourse) {
+            if ($concourse->isDirty('water_bills')) {
+                $concourse->updateSpacesWaterBills();
+            }
+            if ($concourse->isDirty('electricity_bills')) {
+                $concourse->updateSpacesElectricityBills();
+            }
+        });
+    }
+
+    public function updateSpacesWaterBills()
+    {
+        $waterRate = $this->calculateWaterRate();
+        
+        $this->spaces()->chunk(100, function ($spaces) use ($waterRate) {
+            foreach ($spaces as $space) {
+                $waterBill = $waterRate * $space->water_consumption;
+                $space->update(['water_bills' => round($waterBill, 2)]);
+            }
+        });
+    }
+
+    public function updateSpacesElectricityBills()
+    {
+        $electricityRate = $this->calculateElectricityRate();
+        
+        $this->spaces()->chunk(100, function ($spaces) use ($electricityRate) {
+            foreach ($spaces as $space) {
+                $electricityBill = $electricityRate * $space->electricity_consumption;
+                $space->update(['electricity_bills' => round($electricityBill, 2)]);
+            }
+        });
+    }
 }
