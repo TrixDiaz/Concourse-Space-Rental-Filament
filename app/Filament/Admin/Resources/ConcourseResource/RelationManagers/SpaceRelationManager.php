@@ -20,44 +20,17 @@ class SpaceRelationManager extends RelationManager
 {
     protected static string $relationship = 'spaces';
 
-
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
-                    Forms\Components\TextInput::make('water_consumption')
-                        ->label('Water Consumption')
-                        ->prefix('m3')
-                        ->minValue(0)
-                        ->step(0.01)
-                        ->numeric()
-                        ->required()
-                        ->afterStateUpdated(function ($state, $set, $get, $record) {
-                            $this->updateWaterBills($state, $set, $get, $record);
-                        }),
-                    Forms\Components\TextInput::make('electricity_consumption')
-                        ->label('Electricity Consumption')
-                        ->prefix('kWh')
-                        ->minValue(0)
-                        ->step(0.01)
-                        ->numeric(),
-                ])->columns(2),
-            ]);
-    }
-
     protected function updateWaterBills($state, $set, $get, $record)
     {
         if ($record && $record->status === 'occupied') {
             $concourse = $record->concourse;
-            
+
             // Update the space's water consumption
             $record->update(['water_consumption' => $state]);
-            
+
             // Recalculate the concourse's total water consumption
             $concourse->updateTotalWaterConsumption();
-            
+
             // Recalculate water bills for all occupied spaces in this concourse
             $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
             foreach ($occupiedSpaces as $space) {
@@ -78,13 +51,13 @@ class SpaceRelationManager extends RelationManager
     {
         if ($record && $record->status === 'occupied') {
             $concourse = $record->concourse;
-            
+
             // Update the space's electricity consumption
             $record->update(['electricity_consumption' => $state]);
-            
+
             // Recalculate the concourse's total electricity consumption
             $concourse->updateTotalElectricityConsumption();
-            
+
             // Recalculate electricity bills for all occupied spaces in this concourse
             $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
             foreach ($occupiedSpaces as $space) {
@@ -99,6 +72,29 @@ class SpaceRelationManager extends RelationManager
                 ->success()
                 ->send();
         }
+    }
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
+                    Forms\Components\TextInput::make('water_consumption')
+                        ->label('Water Consumption')
+                        ->prefix('m3')
+                        ->minValue(0)
+                        ->numeric()
+                        ->required()
+                        ->afterStateUpdated(function ($state, $set, $get, $record) {
+                            $this->updateWaterBills($state, $set, $get, $record);
+                        }),
+                    Forms\Components\TextInput::make('electricity_consumption')
+                        ->label('Electricity Consumption')
+                        ->prefix('kWh')
+                        ->minValue(0)
+                        ->numeric(),
+                ])->columns(2),
+            ]);
     }
 
     public function table(Table $table): Table
@@ -184,7 +180,7 @@ class SpaceRelationManager extends RelationManager
                         '0' => 'Inactive',
                     ]),
             ])
-            
+
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
@@ -199,8 +195,8 @@ class SpaceRelationManager extends RelationManager
                             $record->save();
                         }),
                     Tables\Actions\EditAction::make()
-                    ->visible(fn($record) => $record->status === 'occupied')
-                    ->label('Add Utility Bill'),
+                        ->visible(fn($record) => $record->status === 'occupied')
+                        ->label('Add Utility Bill'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),

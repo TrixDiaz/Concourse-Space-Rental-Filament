@@ -368,13 +368,17 @@ class ConcourseResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
                     Tables\Actions\EditAction::make()->color('primary'),
+                    Tables\Actions\Action::make('bills')
+                        ->label('Bills')
+                        ->icon('heroicon-o-credit-card')
+                        ->url(fn(Concourse $record): string => route('filament.admin.pages.concourse-spaces', ['concourseId' => $record->id])),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
                     Tables\Actions\Action::make('viewSpaces')
                         ->label('View Layout')
                         ->icon('heroicon-o-map')
-                        ->url(fn(Concourse $record): string => static::getUrl('view-spaces', ['record' => $record]))
+                        ->url(fn(Concourse $record): string => route('filament.admin.pages.concourse-spaces', ['concourseId' => $record->id]))
                         ->color('success'),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
