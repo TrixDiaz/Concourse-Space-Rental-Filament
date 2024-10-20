@@ -2,7 +2,7 @@
 
 namespace App\Filament\Reports;
 
-use App\Models\User;
+use App\Models\Payment;
 use EightyNine\Reports\Report;
 use EightyNine\Reports\Components\Body;
 use EightyNine\Reports\Components\Footer;
@@ -12,9 +12,9 @@ use EightyNine\Reports\Components\VerticalSpace;
 use Filament\Forms\Form;
 use Illuminate\Support\Collection;
 
-class UsersReport extends Report
+class PaymentsReport extends Report
 {
-    public ?string $heading = "Users Report";
+    public ?string $heading = "Payments Report";
 
     // public ?string $subHeading = "A great report";
 
@@ -26,9 +26,9 @@ class UsersReport extends Report
                     ->schema([
                         Header\Layout\HeaderColumn::make()
                             ->schema([
-                                Text::make('Users Report')
+                                Text::make('Payments Report')
                                     ->title(),
-                                Text::make('This report shows users in the system')
+                                Text::make('This report shows payments in the system')
                                     ->subtitle(),
                             ]),
                         Header\Layout\HeaderColumn::make()
@@ -49,12 +49,12 @@ class UsersReport extends Report
                     ->schema([
                         Body\Table::make()
                             ->data(
-                                fn(?array $filters) => $this->registrationSummary($filters)
+                                fn(?array $filters) => $this->paymentsSummary($filters)
                             ),
                         VerticalSpace::make(),
                         Body\Table::make()
                             ->data(
-                                fn(?array $filters) => $this->verificationSummary($filters)
+                                fn(?array $filters) => $this->paymentMethodSummary($filters)
                             ),
                     ]),
             ]);
@@ -90,26 +90,43 @@ class UsersReport extends Report
                 \Filament\Forms\Components\TextInput::make('search')
                     ->placeholder('Search')
                     ->autofocus(),
-                \Filament\Forms\Components\Select::make('email_verified_at')
-                    ->label('Email verification status')
+                \Filament\Forms\Components\Select::make('payment_status')
+                    ->label('Payment Status')
                     ->native(false)
                     ->options([
                         'all' => 'All',
-                        'verified' => 'Verified',
-                        'not_verified' => 'Not Verified',
+                        'paid' => 'Paid',
+                        'unpaid' => 'Unpaid',
+                        'failed' => 'Failed',
+                    ]),
+                \Filament\Forms\Components\Select::make('payment_method')
+                    ->label('Payment Method')
+                    ->native(false)
+                    ->options([
+                        'all' => 'All',
+                        'cash' => 'Cash',
+                        'gcash' => 'Gcash',
+                    ]),
+                \Filament\Forms\Components\Select::make('payment_type')
+                    ->label('Payment Type')
+                    ->native(false)
+                    ->options([
+                        'all' => 'All',
+                        'cash' => 'Cash',
+                        'e-wallet' => 'E-Wallet',
                     ]),
                 \Filament\Forms\Components\DatePicker::make('date_from')
                     ->label('Date From')
                     ->placeholder('Start Date')
                     ->timezone('Asia/Manila')
-                    ->displayFormat('F d, Y')
+                    ->displayFormat('Y-m-d')
                     ->maxDate(now())
                     ->native(false),
                 \Filament\Forms\Components\DatePicker::make('date_to')
                     ->label('Date To')
                     ->placeholder('End Date')
                     ->timezone('Asia/Manila')
-                    ->displayFormat('F d, Y')
+                    ->displayFormat('Y-m-d')
                     ->maxDate(now())
                     ->native(false),
                 \Filament\Forms\Components\Actions::make([
@@ -119,7 +136,9 @@ class UsersReport extends Report
                         ->action(function (Form $form) {
                             $form->fill([
                                 'search' => null,
-                                'email_verified_at' => null,
+                                'payment_status' => null,
+                                'payment_method' => null,
+                                'payment_type' => null,
                                 'date_from' => null,
                                 'date_to' => null,
                             ]);
@@ -128,27 +147,24 @@ class UsersReport extends Report
             ]);
     }
 
-    public function registrationSummary(?array $filters): Collection
+    public function paymentsSummary(?array $filters): Collection
     {
-        $query = User::query();
+        $query = Payment::query();
 
         $filtersApplied = false;
 
-        if (isset($filters['search']) && !empty($filters['search'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('first_name', 'like', '%' . $filters['search'] . '%')
-                  ->orWhere('last_name', 'like', '%' . $filters['search'] . '%')
-                  ->orWhere('email', 'like', '%' . $filters['search'] . '%');
-            });
+        if (isset($filters['payment_status']) && $filters['payment_status'] !== 'all') {
+            $query->where('payment_status', $filters['payment_status']);
             $filtersApplied = true;
         }
 
-        if (isset($filters['email_verified_at']) && $filters['email_verified_at'] !== 'all') {
-            if ($filters['email_verified_at'] === 'verified') {
-                $query->whereNotNull('email_verified_at');
-            } elseif ($filters['email_verified_at'] === 'not_verified') {
-                $query->whereNull('email_verified_at');
-            }
+        if (isset($filters['payment_method']) && $filters['payment_method'] !== 'all') {
+            $query->where('payment_method', $filters['payment_method']);
+            $filtersApplied = true;
+        }
+
+        if (isset($filters['payment_type']) && $filters['payment_type'] !== 'all') {
+            $query->where('payment_type', $filters['payment_type']);
             $filtersApplied = true;
         }
 
@@ -163,31 +179,39 @@ class UsersReport extends Report
         }
 
         if (!$filtersApplied) {
-            $users = $query->latest('created_at')->take(5)->get();
+            $payments = $query->latest('created_at')->take(5)->get();
         } else {
-            $users = $query->latest('created_at')->get();
+            $payments = $query->latest('created_at')->get();
         }
 
         return collect([
             [
-                'column1' => 'Date Created',
-                'column2' => 'Full Name',
-                'column3' => 'Email',
-                'column4' => 'Status',
+                'column1' => 'Date',
+                'column2' => 'Tenant',
+                'column3' => 'Amount',
+                'column4' => 'Payment Type',
+                'column5' => 'Payment Method',
+                'column6' => 'Status',
             ]
-        ])->concat($users->map(function ($user) {
+        ])->concat($payments->map(function ($payment) {
             return [
-                'column1' => $user->created_at->format('F d, Y'),
-                'column2' => $user->first_name . ' ' . $user->last_name,
-                'column3' => $user->email,
-                'column4' => $user->email_verified_at ? 'Verified' : 'Not Verified',
+                'column1' => $payment->created_at->format('F d, Y'),
+                'column2' => $payment->tenant->name,
+                'column3' => number_format($payment->amount, 2),
+                'column4' => $payment->payment_type,
+                'column5' => $payment->payment_method,
+                'column6' => $payment->payment_status,
             ];
         }));
     }
 
-    public function verificationSummary(?array $filters): Collection
+    public function paymentMethodSummary(?array $filters): Collection
     {
-        $query = User::query();
+        $query = Payment::query();
+
+        if (isset($filters['payment_status']) && $filters['payment_status'] !== 'all') {
+            $query->where('payment_status', $filters['payment_status']);
+        }
 
         if (isset($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
@@ -197,32 +221,20 @@ class UsersReport extends Report
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
-        // Get the total count of users matching the filter
-        $totalCount = $query->count();
-
-        // Count verified users
-        $verifiedCount = (clone $query)->whereNotNull('email_verified_at')->count();
-
-        // Calculate unverified count by subtracting verified from total
-        $unverifiedCount = $totalCount - $verifiedCount;
+        $paymentMethods = $query->get()->groupBy('payment_method');
 
         return collect([
             [
-                'column1' => 'Status',
-                'column2' => 'Count',
-            ],
-            [
-                'column1' => 'Verified',
-                'column2' => $verifiedCount,
-            ],
-            [
-                'column1' => 'Not Verified',
-                'column2' => $unverifiedCount,
-            ],
-            [
-                'column1' => 'Total',
-                'column2' => $totalCount,
-            ],
-        ]);
+                'column1' => 'Payment Method',
+                'column2' => 'Total Transactions',
+                'column3' => 'Total Amount',
+            ]
+        ])->concat($paymentMethods->map(function ($payments, $method) {
+            return [
+                'column1' => $method,
+                'column2' => $payments->count(),
+                'column3' => number_format($payments->sum('amount'), 2),
+            ];
+        }));
     }
 }
