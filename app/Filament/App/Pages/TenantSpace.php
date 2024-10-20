@@ -17,6 +17,7 @@ use App\Services\RenewForm;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Application;
+use Carbon\Carbon;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -76,17 +77,6 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->badge()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\TextColumn::make('monthly_payment')
-                    ->searchable()
-                    ->money('PHP')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\TextColumn::make('payment_status')
-                    ->extraAttributes(['class' => 'capitalize'])
-                    ->searchable()
-                    ->badge()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('tenant.name')
                     ->searchable()
                     ->sortable()
@@ -98,13 +88,14 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->label('Pay Bills')
                     ->button()
                     ->action(fn($record) => $this->payWithGCash($record))
-                    ->tooltip(fn($record) => "Electricity: ₱" . number_format($record->electricity_bills, 2) . '\n' .
-                                             "Water: ₱" . number_format($record->water_bills, 2) . '\n' .
+                    ->tooltip(fn($record) => "Electricity: ₱" . number_format($record->electricity_bills, 2) . 
+                                             "Water: ₱" . number_format($record->water_bills, 2) . 
                                              "Rent: ₱" . number_format($record->rent_bills, 2))
                     ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
                 Tables\Actions\Action::make('renew')
                     ->label('Renew Lease')
                     ->button()
+                    ->slideOver()
                     ->form(fn ($record) => RenewForm::schema($record))
                     ->action(function (array $data, $record) {
                         // Get the application_id from the Space record
@@ -162,18 +153,23 @@ class TenantSpace extends Page implements HasForms, HasTable
                             ->send();
                     })
                     ->visible(function ($record) {
-                        // Check if the lease end date is within the next 3 months
-                        $isWithinRenewalPeriod = $record->lease_end->isBetween(now(), now()->addMonths(3)) &&
-                            $record->lease_end->isFuture();
+                        // Get current date
+                        $now = Carbon::now();
+                        
+                        // Calculate the date 3 months before lease end
+                        $threeMonthsBefore = $record->lease_end->copy()->subMonths(3);
+
+                        // Check if current date is after or equal to 3 months before lease end
+                        // and the lease end is still in the future
+                        $isWithinRenewalPeriod = $now->greaterThanOrEqualTo($threeMonthsBefore) && $record->lease_end->isFuture();
 
                         // Check if there's an associated application
                         if ($record->application_id) {
                             // Find the application, including soft-deleted ones
                             $application = Application::withTrashed()->find($record->application_id);
 
-                            // If an application exists and belongs to the current user, hide the button
                             if ($application && $application->user_id === auth()->id()) {
-                                return false;
+                                return true;
                             }
                         }
 
