@@ -29,6 +29,8 @@ class ListApplications extends ListRecords
                 ->query(fn (Builder $query): Builder => $query->where('space_type', 'new')),
             'renewal' => Tab::make('Renewal')
                 ->query(fn (Builder $query): Builder => $query->where('space_type', 'renewal')),
+            'rejected' => Tab::make('Rejected')
+                ->query(fn (Builder $query): Builder => $query->where('application_status', 'rejected')),
         ];
     }
 }

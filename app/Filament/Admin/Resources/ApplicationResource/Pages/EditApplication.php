@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\ApplicationResource\Pages;
 
 use App\Filament\Admin\Resources\ApplicationResource;
 use App\Mail\LeaseContractMail;
+use App\Mail\ApplicationRejectedMail;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -29,6 +30,54 @@ class EditApplication extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('rejectApplication')
+                ->label('Reject Application')
+                ->icon('heroicon-o-x-circle')
+                ->visible(fn($record) => $record->application_status === 'pending')
+                ->action(function () {
+                    $application = $this->getRecord();
+
+                    DB::transaction(function () use ($application) {
+                        // Update application status
+                        $application->update(['application_status' => 'rejected']);
+
+                        // Notify the authenticated user
+                        $authUser = Auth::user();
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Rejected')
+                            ->body("You have rejected the application.")
+                            ->actions([
+                                Action::make('view')
+                                    ->button()
+                                    ->url(route('filament.admin.resources.applications.index')),
+                            ])
+                            ->sendToDatabase($authUser);
+
+                        // Notify the application's user
+                        $applicationUser = User::find($application->user_id);
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Rejected')
+                            ->body("Your application has been rejected.")
+                            ->sendToDatabase($applicationUser);
+
+                        // Send rejection email
+                        $this->sendRejectionEmail($application);
+
+                        // Show a success message in the UI
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Rejected')
+                            ->body("The application has been rejected and notifications sent.")
+                            ->send();
+
+                        // Redirect to the list view after rejection
+                        return redirect()->route('filament.admin.resources.applications.index');
+                    });
+                })
+                ->color('danger')
+                ->requiresConfirmation(),
             Actions\Action::make('approveRequirements')
                 ->label('Approve Requirements')
                 ->icon('heroicon-o-check-circle')
@@ -256,5 +305,12 @@ class EditApplication extends EditRecord
         }
 
         return $authNotification;
+    }
+
+    private function sendRejectionEmail($application)
+    {
+        $tenantUser = User::find($application->user_id);
+        
+        Mail::to($tenantUser->email)->send(new ApplicationRejectedMail($application));
     }
 }

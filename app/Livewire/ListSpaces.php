@@ -18,6 +18,8 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewApplicationSubmitted;
 
 class ListSpaces extends Component implements HasTable, HasForms
 {
@@ -191,6 +193,12 @@ class ListSpaces extends Component implements HasTable, HasForms
                                     ->action(fn(Notification $notification) => $notification->delete())
                             ])
                             ->sendToDatabase(User::find(1));
+
+                        // Send email to admin (User with ID 1)
+                        $admin = User::find(1);
+                        if ($admin) {
+                            Mail::to($admin->email)->send(new NewApplicationSubmitted($application));
+                        }
 
                         return $application;
                     })
