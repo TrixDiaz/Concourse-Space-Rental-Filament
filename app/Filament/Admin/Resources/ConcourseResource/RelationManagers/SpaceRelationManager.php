@@ -84,13 +84,19 @@ class SpaceRelationManager extends RelationManager
                         ->prefix('m3')
                         ->minValue(0)
                         ->numeric()
-                        ->required(),
+                        ->required()
+                        ->afterStateUpdated(function ($state, $set, $get, $record) {
+                            $this->updateWaterBills($state, $set, $get, $record);
+                        }),
                     Forms\Components\TextInput::make('electricity_consumption')
                         ->label('Electricity Consumption')
                         ->prefix('kWh')
                         ->minValue(0)
                         ->numeric()
-                        ->required(),
+                        ->required()
+                        ->afterStateUpdated(function ($state, $set, $get, $record) {
+                            $this->updateElectricityBills($state, $set, $get, $record);
+                        }),
                 ])->columns(2),
             ]);
     }
