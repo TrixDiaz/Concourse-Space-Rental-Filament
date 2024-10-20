@@ -25,187 +25,21 @@ class SpaceRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Grid::make(2)->schema([
-                    Forms\Components\Section::make()
-                        ->schema([
-                            Forms\Components\Select::make('user_id')
-                                ->relationship('user', 'name')
-                                ->label('Tenant Name')
-                                ->preload()
-                                ->disabled(),
-                            Forms\Components\DatePicker::make('lease_start')
-                                ->label('Lease Start')
-                                ->native(false)
-                                ->disabled(),
-                            Forms\Components\DatePicker::make('lease_due')
-                                ->label('Lease Due')
-                                ->native(false)
-                                ->disabled(),
-                            Forms\Components\Select::make('lease_term')
-                                ->label('Lease Term')
-                                ->native(false)
-                                ->options([
-                                    '3' => '3 months',
-                                    '6' => '6 months',
-                                    '12' => '1 year',
-                                    '24' => '2 years',
-                                    '36' => '3 years',
-                                ])
-                                ->disabled(),
-                        ])->columns(2),
-                    Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
-                        Forms\Components\TextInput::make('water_consumption')
-                            ->label('Water Consumption')
-                            ->prefix('m3')
-                            ->numeric()
-                            ->default(0),
-                        Forms\Components\TextInput::make('electricity_consumption')
-                            ->label('Electricity Consumption')
-                            ->prefix('kWh')
-                            ->numeric(),
-                    ])->columns(2),
-                ])->columnSpan([
-                    'sm' => 3,
-                    'md' => 3,
-                    'lg' => 2
-                ]),
-                Forms\Components\Grid::make(1)->schema([
-                    Forms\Components\Section::make('Monthly Payment')->schema([
-                        Forms\Components\Select::make('lease_status')
-                            ->label('Lease Status')
-                            ->native(false)
-                            ->options([
-                                'paid' => 'Paid',
-                                'unpaid' => 'Unpaid',
-                                'overdue' => 'Overdue',
-                                'pending' => 'Pending',
-                            ]),
-                        Forms\Components\Select::make('status')
-                            ->label('Space Status')
-                            ->native(false)
-                            ->options([
-                                'available' => 'Available',
-                                'occupied' => 'Occupied',
-                                'under_maintenance' => 'Under Maintenance',
-                            ]),
-                    ]),
-                    Forms\Components\Section::make('Visibility')->schema([
-                        Forms\Components\Toggle::make('is_active')
-                            ->onIcon('heroicon-s-eye')
-                            ->offIcon('heroicon-s-eye-slash')
-                            ->label('Visible')
-                            ->default(true),
-                    ]),
-                    Forms\Components\Section::make()->schema([
-                        Forms\Components\Placeholder::make('created_at')
-                            ->label('Created at')
-                            ->hiddenOn('create')
-                            ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
-                                $category = Space::find($record->id);
-                                $now = \Carbon\Carbon::now();
-
-                                $diff = $category->created_at->diff($now);
-                                if ($diff->y > 0) {
-                                    return $diff->y . ' years ago';
-                                } elseif ($diff->m > 0) {
-                                    if ($diff->m == 1) {
-                                        return '1 month ago';
-                                    } else {
-                                        return $diff->m . ' months ago';
-                                    }
-                                } elseif ($diff->d >= 7) {
-                                    $weeks = floor($diff->d / 7);
-                                    if ($weeks == 1) {
-                                        return 'a week ago';
-                                    } else {
-                                        return $weeks . ' weeks ago';
-                                    }
-                                } elseif ($diff->d > 0) {
-                                    if ($diff->d == 1) {
-                                        return 'yesterday';
-                                    } else {
-                                        return $diff->d . ' days ago';
-                                    }
-                                } elseif ($diff->h > 0) {
-                                    if ($diff->h == 1) {
-                                        return '1 hour ago';
-                                    } else {
-                                        return $diff->h . ' hours ago';
-                                    }
-                                } elseif ($diff->i > 0) {
-                                    if ($diff->i == 1) {
-                                        return '1 minute ago';
-                                    } else {
-                                        return $diff->i . ' minutes ago';
-                                    }
-                                } elseif ($diff->s > 0) {
-                                    if ($diff->s == 1) {
-                                        return '1 second ago';
-                                    } else {
-                                        return $diff->s . ' seconds ago';
-                                    }
-                                } else {
-                                    return 'just now';
-                                }
-                            }),
-                        Forms\Components\Placeholder::make('updated_at')
-                            ->label('Last modified at')
-                            ->content(function (\Illuminate\Database\Eloquent\Model $record): String {
-                                $category = Space::find($record->id);
-                                $now = \Carbon\Carbon::now();
-
-                                $diff = $category->updated_at->diff($now);
-                                if ($diff->y > 0) {
-                                    return $diff->y . ' years ago';
-                                } elseif ($diff->m > 0) {
-                                    if ($diff->m == 1) {
-                                        return '1 month ago';
-                                    } else {
-                                        return $diff->m . ' months ago';
-                                    }
-                                } elseif ($diff->d >= 7) {
-                                    $weeks = floor($diff->d / 7);
-                                    if ($weeks == 1) {
-                                        return 'a week ago';
-                                    } else {
-                                        return $weeks . ' weeks ago';
-                                    }
-                                } elseif ($diff->d > 0) {
-                                    if ($diff->d == 1) {
-                                        return 'yesterday';
-                                    } else {
-                                        return $diff->d . ' days ago';
-                                    }
-                                } elseif ($diff->h > 0) {
-                                    if ($diff->h == 1) {
-                                        return '1 hour ago';
-                                    } else {
-                                        return $diff->h . ' hours ago';
-                                    }
-                                } elseif ($diff->i > 0) {
-                                    if ($diff->i == 1) {
-                                        return '1 minute ago';
-                                    } else {
-                                        return $diff->i . ' minutes ago';
-                                    }
-                                } elseif ($diff->s > 0) {
-                                    if ($diff->s == 1) {
-                                        return '1 second ago';
-                                    } else {
-                                        return $diff->s . ' seconds ago';
-                                    }
-                                } else {
-                                    return 'just now';
-                                }
-                            }),
-                    ])->hiddenOn('create')
-                ])->columnSpan([
-                    'sm' => 3,
-                    'md' => 3,
-                    'lg' => 1
-                ])
-            ])->columns(3)
-        ;
+                Forms\Components\Section::make('Bills Utility')->description('Add the utility bills for the tenant')->schema([
+                    Forms\Components\TextInput::make('water_consumption')
+                        ->label('Water Consumption')
+                        ->prefix('m3')
+                        ->minValue(0)
+                        ->step(100)
+                        ->numeric(),
+                    Forms\Components\TextInput::make('electricity_consumption')
+                        ->label('Electricity Consumption')
+                        ->prefix('kWh')
+                        ->minValue(0)
+                        ->step(100)
+                        ->numeric(),
+                ])->columns(2),
+            ]);
     }
 
     public function table(Table $table): Table
@@ -241,14 +75,14 @@ class SpaceRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('water_bills')
                     ->label('Water Bills')
                     ->default(fn($record) => 'Water: ' . '₱' . number_format($record->water_bills ?? 0, 2))
-                    ->description(fn($record) => 'Status: ' . $record->water_payment_status ?? null)
+                    ->description(fn($record) => 'Status: ' . $record->water_payment_status ?? null . ', Consumption: ' . $record->water_consumption . ' m3')
                     ->numeric()
                     ->sortable()
                     ->money('PHP')
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('electricity_bills')
                     ->label('Electricity Bills')
-                    ->default(fn($record) => 'Electricity: ' . '₱' . number_format($record->electricity_bills ?? 0, 2))
+                    ->default(fn($record) => '₱' . number_format($record->electricity_bills ?? 0, 2))
                     ->description(fn($record) => 'Status: ' . $record->electricity_payment_status ?? null)
                     ->numeric()
                     ->sortable()
@@ -265,6 +99,11 @@ class SpaceRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize']),
+                Tables\Columns\TextColumn::make('water_consumption')
+                    ->label('Water Consumption')
+                    ->numeric()
+                    ->sortable()
+                    ->default(fn($record) => number_format($record->water_consumption ?? 0, 2)),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Visible in Tenant')
                     ->boolean()
@@ -285,9 +124,7 @@ class SpaceRelationManager extends RelationManager
                         '0' => 'Inactive',
                     ]),
             ])
-            ->headerActions([
-                // Tables\Actions\CreateAction::make(),
-            ])
+            
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()->color('info'),
@@ -301,7 +138,9 @@ class SpaceRelationManager extends RelationManager
                             $record->rent_payment_status = 'unpaid';
                             $record->save();
                         }),
-                    Tables\Actions\EditAction::make()->label('Add Utility Bill'),
+                    Tables\Actions\EditAction::make()
+                    ->visible(fn($record) => $record->status === 'occupied')
+                    ->label('Add Utility Bill'),
                     Tables\Actions\DeleteAction::make()->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
@@ -315,6 +154,6 @@ class SpaceRelationManager extends RelationManager
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ])
-            ->poll('3s');
+            ->poll('30s');
     }
 }

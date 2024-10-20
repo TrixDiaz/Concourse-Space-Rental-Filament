@@ -177,6 +177,23 @@ class ConcourseResource extends Resource
                                 ->label('Visible')
                                 ->default(true),
                         ]),
+
+                        Forms\Components\Section::make('Total Water Bill')->schema([
+                            Forms\Components\TextInput::make('water_bills')
+                                ->label('Monthly Water Bill')
+                                ->default(0)
+                                ->minValue(0)
+                                ->numeric()
+                                ->prefix('₱')
+                                ->step(100),
+                            Forms\Components\TextInput::make('electricity_bills')
+                                ->label('Monthly Electricity Bill')
+                                ->default(0)
+                                ->minValue(0)
+                                ->numeric()
+                                ->prefix('₱')
+                                ->step(100),
+                        ]),
                         
                         Forms\Components\Section::make()->schema([
                             Forms\Components\Placeholder::make('created_at')
@@ -321,7 +338,9 @@ class ConcourseResource extends Resource
                     ->money('PHP')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('spaces')
+                Tables\Columns\TextColumn::make('Total Spaces')
+                    ->label('Spaces')
+                    ->default(fn($record) => $record->spaces()->count())
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

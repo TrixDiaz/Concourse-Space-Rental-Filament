@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\DB;
 
 class EditConcourse extends EditRecord
 {
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index');
+    // }
 
     protected function getHeaderWidgets(): array
     {
@@ -46,7 +46,6 @@ class EditConcourse extends EditRecord
                 ->icon('heroicon-o-bell')
                 // ->visible(fn () => $this->hasSpacesWithBills())
                 ->requiresConfirmation(),
-            // Actions\DeleteAction::make(),
         ];
     }
 

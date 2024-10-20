@@ -29,7 +29,9 @@ class Space extends Model
         'requirements_status',
         'remarks',
         'water_bills',
+        'water_consumption',
         'electricity_bills',
+        'electricity_consumption',
         'rent_bills',
         'payment_due',
         'payment_due_date',
@@ -58,6 +60,17 @@ class Space extends Model
         'lease_due' => 'datetime',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($space) {
+            if ($space->wasChanged('water_consumption')) {
+                $space->calculateWaterBill();
+            }
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -82,5 +95,22 @@ class Space extends Model
                 $this->update(['price' => $newPrice]);
             }
         }
+    }
+
+    public function calculateWaterBill()
+    {
+        $concourse = $this->concourse;
+        $totalMonthlyWater = $concourse->total_monthly_water;
+        $totalWaterConsumption = $concourse->spaces()->sum('water_consumption');
+
+        if ($totalWaterConsumption <= 0) {
+            $this->update(['water_bills' => 0]);
+            return;
+        }
+
+        $waterRate = $totalMonthlyWater / $totalWaterConsumption;
+        $waterBill = $waterRate * $this->water_consumption;
+
+        $this->update(['water_bills' => round($waterBill, 2)]);
     }
 }
