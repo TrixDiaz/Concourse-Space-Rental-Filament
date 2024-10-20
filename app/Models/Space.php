@@ -87,35 +87,6 @@ class Space extends Model
     }
 
     
-    // protected static function boot()
-    // {
-    //     parent::boot();
-
-    //     static::updated(function ($space) {
-    //         if ($space->status === 'occupied') {
-    //             $space->calculateWaterBill();
-    //         }
-    //     });
-    // }
-
-
-    // public static function updateWaterBillsForOccupiedSpaces()
-    // {
-    //     $occupiedSpaces = self::where('status', 'occupied')->get();
-    //     $allConsumptionSupplied = $occupiedSpaces->every(function ($space) {
-    //         return $space->water_consumption !== null && $space->water_consumption > 0;
-    //     });
-
-    //     if ($allConsumptionSupplied) {
-    //         foreach ($occupiedSpaces as $space) {
-    //             $space->calculateWaterBill();
-    //         }
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-
     public function calculateWaterBill()
     {
         $concourse = $this->concourse;

@@ -72,17 +72,6 @@ class Concourse extends Model
         return 0;
     }
 
-    public function getTotalWaterConsumptionAttribute()
-    {
-        return $this->spaces()->sum('water_consumption');
-    }
-
-    public function updateTotalWaterConsumption()
-    {
-        $this->total_water_consumption = $this->getTotalWaterConsumptionAttribute();
-        $this->save();
-    }
-
     public function calculateElectricityRate()
     {
         $totalElectricityBill = $this->electricity_bills ?? 0;
@@ -95,6 +84,12 @@ class Concourse extends Model
         return 0;
     }
 
+    public function getTotalWaterConsumptionAttribute()
+    {
+        return $this->spaces()->sum('water_consumption');
+    }
+    
+
     public function getTotalElectricityConsumptionAttribute()
     {
         return $this->spaces()->sum('electricity_consumption');
@@ -106,18 +101,13 @@ class Concourse extends Model
         $this->save();
     }
 
-    protected static function booted()
+    public function updateTotalWaterConsumption()
     {
-        static::saving(function ($concourse) {
-            if ($concourse->isDirty('water_bills')) {
-                $concourse->updateSpacesWaterBills();
-            }
-            if ($concourse->isDirty('electricity_bills')) {
-                $concourse->updateSpacesElectricityBills();
-            }
-        });
+        $this->total_water_consumption = $this->getTotalWaterConsumptionAttribute();
+        $this->save();
     }
 
+   
     public function updateSpacesWaterBills()
     {
         $waterRate = $this->calculateWaterRate();
@@ -141,4 +131,18 @@ class Concourse extends Model
             }
         });
     }
+
+    protected static function booted()
+    {
+        static::saving(function ($concourse) {
+            if ($concourse->isDirty('water_bills')) {
+                $concourse->updateSpacesWaterBills();
+            }
+
+            if ($concourse->isDirty('electricity_bills')) {
+                $concourse->updateSpacesElectricityBills();
+            }
+        });
+    }
+
 }

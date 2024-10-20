@@ -4,8 +4,10 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\SpaceResource\Pages;
 use App\Filament\Admin\Resources\SpaceResource\RelationManagers;
+use App\Models\Concourse;
 use App\Models\Space;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -13,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
+use Filament\Tables\Filters\SelectFilter;
 
 class SpaceResource extends Resource
 {
@@ -170,7 +173,9 @@ class SpaceResource extends Resource
                 ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('concourse_id')
+                    ->label('Concourse')
+                    ->options(Concourse::all()->pluck('name', 'id'))
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

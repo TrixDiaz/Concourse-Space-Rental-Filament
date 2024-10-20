@@ -92,7 +92,11 @@ class SpaceRelationManager extends RelationManager
                         ->label('Electricity Consumption')
                         ->prefix('kWh')
                         ->minValue(0)
-                        ->numeric(),
+                        ->numeric()
+                        ->required()
+                        ->afterStateUpdated(function ($state, $set, $get, $record) {
+                            $this->updateElectricityBills($state, $set, $get, $record);
+                        }),
                 ])->columns(2),
             ]);
     }
