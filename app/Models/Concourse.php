@@ -134,7 +134,7 @@ class Concourse extends Model
 
     protected static function booted()
     {
-        static::saving(function ($concourse) {
+        static::saved(function ($concourse) {
             if ($concourse->isDirty('water_bills')) {
                 $concourse->updateSpacesWaterBills();
             }
