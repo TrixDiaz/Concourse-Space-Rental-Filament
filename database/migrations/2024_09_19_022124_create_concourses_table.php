@@ -20,9 +20,9 @@ return new class extends Migration
             $table->integer('spaces')->default(0);
             $table->string('lat')->nullable();
             $table->string('lng')->nullable();
-            $table->integer('water_bills')->nullable();
+            $table->decimal('water_bills', 10, 2)->nullable();
             $table->integer('total_water_consumption')->nullable();
-            $table->integer('electricity_bills')->nullable();
+            $table->decimal('electricity_bills', 10, 2)->nullable();
             $table->integer('total_electricity_consumption')->nullable();
             $table->string('image')->nullable();
             $table->string('layout')->nullable();
