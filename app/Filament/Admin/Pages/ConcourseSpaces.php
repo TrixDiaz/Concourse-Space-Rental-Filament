@@ -40,22 +40,44 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             // Recalculate the concourse's total water consumption
             $concourse->updateTotalWaterConsumption();
 
-            // Recalculate water bills for all occupied spaces in this concourse
-            $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
-            foreach ($occupiedSpaces as $space) {
-                $space->calculateWaterBill();
-            }
+            // Calculate water bill for this space
+            $record->calculateWaterBill();
 
-            // Update the form field
+            // Update the form fields
             $set('water_bills', $record->water_bills);
+            $set('water_payment_status', $record->water_payment_status);
 
             Notification::make()
-                ->title('Water bills updated')
+                ->title('Water bill updated')
                 ->success()
                 ->send();
         }
     }
 
+    protected function updateElectricityBills($state, $set, $get, $record)
+    {
+        if ($record && $record->status === 'occupied') {
+            $concourse = $record->concourse;
+
+            // Update the space's electricity consumption
+            $record->update(['electricity_consumption' => $state]);
+
+            // Recalculate the concourse's total electricity consumption
+            $concourse->updateTotalElectricityConsumption();
+
+            // Calculate electricity bill for this space
+            $record->calculateElectricityBill();
+
+            // Update the form fields
+            $set('electricity_bills', $record->electricity_bills);
+            $set('electricity_payment_status', $record->electricity_payment_status);
+
+            Notification::make()
+                ->title('Electricity bill updated')
+                ->success()
+                ->send();
+        }
+    }
 
     public function form(Form $form): Form
     {
@@ -82,33 +104,6 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                         }),
                 ])->columns(2),
             ]);
-    }
-
-    protected function updateElectricityBills($state, $set, $get, $record)
-    {
-        if ($record && $record->status === 'occupied') {
-            $concourse = $record->concourse;
-
-            // Update the space's electricity consumption
-            $record->update(['electricity_consumption' => $state]);
-
-            // Recalculate the concourse's total electricity consumption
-            $concourse->updateTotalElectricityConsumption();
-
-            // Recalculate electricity bills for all occupied spaces in this concourse
-            $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
-            foreach ($occupiedSpaces as $space) {
-                $space->calculateElectricityBill();
-            }
-
-            // Update the form field
-            $set('electricity_bills', $record->electricity_bills);
-
-            Notification::make()
-                ->title('Electricity bills updated')
-                ->success()
-                ->send();
-        }
     }
 
     public static function getRoutes(): \Closure

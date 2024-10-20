@@ -38,17 +38,15 @@ class SpaceResource extends Resource
             // Recalculate the concourse's total water consumption
             $concourse->updateTotalWaterConsumption();
 
-            // Recalculate water bills for all occupied spaces in this concourse
-            $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
-            foreach ($occupiedSpaces as $space) {
-                $space->calculateWaterBill();
-            }
+            // Calculate water bill for this space
+            $record->calculateWaterBill();
 
-            // Update the form field
+            // Update the form fields
             $set('water_bills', $record->water_bills);
+            $set('water_payment_status', $record->water_payment_status);
 
             Notification::make()
-                ->title('Water bills updated')
+                ->title('Water bill updated')
                 ->success()
                 ->send();
         }
@@ -65,17 +63,15 @@ class SpaceResource extends Resource
             // Recalculate the concourse's total electricity consumption
             $concourse->updateTotalElectricityConsumption();
 
-            // Recalculate electricity bills for all occupied spaces in this concourse
-            $occupiedSpaces = $concourse->spaces()->where('status', 'occupied')->get();
-            foreach ($occupiedSpaces as $space) {
-                $space->calculateElectricityBill();
-            }
+            // Calculate electricity bill for this space
+            $record->calculateElectricityBill();
 
-            // Update the form field
+            // Update the form fields
             $set('electricity_bills', $record->electricity_bills);
+            $set('electricity_payment_status', $record->electricity_payment_status);
 
             Notification::make()
-                ->title('Electricity bills updated')
+                ->title('Electricity bill updated')
                 ->success()
                 ->send();
         }
