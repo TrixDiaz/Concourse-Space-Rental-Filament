@@ -98,7 +98,10 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->label('Pay Bills')
                     ->button()
                     ->action(fn($record) => $this->payWithGCash($record))
-                    ->visible(fn($record) => $record->payment_status !== 'Paid' && $record->monthly_payment > 0),
+                    ->tooltip(fn($record) => "Electricity: ₱" . number_format($record->electricity_bills, 2) . '\n' .
+                                             "Water: ₱" . number_format($record->water_bills, 2) . '\n' .
+                                             "Rent: ₱" . number_format($record->rent_bills, 2))
+                    ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
                 Tables\Actions\Action::make('renew')
                     ->label('Renew Lease')
                     ->button()
@@ -182,17 +185,39 @@ class TenantSpace extends Page implements HasForms, HasTable
 
     protected function payWithGCash($record)
     {
-        $total = $record->monthly_payment;
-        $billRecord = $record->bills;
+        $waterBill = $record->water_bills;
+        $electricityBill = $record->electricity_bills;
+        $monthlyRent = $record->rent_bills;
+        $total = $waterBill + $electricityBill + $monthlyRent;
 
         $lineItems = [];
 
-        foreach ($billRecord as $bill) {
+        if ($waterBill > 0) {
             $lineItems[] = [
                 'currency' => 'PHP',
-                'amount' => $bill['amount'] * 100,
-                'description' => $bill['name'],
-                'name' => $bill['name'],
+                'amount' => $waterBill * 100,
+                'description' => 'Water Bill',
+                'name' => 'Water Bill',
+                'quantity' => 1,
+            ];
+        }
+
+        if ($electricityBill > 0) {
+            $lineItems[] = [
+                'currency' => 'PHP',
+                'amount' => $electricityBill * 100,
+                'description' => 'Electricity Bill',
+                'name' => 'Electricity Bill',
+                'quantity' => 1,
+            ];
+        }
+
+        if ($monthlyRent > 0) {
+            $lineItems[] = [
+                'currency' => 'PHP',
+                'amount' => $monthlyRent * 100,
+                'description' => 'Monthly Rent',
+                'name' => 'Monthly Rent',
                 'quantity' => 1,
             ];
         }
@@ -205,7 +230,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     'payment_method_types' => ['gcash'],
                     'success_url' => route('filament.app.pages.tenant-space.payment-success', ['record' => $record->id]),
                     'cancel_url' => route('filament.app.pages.tenant-space.payment-cancel'),
-                    'description' => 'Payment for monthly rent',
+                    'description' => 'Payment for bills',
                 ],
             ],
         ];
