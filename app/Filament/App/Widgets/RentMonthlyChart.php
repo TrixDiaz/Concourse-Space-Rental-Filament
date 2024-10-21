@@ -3,6 +3,7 @@
 namespace App\Filament\App\Widgets;
 
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+use App\Models\Payment;
 
 class RentMonthlyChart extends ApexChartWidget
 {
@@ -36,6 +37,8 @@ class RentMonthlyChart extends ApexChartWidget
      */
     protected function getOptions(): array
     {
+        $monthlyData = $this->getMonthlyRentData();
+
         return [
             'chart' => [
                 'type' => 'line',
@@ -46,12 +49,12 @@ class RentMonthlyChart extends ApexChartWidget
             ],
             'series' => [
                 [
-                    'name' => 'Customers',
-                    'data' => [4344, 5676, 6798, 7890, 8987, 9388, 10343, 10524, 13664, 14345, 15753, 16398],
+                    'name' => 'Monthly Rent',
+                    'data' => $monthlyData['amounts'],
                 ],
             ],
             'xaxis' => [
-                'categories' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                'categories' => $monthlyData['months'],
                 'labels' => [
                     'style' => [
                         'fontWeight' => 400,
@@ -97,6 +100,33 @@ class RentMonthlyChart extends ApexChartWidget
                 'width' => 4,
             ],
             'colors' => ['#f59e0b'],
+        ];
+    }
+
+    private function getMonthlyRentData(): array
+    {
+        $currentYear = now()->year;
+        $monthlyData = Payment::selectRaw('MONTH(created_at) as month, SUM(rent_bill) as total_rent')
+            ->whereYear('created_at', $currentYear)
+            ->where('payment_status', 'paid')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $months = [];
+        $amounts = [];
+
+        foreach (range(1, 12) as $month) {
+            $monthName = date('M', mktime(0, 0, 0, $month, 1));
+            $months[] = $monthName;
+
+            $amount = $monthlyData->firstWhere('month', $month)?->total_rent ?? 0;
+            $amounts[] = $amount;
+        }
+
+        return [
+            'months' => $months,
+            'amounts' => $amounts,
         ];
     }
 }
