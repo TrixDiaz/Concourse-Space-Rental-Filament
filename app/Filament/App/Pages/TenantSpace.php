@@ -18,6 +18,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Application;
 use Carbon\Carbon;
+use Filament\Forms\Components\Checkbox;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -87,10 +88,30 @@ class TenantSpace extends Page implements HasForms, HasTable
                 Tables\Actions\Action::make('payBills')
                     ->label('Pay Bills')
                     ->button()
-                    ->action(fn($record) => $this->payWithGCash($record))
-                    ->tooltip(fn($record) => "Electricity: ₱" . number_format($record->electricity_bills, 2) . 
-                                             "Water: ₱" . number_format($record->water_bills, 2) . 
-                                             "Rent: ₱" . number_format($record->rent_bills, 2))
+                    ->action(fn($record, array $data) => $this->payWithGCash($record, $data))
+                    ->form(function ($record) {
+                        $checkboxes = [];
+                        
+                        if ($record->water_bills > 0) {
+                            $checkboxes[] = Checkbox::make('pay_water')
+                                ->label("Water Bill: ₱" . number_format($record->water_bills, 2))
+                                ->default(true);
+                        }
+                        
+                        if ($record->electricity_bills > 0) {
+                            $checkboxes[] = Checkbox::make('pay_electricity')
+                                ->label("Electricity Bill: ₱" . number_format($record->electricity_bills, 2))
+                                ->default(true);
+                        }
+                        
+                        if ($record->rent_bills > 0) {
+                            $checkboxes[] = Checkbox::make('pay_rent')
+                                ->label("Rent: ₱" . number_format($record->rent_bills, 2))
+                                ->default(true);
+                        }
+                        
+                        return $checkboxes;
+                    })
                     ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
                 Tables\Actions\Action::make('renew')
                     ->label('Renew Lease')
@@ -179,63 +200,71 @@ class TenantSpace extends Page implements HasForms, HasTable
             ]);
     }
 
-    protected function payWithGCash($record)
+    protected function payWithGCash($record, $data)
     {
-        $waterBill = $record->water_bills;
-        $electricityBill = $record->electricity_bills;
-        $monthlyRent = $record->rent_bills;
-        $total = $waterBill + $electricityBill + $monthlyRent;
-
         $lineItems = [];
+        $totalAmount = 0;
+        $description = "Payment for: ";
 
-        if ($waterBill > 0) {
+        if (isset($data['pay_water']) && $data['pay_water']) {
             $lineItems[] = [
                 'currency' => 'PHP',
-                'amount' => $waterBill * 100,
+                'amount' => $record->water_bills * 100,
                 'description' => 'Water Bill',
                 'name' => 'Water Bill',
                 'quantity' => 1,
             ];
+            $totalAmount += $record->water_bills;
+            $description .= "Water Bill, ";
         }
 
-        if ($electricityBill > 0) {
+        if (isset($data['pay_electricity']) && $data['pay_electricity']) {
             $lineItems[] = [
                 'currency' => 'PHP',
-                'amount' => $electricityBill * 100,
+                'amount' => $record->electricity_bills * 100,
                 'description' => 'Electricity Bill',
                 'name' => 'Electricity Bill',
                 'quantity' => 1,
             ];
+            $totalAmount += $record->electricity_bills;
+            $description .= "Electricity Bill, ";
         }
 
-        if ($monthlyRent > 0) {
+        if (isset($data['pay_rent']) && $data['pay_rent']) {
             $lineItems[] = [
                 'currency' => 'PHP',
-                'amount' => $monthlyRent * 100,
+                'amount' => $record->rent_bills * 100,
                 'description' => 'Monthly Rent',
                 'name' => 'Monthly Rent',
                 'quantity' => 1,
             ];
+            $totalAmount += $record->rent_bills;
+            $description .= "Monthly Rent, ";
         }
 
-        $data = [
+        $description = rtrim($description, ", ");
+
+        $sessionData = [
             'data' => [
                 'attributes' => [
                     'line_items' => $lineItems,
-                    'amount_total' => $total * 100,
+                    'amount_total' => $totalAmount * 100,
                     'payment_method_types' => ['gcash'],
                     'success_url' => route('filament.app.pages.tenant-space.payment-success', ['record' => $record->id]),
                     'cancel_url' => route('filament.app.pages.tenant-space.payment-cancel'),
-                    'description' => 'Payment for bills',
+                    'description' => $description,
                 ],
             ],
         ];
+
+        // Store payment data in session
+        session(['payment_data' => $sessionData]);
 
         $response = Curl::to('https://api.paymongo.com/v1/checkout_sessions')
             ->withHeader('Content-Type: application/json')
             ->withHeader('accept: application/json')
             ->withHeader('Authorization: Basic c2tfdGVzdF9ZS1lMMnhaZWVRRDZjZ1dYWkJYZ1dHVU46')
-            ->withData($data)
+            ->withData($sessionData)
             ->asJson()
             ->post();
 
@@ -271,47 +300,69 @@ class TenantSpace extends Page implements HasForms, HasTable
 
     public function handlePaymentSuccess($recordId)
     {
-        $tenant = Space::findOrFail($recordId);
+        \Log::info('Payment Success Called. Record ID: ' . $recordId);
+        \Log::info('Request Data: ', request()->all());
+
+        $space = Space::findOrFail($recordId);
         
-         $this->sendPaymentConfirmationEmail($tenant);
+        // Retrieve the payment data from the session
+        $paymentData = session('payment_data', []);
+        \Log::info('Payment Data from Session: ', $paymentData);
 
-        // Get the concourse associated with this space
-        $concourse = $tenant->concourse;
+        $totalPaid = 0;
+        $waterBillPaid = 0;
+        $electricityBillPaid = 0;
+        $rentBillPaid = 0;
 
-        // Extract water and electricity bill amounts
-        $waterBillAmount = 0;
-        $electricityBillAmount = 0;
-        foreach ($tenant->bills as $bill) {
-            if ($bill['name'] === 'Water') {
-                $waterBillAmount = $bill['amount'];
-            } elseif ($bill['name'] === 'Electricity') {
-                $electricityBillAmount = $bill['amount'];
+        // Check if there are line items in the payment data
+        if (isset($paymentData['data']['attributes']['line_items'])) {
+            foreach ($paymentData['data']['attributes']['line_items'] as $item) {
+                switch ($item['name']) {
+                    case 'Water Bill':
+                        $waterBillPaid = $space->water_bills;
+                        $space->water_bills = 0;
+                        $space->water_payment_status = 'Paid';
+                        $totalPaid += $waterBillPaid;
+                        break;
+                    case 'Electricity Bill':
+                        $electricityBillPaid = $space->electricity_bills;
+                        $space->electricity_bills = 0;
+                        $space->electricity_payment_status = 'Paid';
+                        $totalPaid += $electricityBillPaid;
+                        break;
+                    case 'Monthly Rent':
+                        $rentBillPaid = $space->rent_bills;
+                        $space->rent_bills = 0;
+                        $space->rent_payment_status = 'Paid';
+                        $totalPaid += $rentBillPaid;
+                        break;
+                }
             }
         }
 
-        // Update concourse totals
-        $concourse->total_monthly_water -= $waterBillAmount;
-        $concourse->total_monthly_electricity -= $electricityBillAmount;
-        $concourse->save();
+        \Log::info('Before Save - Space: ', $space->toArray());
+        $space->save();
+        $space->refresh();
+        \Log::info('After Save - Updated Space: ', $space->toArray());
 
-        // Update tenant space
-        $tenant->bills = [];
-        $tenant->monthly_payment = 0;
-        $tenant->payment_status = 'Paid';
-        $tenant->save();
-
-        // Create a new Payment record
-        Payment::create([
-            'tenant_id' => $tenant->user_id,
-            'payment_type' => 'Monthly Rent',
+        // Create payment record
+        $payment = Payment::create([
+            'tenant_id' => $space->user_id,
+            'payment_type' => 'Monthly Bills',
             'payment_method' => 'GCash',
-            'amount' => $tenant->monthly_payment,
+            'water_bill' => $waterBillPaid,
+            'electricity_bill' => $electricityBillPaid,
+            'rent_bill' => $rentBillPaid,
+            'amount' => $totalPaid,
             'payment_status' => 'Completed',
-            'payment_details' => [
-                'water' => $waterBillAmount,
-                'electricity' => $electricityBillAmount,
-            ],
         ]);
+
+        \Log::info('Created Payment: ', $payment->toArray());
+
+        $this->sendPaymentConfirmationEmail($space);
+
+        // Clear the payment data from the session
+        session()->forget('payment_data');
 
         $this->notify('success', 'Payment Successful', 'Your payment has been processed successfully.');
         return redirect()->route('filament.app.pages.tenant-space');
