@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Application;
 use Carbon\Carbon;
 use Filament\Forms\Components\Checkbox;
+use App\Models\User;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -289,12 +290,20 @@ class TenantSpace extends Page implements HasForms, HasTable
             ->send();
     }
 
-    protected function sendPaymentConfirmationEmail($tenant)
+    protected function sendPaymentConfirmationEmail($space, $payment)
     {
-        $user = $tenant->tenant;
+        $user = auth()->user();
+        $admin = User::find(1);
 
-        if ($user) {
-            Mail::to($user->email)->send(new PaymentConfirmation($tenant, $user));
+        // Only send the email if there's an actual payment amount
+        if ($payment->amount > 0) {
+            // Send email to the user who made the payment
+            Mail::to($user->email)->send(new PaymentConfirmation($space, $user, $payment));
+
+            // Send email to the admin (user with ID 1) only if it's a different user
+            if ($admin && $admin->id !== $user->id) {
+                Mail::to($admin->email)->send(new PaymentConfirmation($space, $admin, $payment));
+            }
         }
     }
 
@@ -359,7 +368,8 @@ class TenantSpace extends Page implements HasForms, HasTable
 
         \Log::info('Created Payment: ', $payment->toArray());
 
-        $this->sendPaymentConfirmationEmail($space);
+        // Send email confirmation
+        $this->sendPaymentConfirmationEmail($space, $payment);
 
         // Clear the payment data from the session
         session()->forget('payment_data');

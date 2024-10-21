@@ -3,26 +3,31 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Tenant;
+use App\Models\Space;
 use App\Models\User;
+use App\Models\Payment;
 
 class PaymentConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $tenant;
+    public $space;
     public $user;
+    public $payment;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Tenant $tenant, User $user)
+    public function __construct(Space $space, User $user, Payment $payment)
     {
-        $this->tenant = $tenant;
+        $this->space = $space;
         $this->user = $user;
+        $this->payment = $payment;
     }
 
     /**
@@ -38,9 +43,11 @@ class PaymentConfirmation extends Mailable
     /**
      * Get the message content definition.
      */
-    public function build()
+    public function content(): Content
     {
-        return $this->view('emails.payment-confirmation');
+        return new Content(
+            view: 'emails.payment-confirmation',
+        );
     }
 
     /**
