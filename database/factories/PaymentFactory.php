@@ -23,24 +23,20 @@ class PaymentFactory extends Factory
         $startDate = Carbon::now()->startOfYear();
         $endDate = Carbon::now()->endOfYear();
 
-        $paymentDetails = [
-            [
-                'name' => 'water',
-                'amount' => (string) $this->faker->numberBetween(50, 500)
-            ],
-            [
-                'name' => 'electricity',
-                'amount' => (string) $this->faker->numberBetween(50, 500)
-            ]
-        ];
+        $waterBill = $this->faker->numberBetween(50, 500);
+        $electricityBill = $this->faker->numberBetween(50, 500);
 
         return [
             'tenant_id' => $this->faker->randomElement(User::pluck('id')),
-            'amount' => collect($paymentDetails)->sum(fn($item) => (int) $item['amount']),
-            'payment_details' => json_encode($paymentDetails),
+            'amount' => $waterBill + $electricityBill,
+            'payment_type' => $this->faker->randomElement(['cash', 'e-wallet']),
             'payment_method' => $this->faker->randomElement(['cash', 'gcash']),
             'payment_status' => $this->faker->randomElement(['paid', 'unpaid']),
-            'payment_type' => $this->faker->randomElement(['cash', 'e-wallet']),
+            'water_bill' => $waterBill,
+            'electricity_bill' => $electricityBill,
+            'water_consumption' => $this->faker->numberBetween(1, 100) . ' cubic meters',
+            'electricity_consumption' => $this->faker->numberBetween(50, 500) . ' kWh',
+            'rent_bill' => $this->faker->numberBetween(1000, 5000),
             'created_at' => $this->faker->dateTimeBetween($startDate, $endDate),
         ];
     }

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('electricity_bill')->nullable();
             $table->string('water_consumption')->nullable();
             $table->string('electricity_consumption')->nullable();
+            $table->string('rent_bill')->nullable();
             $table->foreign('tenant_id')->references('id')->on('users');
             $table->timestamps();
         });

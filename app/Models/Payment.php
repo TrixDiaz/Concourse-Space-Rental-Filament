@@ -18,6 +18,7 @@ class Payment extends Model
         'water_consumption',
         'electricity_consumption',
         'amount',
+        'rent_bill',
         'payment_status',
     ];
 
