@@ -150,9 +150,7 @@ class ConcourseReport extends Report
     public function spaceSummary(?array $filters): Collection
     {
         $query = Space::query()
-            ->with(['payments' => function ($query) {
-                $query->latest();
-            }]);
+            ->with(['user']); // Eager load only the user relationship
 
         if (isset($filters['concourse_id'])) {
             $query->where('concourse_id', $filters['concourse_id']);
@@ -187,40 +185,38 @@ class ConcourseReport extends Report
         }
 
         $headerRow = [
-            'column1' => 'Date Created',
-            'column2' => 'Space Name',
-            'column3' => 'Water Bill',
-            'column4' => 'Electricity Bill',
-            'column5' => 'Rent Bill',
-            'column6' => 'Water Consumption',
-            'column7' => 'Electricity Consumption',
-            'column8' => 'Payment Status',
+            'column1' => 'Space Name',
+            'column2' => 'Status',
+            'column3' => 'Owner Name',
+            'column4' => 'Business Type',
+            'column5' => 'Business Name',
+            'column6' => 'Rent Price',
+            'column7' => 'Lease Start',
+            'column8' => 'Lease End',
+            'column9' => 'Rent Bill',
+            'column10' => 'Water Bill',
+            'column11' => 'Water Consumption',
+            'column12' => 'Electricity Bill',
+            'column13' => 'Electricity Consumption',
         ];
 
-        if (isset($filters['concourse_id'])) {
-            $concourse = Concourse::find($filters['concourse_id']);
-            $headerRow['column9'] = 'Concourse';
-        }
-
         return collect([$headerRow])
-            ->concat($spaces->map(function ($space) use ($filters) {
-                $latestPayment = $space->payments->first();
-                $row = [
-                    'column1' => $space->created_at->format('F d, Y'),
-                    'column2' => $space->name,
-                    'column3' => $latestPayment ? '₱' . number_format($latestPayment->water_bill / 100, 2) : 'N/A',
-                    'column4' => $latestPayment ? '₱' . number_format($latestPayment->electricity_bill / 100, 2) : 'N/A',
-                    'column5' => $latestPayment ? '₱' . number_format($latestPayment->rent_bill / 100, 2) : 'N/A',
-                    'column6' => $latestPayment ? $latestPayment->water_consumption : 'N/A',
-                    'column7' => $latestPayment ? $latestPayment->electricity_consumption : 'N/A',
-                    'column8' => $latestPayment ? $latestPayment->payment_status : 'N/A',
+            ->concat($spaces->map(function ($space) {
+                return [
+                    'column1' => $space->name,
+                    'column2' => $space->status,
+                    'column3' => $space->user->name ?? 'N/A',
+                    'column4' => 'N/A', // Business Type not available in Space model
+                    'column5' => 'N/A', // Business Name not available in Space model
+                    'column6' => number_format($space->price, 2),
+                    'column7' => $space->lease_start ? $space->lease_start->format('F d, Y') : 'N/A',
+                    'column8' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
+                    'column9' => number_format($space->rent_bills, 2),
+                    'column10' => number_format($space->water_bills, 2),
+                    'column11' => $space->water_consumption,
+                    'column12' => number_format($space->electricity_bills, 2),
+                    'column13' => $space->electricity_consumption,
                 ];
-
-                if (isset($filters['concourse_id'])) {
-                    $row['column9'] = $space->concourse->name;
-                }
-
-                return $row;
             }));
     }
 
