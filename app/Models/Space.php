@@ -27,6 +27,8 @@ class Space extends Model
         'lease_status',
         'application_status',
         'requirements_status',
+        'address',
+        'phone_number',
         'remarks',
         'business_type',
         'business_name',
