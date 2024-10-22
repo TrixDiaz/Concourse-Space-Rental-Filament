@@ -32,10 +32,10 @@ class PaymentsReport extends Report
                                     ->subtitle(),
                             ]),
                         Header\Layout\HeaderColumn::make()
-                            ->schema([
-                                Text::make(now()->format('F, d Y'))
-                                    ->subtitle(),
-                            ])->alignRight(),
+                            // ->schema([
+                            //     Text::make(now()->format('F, d Y'))
+                            //         ->subtitle(),
+                            // ])->alignRight(),
                     ])
             ]);
     }
@@ -129,21 +129,30 @@ class PaymentsReport extends Report
                     ->displayFormat('Y-m-d')
                     ->maxDate(now())
                     ->native(false),
-                \Filament\Forms\Components\Actions::make([
-                    \Filament\Forms\Components\Actions\Action::make('reset')
-                        ->label('Reset Filters')
-                        ->color('danger')
-                        ->action(function (Form $form) {
-                            $form->fill([
-                                'search' => null,
-                                'payment_status' => null,
-                                'payment_method' => null,
-                                'payment_type' => null,
-                                'date_from' => null,
-                                'date_to' => null,
-                            ]);
-                        })
-                ]),
+                \Filament\Forms\Components\Select::make('bill_types')
+                    ->label('Bill Types')
+                    ->multiple()
+                    ->native(false)
+                    ->options([
+                        'electricity' => 'Electricity',
+                        'water' => 'Water',
+                        'rent' => 'Rent',
+                    ]),
+                    \Filament\Forms\Components\Actions::make([
+                        \Filament\Forms\Components\Actions\Action::make('reset')
+                            ->label('Reset Filters')
+                            ->color('danger')
+                            ->action(function (Form $form) {
+                                $form->fill([
+                                    'search' => null,
+                                    'payment_status' => null,
+                                    'payment_method' => null,
+                                    'payment_type' => null,
+                                    'date_from' => null,
+                                    'date_to' => null,
+                                ]);
+                            })
+                    ]),
             ]);
     }
 
@@ -178,6 +187,15 @@ class PaymentsReport extends Report
             $filtersApplied = true;
         }
 
+        if (isset($filters['bill_types']) && !empty($filters['bill_types'])) {
+            $query->where(function ($query) use ($filters) {
+                foreach ($filters['bill_types'] as $billType) {
+                    $query->orWhere($billType . '_bill', '>', 0);
+                }
+            });
+            $filtersApplied = true;
+        }
+
         if (!$filtersApplied) {
             $payments = $query->latest('created_at')->take(5)->get();
         } else {
@@ -189,18 +207,19 @@ class PaymentsReport extends Report
                 'column1' => 'Date',
                 'column2' => 'Tenant',
                 'column3' => 'Amount',
-                'column4' => 'Payment Type',
-                'column5' => 'Payment Method',
-                'column6' => 'Status',
+                'column4' => 'Payment Method',
+                'column5' => 'Status',
+                'column6' => 'Bill Types',
             ]
-        ])->concat($payments->map(function ($payment) {
+        ])->concat($payments->map(function ($payment) use ($filters) {
+            $billTypes = isset($filters['bill_types']) ? implode(', ', array_map('ucfirst', $filters['bill_types'])) : 'All';
             return [
                 'column1' => $payment->created_at->format('F d, Y'),
                 'column2' => $payment->tenant->name,
                 'column3' => number_format($payment->amount, 2),
-                'column4' => $payment->payment_type,
-                'column5' => $payment->payment_method,
-                'column6' => $payment->payment_status,
+                'column4' => $payment->payment_method,
+                'column5' => $payment->payment_status,
+                'column6' => $billTypes,
             ];
         }));
     }

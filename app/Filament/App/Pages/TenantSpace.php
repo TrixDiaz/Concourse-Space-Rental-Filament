@@ -63,7 +63,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('lease_start')
-                ->label('Lease Start')
+                    ->label('Lease Start')
                     ->date('F j, Y')
                     ->searchable()
                     ->sortable(),
@@ -92,25 +92,25 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->action(fn($record, array $data) => $this->payWithGCash($record, $data))
                     ->form(function ($record) {
                         $checkboxes = [];
-                        
+
                         if ($record->water_bills > 0) {
                             $checkboxes[] = Checkbox::make('pay_water')
                                 ->label("Water Bill: ₱" . number_format($record->water_bills, 2))
                                 ->default(true);
                         }
-                        
+
                         if ($record->electricity_bills > 0) {
                             $checkboxes[] = Checkbox::make('pay_electricity')
                                 ->label("Electricity Bill: ₱" . number_format($record->electricity_bills, 2))
                                 ->default(true);
                         }
-                        
+
                         if ($record->rent_bills > 0) {
                             $checkboxes[] = Checkbox::make('pay_rent')
                                 ->label("Rent: ₱" . number_format($record->rent_bills, 2))
                                 ->default(true);
                         }
-                        
+
                         return $checkboxes;
                     })
                     ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
@@ -118,11 +118,11 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->label('Renew Lease')
                     ->button()
                     ->slideOver()
-                    ->form(fn ($record) => RenewForm::schema($record))
+                    ->form(fn($record) => RenewForm::schema($record))
                     ->action(function (array $data, $record) {
                         // Get the application_id from the Space record
                         $applicationId = $record->application_id;
-                        
+
                         // Try to find the application, including soft-deleted ones
                         $application = Application::withTrashed()->find($applicationId);
 
@@ -177,7 +177,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->visible(function ($record) {
                         // Get current date
                         $now = Carbon::now();
-                        
+
                         // Calculate the date 3 months before lease end
                         $threeMonthsBefore = $record->lease_end->copy()->subMonths(3);
 
@@ -313,7 +313,7 @@ class TenantSpace extends Page implements HasForms, HasTable
         \Log::info('Request Data: ', request()->all());
 
         $space = Space::findOrFail($recordId);
-        
+
         // Retrieve the payment data from the session
         $paymentData = session('payment_data', []);
         \Log::info('Payment Data from Session: ', $paymentData);
@@ -348,7 +348,8 @@ class TenantSpace extends Page implements HasForms, HasTable
                     case 'Monthly Rent':
                         $rentBillPaid = $space->rent_bills;
                         $space->rent_bills = 0;
-                        $space->rent_payment_status = 'Paid';                               $totalPaid += $rentBillPaid;
+                        $space->rent_payment_status = 'Paid';
+                        $totalPaid += $rentBillPaid;
                         break;
                 }
             }
@@ -390,5 +391,4 @@ class TenantSpace extends Page implements HasForms, HasTable
         $this->notify('warning', 'Payment Cancelled', 'Your payment has been cancelled.');
         return redirect()->route('filament.app.pages.tenant-space');
     }
-
 }
