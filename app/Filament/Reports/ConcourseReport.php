@@ -206,7 +206,7 @@ class ConcourseReport extends Report
                     'column1' => $space->name,
                     'column2' => $space->status,
                     'column3' => $space->user->name ?? 'N/A',
-                    'column4' => $space->space_type ?? 'N/A',
+                    'column4' => $space->business_type ?? 'N/A',
                     'column5' => $space->business_name ?? 'N/A',
                     'column6' => number_format($space->price, 2),
                     'column7' => $space->lease_start ? $space->lease_start->format('F d, Y') : 'N/A',

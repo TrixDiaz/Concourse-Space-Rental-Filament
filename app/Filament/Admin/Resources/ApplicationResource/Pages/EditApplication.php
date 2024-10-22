@@ -146,7 +146,7 @@ class EditApplication extends EditRecord
                                 'email' => $application->email,
                                 'owner_name' => $application->owner_name,
                                 'business_name' => $application->business_name,
-                                'business_type' => $application->space_type,
+                                'business_type' => $application->business_type,
                                 'address' => $application->address,
                                 'phone_number' => $application->phone_number,
                                 'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
@@ -228,7 +228,6 @@ class EditApplication extends EditRecord
                         // Redirect to the list view after approval
                         return redirect()->route('filament.admin.resources.applications.index');
                     });
-
                 })
                 ->color('success')
                 ->requiresConfirmation(),
@@ -334,7 +333,7 @@ class EditApplication extends EditRecord
     private function sendRejectionEmail($application)
     {
         $tenantUser = User::find($application->user_id);
-        
+
         Mail::to($tenantUser->email)->send(new ApplicationRejectedMail($application));
     }
 }
