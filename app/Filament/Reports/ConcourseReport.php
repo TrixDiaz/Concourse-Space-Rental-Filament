@@ -193,11 +193,11 @@ class ConcourseReport extends Report
             'column6' => 'Rent Price',
             'column7' => 'Lease Start',
             'column8' => 'Lease End',
-            'column9' => 'Rent Bill',
-            'column10' => 'Water Bill',
-            'column11' => 'Water Consumption',
-            'column12' => 'Electricity Bill',
-            'column13' => 'Electricity Consumption',
+            // 'column9' => 'Rent Bill',
+            // 'column10' => 'Water Bill',
+            // 'column11' => 'Water Consumption',
+            // 'column12' => 'Electricity Bill',
+            // 'column13' => 'Electricity Consumption',
         ];
 
         return collect([$headerRow])
@@ -210,12 +210,12 @@ class ConcourseReport extends Report
                     'column5' => 'N/A', // Business Name not available in Space model
                     'column6' => number_format($space->price, 2),
                     'column7' => $space->lease_start ? $space->lease_start->format('F d, Y') : 'N/A',
-                    'column8' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
-                    'column9' => number_format($space->rent_bills, 2),
-                    'column10' => number_format($space->water_bills, 2),
-                    'column11' => $space->water_consumption,
-                    'column12' => number_format($space->electricity_bills, 2),
-                    'column13' => $space->electricity_consumption,
+                    // 'column8' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
+                    // 'column9' => number_format($space->rent_bills, 2),
+                    // 'column10' => number_format($space->water_bills, 2),
+                    // 'column11' => $space->water_consumption,
+                    // 'column12' => number_format($space->electricity_bills, 2),
+                    // 'column13' => $space->electricity_consumption,
                 ];
             }));
     }
