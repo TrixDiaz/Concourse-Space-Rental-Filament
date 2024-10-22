@@ -206,8 +206,8 @@ class ConcourseReport extends Report
                     'column1' => $space->name,
                     'column2' => $space->status,
                     'column3' => $space->user->name ?? 'N/A',
-                    'column4' => 'N/A', // Business Type not available in Space model
-                    'column5' => 'N/A', // Business Name not available in Space model
+                    'column4' => $space->business_type ?? 'N/A',
+                    'column5' => $space->business_name ?? 'N/A',
                     'column6' => number_format($space->price, 2),
                     'column7' => $space->lease_start ? $space->lease_start->format('F d, Y') : 'N/A',
                     'column8' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
