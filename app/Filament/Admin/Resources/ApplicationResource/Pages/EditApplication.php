@@ -155,7 +155,7 @@ class EditApplication extends EditRecord
                                 'lease_status' => 'active',
                                 'application_status' => 'approved',
                                 'requirements_status' => 'approved',
-                                'space_type' => 'new',
+                                'space_type' => $application->space_type,
                                 'bills' => $application->bills ? json_encode($application->bills) : null,
                                 'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : 0,
                                 'payment_status' => '',
