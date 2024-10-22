@@ -25,7 +25,7 @@ class ElectricMonthlyChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Electric Monthly Chart';
+    protected static ?string $heading = 'Electric Consumption Monthly Chart';
 
      /**
      * Sort

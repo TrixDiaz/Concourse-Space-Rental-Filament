@@ -25,7 +25,7 @@ class WaterMonthlyChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Water Monthly Chart';
+    protected static ?string $heading = 'Water Consumption Monthly Chart';
 
      /**
      * Sort
