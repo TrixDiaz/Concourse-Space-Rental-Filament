@@ -146,7 +146,7 @@ class EditApplication extends EditRecord
                                 'email' => $application->email,
                                 'owner_name' => $application->owner_name,
                                 'business_name' => $application->business_name,
-                                'space_type' => $application->business_type,
+                                'business_type' => $application->space_type,
                                 'address' => $application->address,
                                 'phone_number' => $application->phone_number,
                                 'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
