@@ -205,7 +205,7 @@ class ConcourseReport extends Report
                 return [
                     'column1' => $space->name,
                     'column2' => $space->status,
-                    'column3' => $space->user->name ?? 'N/A',
+                    'column3' => $space->owner_name ?? 'N/A',
                     'column4' => $space->business_type ?? 'N/A',
                     'column5' => $space->business_name ?? 'N/A',
                     'column6' => number_format($space->price, 2),

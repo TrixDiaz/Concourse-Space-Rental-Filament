@@ -46,7 +46,7 @@ final class RequirementForm
                         ->default(fn() => $user->address)
                         ->columnSpanFull()
                         ->required(),
-                    Forms\Components\Select::make('space_type')
+                    Forms\Components\Select::make('business_type')
                         ->label('Business Type')
                         ->options([
                             'food' => 'Food',

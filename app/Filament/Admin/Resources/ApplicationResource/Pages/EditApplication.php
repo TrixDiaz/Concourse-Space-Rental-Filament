@@ -132,7 +132,7 @@ class EditApplication extends EditRecord
 
                     DB::transaction(function () use ($application) {
                         // Update application status
-                        $application->update(['application_status' => 'Approved']);
+                        $application->update(['application_status' => 'approved']);
 
                         // Update space status and details
                         $space = Space::find($application->space_id);
@@ -200,7 +200,7 @@ class EditApplication extends EditRecord
                             'business_name' => $application->business_name,
                             'address' => $application->address,
                             'phone_number' => $application->phone_number,
-                            'business_type' => $application->business_type,
+                            'business_type' => $application->business_type ?? 'Not specified',
                             'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
                             'lease_end' => Carbon::parse($application->created_at)->addMonths($application->concourse_lease_term),
                             'lease_term' => $application->concourse_lease_term,
