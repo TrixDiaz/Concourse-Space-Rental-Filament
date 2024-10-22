@@ -22,6 +22,7 @@ class Application extends Model
         'address',
         'requirements_status',
         'application_status',
+        'business_type',
         'remarks',
         'monthly_payment',
         'payment_status',
@@ -29,7 +30,6 @@ class Application extends Model
         'application_status',
         'payment_due_date',
         'payment_due_status',
-        'business_type',
         'concourse_lease_term',
     ];
 
