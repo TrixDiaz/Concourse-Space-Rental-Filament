@@ -210,7 +210,7 @@ class ConcourseReport extends Report
                     'column5' => 'N/A', // Business Name not available in Space model
                     'column6' => number_format($space->price, 2),
                     'column7' => $space->lease_start ? $space->lease_start->format('F d, Y') : 'N/A',
-                    // 'column8' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
+                    'column8' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
                     // 'column9' => number_format($space->rent_bills, 2),
                     // 'column10' => number_format($space->water_bills, 2),
                     // 'column11' => $space->water_consumption,
