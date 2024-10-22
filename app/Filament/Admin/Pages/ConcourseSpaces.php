@@ -117,7 +117,13 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
     public function mount(Request $request)
     {
         $concourseId = $request->query('concourseId');
-        $this->concourse = Concourse::findOrFail($concourseId);
+        $this->concourse = Concourse::find($concourseId);
+
+        if (!$this->concourse) {
+            // Redirect to an error page or the concourse list
+            return redirect()->route('filament.admin.resources.concourses.index')
+                ->with('error', 'Concourse not found');
+        }
     }
 
     public function table(Table $table): Table
@@ -223,7 +229,9 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
 
     public function getTitle(): string
     {
-        return "Spaces for Concourse: {$this->concourse->name}";
+        return $this->concourse
+            ? "Spaces for Concourse: {$this->concourse->name}"
+            : "Concourse Spaces";
     }
 
     protected function getFormSchema(): array

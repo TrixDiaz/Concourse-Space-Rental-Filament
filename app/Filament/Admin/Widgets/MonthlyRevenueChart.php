@@ -2,8 +2,11 @@
 
 namespace App\Filament\Admin\Widgets;
 
+use App\Models\Payment;
 use Filament\Support\RawJs;
+use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+use Filament\Actions\Action;
 
 class MonthlyRevenueChart extends ApexChartWidget
 {
@@ -40,24 +43,22 @@ class MonthlyRevenueChart extends ApexChartWidget
 
     protected function getOptions(): array
     {
+        $rentData = $this->getRentData();
+
         return [
             'chart' => [
                 'type' => 'bar',
                 'height' => 260,
                 'parentHeightOffset' => 2,
-                'stacked' => true,
+                'stacked' => false,
                 'toolbar' => [
                     'show' => false,
                 ],
             ],
             'series' => [
                 [
-                    'name' => 'Earning',
-                    'data' => [270, 210, 180, 200, 250, 280, 250, 270, 150, 210, 180, 200],
-                ],
-                [
-                    'name' => 'Expense',
-                    'data' => [-140, -160, -180, -150, -100, -60, -80, -100, -180, -160, -180, -150],
+                    'name' => 'Rent Revenue',
+                    'data' => $rentData['amounts'],
                 ],
             ],
             'plotOptions' => [
@@ -87,23 +88,9 @@ class MonthlyRevenueChart extends ApexChartWidget
             ],
             'grid' => [
                 'show' => false,
-
             ],
             'xaxis' => [
-                'categories' => [
-                    'Jan',
-                    'Feb',
-                    'Mar',
-                    'Apr',
-                    'May',
-                    'Jun',
-                    'Jul',
-                    'Aug',
-                    'Sep',
-                    'Oct',
-                    'Nov',
-                    'Dec',
-                ],
+                'categories' => $rentData['months'],
                 'labels' => [
                     'style' => [
                         'fontFamily' => 'inherit',
@@ -117,14 +104,11 @@ class MonthlyRevenueChart extends ApexChartWidget
                 ],
             ],
             'yaxis' => [
-                'offsetX' => -16,
                 'labels' => [
                     'style' => [
                         'fontFamily' => 'inherit',
                     ],
                 ],
-                'min' => -200,
-                'max' => 300,
                 'tickAmount' => 5,
             ],
             'fill' => [
@@ -148,32 +132,95 @@ class MonthlyRevenueChart extends ApexChartWidget
         ];
     }
 
+    protected function getRentData(): array
+    {
+        $rentData = Payment::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(rent_bill) as total_rent')
+        )
+            ->whereYear('created_at', date('Y'))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $months = [];
+        $amounts = array_fill(0, 12, 0);
+
+        foreach ($rentData as $data) {
+            $monthIndex = $data->month - 1;
+            $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
+            $amounts[$monthIndex] = round($data->total_rent, 2);
+        }
+
+        // Fill in any missing months
+        for ($i = 0; $i < 12; $i++) {
+            if (!isset($months[$i])) {
+                $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
+            }
+        }
+
+        ksort($months);
+
+        return [
+            'months' => array_values($months),
+            'amounts' => $amounts,
+        ];
+    }
+
     protected function extraJsOptions(): ?RawJs
     {
         return RawJs::make(<<<'JS'
-         {
-             xaxis: {
-                 labels: {
-                     formatter: function (val, timestamp, opts) {
-                         return val
-                     }
-                 }
-             },
-             yaxis: {
-                 labels: {
-                     formatter: function (val, index) {
-                         return '$' + val
-                     }
-                 }
-             },
-             tooltip: {
-                 x: {
-                     formatter: function (val) {
-                         return val + ' /23'
-                     }
-                 }
-             }
-         }
-     JS);
+        {
+            xaxis: {
+                labels: {
+                    formatter: function (val, timestamp, opts) {
+                        return val
+                    }
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val, index) {
+                        return '₱' + val.toFixed(2)
+                    }
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return '₱' + val.toFixed(2)
+                    }
+                }
+            }
+        }
+        JS);
+    }
+
+    public function getActions(): array
+    {
+        return [
+            Action::make('export')
+                ->label('Export Data')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action('exportData'),
+        ];
+    }
+
+    public function exportData()
+    {
+        $rentData = $this->getRentData();
+        
+        $csvContent = "Month,Revenue\n";
+        foreach ($rentData['months'] as $index => $month) {
+            $csvContent .= "{$month},{$rentData['amounts'][$index]}\n";
+        }
+
+        $fileName = 'monthly_rent_revenue_' . date('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($csvContent) {
+            echo $csvContent;
+        }, $fileName, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 }

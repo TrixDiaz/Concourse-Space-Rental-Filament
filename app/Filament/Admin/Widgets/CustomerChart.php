@@ -39,6 +39,8 @@ class CustomerChart extends ApexChartWidget
 
      protected function getOptions(): array
     {
+        $customerData = $this->getCustomerData();
+
         return [
             'chart' => [
                 'type' => 'line',
@@ -50,11 +52,11 @@ class CustomerChart extends ApexChartWidget
             'series' => [
                 [
                     'name' => 'Customers',
-                    'data' => [4344, 5676, 6798, 7890, 8987, 9388, 10343, 10524, 13664, 14345, 15753, 16398],
+                    'data' => $customerData['counts'],
                 ],
             ],
             'xaxis' => [
-                'categories' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                'categories' => $customerData['months'],
                 'labels' => [
                     'style' => [
                         'fontWeight' => 400,
@@ -100,6 +102,28 @@ class CustomerChart extends ApexChartWidget
                 'width' => 4,
             ],
             'colors' => ['#f59e0b'],
+        ];
+    }
+
+    private function getCustomerData(): array
+    {
+        $data = \App\Models\User::selectRaw('COUNT(*) as count, DATE_FORMAT(created_at, "%b") as month, MONTH(created_at) as month_num')
+            ->whereYear('created_at', now()->year)
+            ->groupBy('month', 'month_num')
+            ->orderBy('month_num')
+            ->get();
+
+        $months = [];
+        $counts = [];
+
+        foreach ($data as $item) {
+            $months[] = $item->month;
+            $counts[] = $item->count;
+        }
+
+        return [
+            'months' => $months,
+            'counts' => $counts,
         ];
     }
 }
