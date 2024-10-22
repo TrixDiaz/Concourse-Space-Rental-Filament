@@ -75,6 +75,12 @@ class Space extends Model
         return $this->belongsTo(Concourse::class, 'concourse_id');
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+
     public function updatePriceBasedOnRate()
     {
         $concourse = $this->concourse;

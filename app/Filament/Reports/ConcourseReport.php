@@ -34,7 +34,7 @@ class ConcourseReport extends Report
                             ->schema([
                                 Text::make('Concourse Report')
                                     ->title(),
-                                Text::make($concourse->name)
+                                Text::make('This report shows the status of the concourse')
                                     ->subtitle(),
                             ]),
                         Header\Layout\HeaderColumn::make()
@@ -149,7 +149,10 @@ class ConcourseReport extends Report
 
     public function spaceSummary(?array $filters): Collection
     {
-        $query = Space::query();
+        $query = Space::query()
+            ->with(['payments' => function ($query) {
+                $query->latest();
+            }]);
 
         if (isset($filters['concourse_id'])) {
             $query->where('concourse_id', $filters['concourse_id']);
@@ -183,30 +186,38 @@ class ConcourseReport extends Report
             $spaces = $query->latest('created_at')->get();
         }
 
-        // Update the header to include the selected concourse name
         $headerRow = [
             'column1' => 'Date Created',
             'column2' => 'Space Name',
-            'column3' => 'Status',
-            'column4' => 'Price',
+            'column3' => 'Water Bill',
+            'column4' => 'Electricity Bill',
+            'column5' => 'Rent Bill',
+            'column6' => 'Water Consumption',
+            'column7' => 'Electricity Consumption',
+            'column8' => 'Payment Status',
         ];
 
         if (isset($filters['concourse_id'])) {
             $concourse = Concourse::find($filters['concourse_id']);
-            $headerRow['column5'] = 'Concourse';
+            $headerRow['column9'] = 'Concourse';
         }
 
         return collect([$headerRow])
             ->concat($spaces->map(function ($space) use ($filters) {
+                $latestPayment = $space->payments->first();
                 $row = [
                     'column1' => $space->created_at->format('F d, Y'),
                     'column2' => $space->name,
-                    'column3' => $space->status,
-                    'column4' => '₱' . number_format($space->price / 100, 2),
+                    'column3' => $latestPayment ? '₱' . number_format($latestPayment->water_bill / 100, 2) : 'N/A',
+                    'column4' => $latestPayment ? '₱' . number_format($latestPayment->electricity_bill / 100, 2) : 'N/A',
+                    'column5' => $latestPayment ? '₱' . number_format($latestPayment->rent_bill / 100, 2) : 'N/A',
+                    'column6' => $latestPayment ? $latestPayment->water_consumption : 'N/A',
+                    'column7' => $latestPayment ? $latestPayment->electricity_consumption : 'N/A',
+                    'column8' => $latestPayment ? $latestPayment->payment_status : 'N/A',
                 ];
 
                 if (isset($filters['concourse_id'])) {
-                    $row['column5'] = $space->concourse->name;
+                    $row['column9'] = $space->concourse->name;
                 }
 
                 return $row;

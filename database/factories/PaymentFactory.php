@@ -28,6 +28,7 @@ class PaymentFactory extends Factory
 
         return [
             'tenant_id' => $this->faker->randomElement(User::pluck('id')),
+            'space_id' => $this->faker->randomElement(Space::pluck('id')),
             'amount' => $waterBill + $electricityBill,
             'payment_type' => $this->faker->randomElement(['cash', 'e-wallet']),
             'payment_method' => $this->faker->randomElement(['cash', 'gcash']),

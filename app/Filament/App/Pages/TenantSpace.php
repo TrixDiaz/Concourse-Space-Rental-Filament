@@ -318,40 +318,44 @@ class TenantSpace extends Page implements HasForms, HasTable
         $paymentData = session('payment_data', []);
         \Log::info('Payment Data from Session: ', $paymentData);
 
+        // Check if payment has already been processed
+        if (!$paymentData || !isset($paymentData['data']['attributes']['line_items'])) {
+            $this->notify('warning', 'Payment Already Processed', 'This payment has already been processed.');
+            return redirect()->route('filament.app.pages.tenant-space');
+        }
+
         $totalPaid = 0;
         $waterBillPaid = 0;
         $electricityBillPaid = 0;
         $electricityConsumptionPaid = 0;
         $waterConsumptionPaid = 0;
         $rentBillPaid = 0;
+        $spaceId = $space->id;
 
-        // Check if there are line items in the payment data
-        if (isset($paymentData['data']['attributes']['line_items'])) {
-            foreach ($paymentData['data']['attributes']['line_items'] as $item) {
-                switch ($item['name']) {
-                    case 'Water Bill':
-                        $waterBillPaid = $space->water_bills;
-                        $space->water_bills = 0;
-                        $space->water_payment_status = 'Paid';
-                        $waterConsumptionPaid = $space->water_consumption;
-                        $space->water_consumption = 0;
-                        $totalPaid += $waterBillPaid;
-                        break;
-                    case 'Electricity Bill':
-                        $electricityBillPaid = $space->electricity_bills;
-                        $space->electricity_bills = 0;
-                        $space->electricity_payment_status = 'Paid';
-                        $electricityConsumptionPaid = $space->electricity_consumption;
-                        $space->electricity_consumption = 0;
-                        $totalPaid += $electricityBillPaid;
-                        break;
-                    case 'Monthly Rent':
-                        $rentBillPaid = $space->rent_bills;
-                        $space->rent_bills = 0;
-                        $space->rent_payment_status = 'Paid';
-                        $totalPaid += $rentBillPaid;
-                        break;
-                }
+        foreach ($paymentData['data']['attributes']['line_items'] as $item) {
+            switch ($item['name']) {
+                case 'Water Bill':
+                    $waterBillPaid = $space->water_bills;
+                    $space->water_bills = 0;
+                    $space->water_payment_status = 'Paid';
+                    $waterConsumptionPaid = $space->water_consumption;
+                    $space->water_consumption = 0;
+                    $totalPaid += $waterBillPaid;
+                    break;
+                case 'Electricity Bill':
+                    $electricityBillPaid = $space->electricity_bills;
+                    $space->electricity_bills = 0;
+                    $space->electricity_payment_status = 'Paid';
+                    $electricityConsumptionPaid = $space->electricity_consumption;
+                    $space->electricity_consumption = 0;
+                    $totalPaid += $electricityBillPaid;
+                    break;
+                case 'Monthly Rent':
+                    $rentBillPaid = $space->rent_bills;
+                    $space->rent_bills = 0;
+                    $space->rent_payment_status = 'Paid';
+                    $totalPaid += $rentBillPaid;
+                    break;
             }
         }
 
@@ -360,24 +364,27 @@ class TenantSpace extends Page implements HasForms, HasTable
         $space->refresh();
         \Log::info('After Save - Updated Space: ', $space->toArray());
 
-        // Create payment record
-        $payment = Payment::create([
-            'tenant_id' => $space->user_id,
-            'payment_type' => 'Monthly Bills',
-            'payment_method' => 'GCash',
-            'water_bill' => $waterBillPaid,
-            'electricity_bill' => $electricityBillPaid,
-            'electricity_consumption' => $electricityConsumptionPaid,
-            'water_consumption' => $waterConsumptionPaid,
-            'rent_bill' => $rentBillPaid,
-            'amount' => $totalPaid,
-            'payment_status' => 'Completed',
-        ]);
+        // Create payment record only if total paid is greater than 0
+        if ($totalPaid > 0) {
+            $payment = Payment::create([
+                'tenant_id' => $space->user_id,
+                'space_id' => $spaceId,
+                'payment_type' => 'Monthly Bills',
+                'payment_method' => 'GCash',
+                'water_bill' => $waterBillPaid,
+                'electricity_bill' => $electricityBillPaid,
+                'electricity_consumption' => $electricityConsumptionPaid,
+                'water_consumption' => $waterConsumptionPaid,
+                'rent_bill' => $rentBillPaid,
+                'amount' => $totalPaid,
+                'payment_status' => 'Completed',
+            ]);
 
-        \Log::info('Created Payment: ', $payment->toArray());
+            \Log::info('Created Payment: ', $payment->toArray());
 
-        // Send email confirmation
-        $this->sendPaymentConfirmationEmail($space, $payment);
+            // Send email confirmation
+            $this->sendPaymentConfirmationEmail($space, $payment);
+        }
 
         // Clear the payment data from the session
         session()->forget('payment_data');

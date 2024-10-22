@@ -13,6 +13,7 @@ class Payment extends Model
         'tenant_id',
         'payment_type',
         'payment_method',
+        'space_id',
         'water_bill',
         'electricity_bill',
         'water_consumption',
@@ -30,5 +31,10 @@ class Payment extends Model
     public function tenant()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function space()
+    {
+        return $this->belongsTo(Space::class);
     }
 }

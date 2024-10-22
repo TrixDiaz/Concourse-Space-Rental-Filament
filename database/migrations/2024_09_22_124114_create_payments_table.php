@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('tenant_id');
+            $table->unsignedBigInteger('space_id');
             $table->integer('amount');
             $table->string('payment_type');
             $table->string('payment_method');
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->string('electricity_consumption')->nullable();
             $table->string('rent_bill')->nullable();
             $table->foreign('tenant_id')->references('id')->on('users');
+            $table->foreign('space_id')->references('id')->on('spaces');
             $table->timestamps();
         });
     }
