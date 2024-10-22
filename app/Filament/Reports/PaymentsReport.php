@@ -104,7 +104,6 @@ class PaymentsReport extends Report
                     ->native(false)
                     ->options([
                         'all' => 'All',
-                        'cash' => 'Cash',
                         'gcash' => 'Gcash',
                     ]),
                 \Filament\Forms\Components\Select::make('payment_type')
