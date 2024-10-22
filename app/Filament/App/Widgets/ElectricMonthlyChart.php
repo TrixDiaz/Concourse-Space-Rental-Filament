@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ElectricMonthlyChart extends ApexChartWidget
 {
@@ -178,6 +179,7 @@ class ElectricMonthlyChart extends ApexChartWidget
             DB::raw('SUM(electricity_consumption) as total_consumption')
         )
         ->whereYear('created_at', date('Y'))
+        ->where('tenant_id', Auth::user()->id)
         ->groupBy('month')
         ->orderBy('month')
         ->get();

@@ -321,6 +321,8 @@ class TenantSpace extends Page implements HasForms, HasTable
         $totalPaid = 0;
         $waterBillPaid = 0;
         $electricityBillPaid = 0;
+        $electricityConsumptionPaid = 0;
+        $waterConsumptionPaid = 0;
         $rentBillPaid = 0;
 
         // Check if there are line items in the payment data
@@ -331,19 +333,22 @@ class TenantSpace extends Page implements HasForms, HasTable
                         $waterBillPaid = $space->water_bills;
                         $space->water_bills = 0;
                         $space->water_payment_status = 'Paid';
+                        $waterConsumptionPaid = $space->water_consumption;
+                        $space->water_consumption = 0;
                         $totalPaid += $waterBillPaid;
                         break;
                     case 'Electricity Bill':
                         $electricityBillPaid = $space->electricity_bills;
                         $space->electricity_bills = 0;
                         $space->electricity_payment_status = 'Paid';
+                        $electricityConsumptionPaid = $space->electricity_consumption;
+                        $space->electricity_consumption = 0;
                         $totalPaid += $electricityBillPaid;
                         break;
                     case 'Monthly Rent':
                         $rentBillPaid = $space->rent_bills;
                         $space->rent_bills = 0;
-                        $space->rent_payment_status = 'Paid';
-                        $totalPaid += $rentBillPaid;
+                        $space->rent_payment_status = 'Paid';                               $totalPaid += $rentBillPaid;
                         break;
                 }
             }
@@ -361,6 +366,8 @@ class TenantSpace extends Page implements HasForms, HasTable
             'payment_method' => 'GCash',
             'water_bill' => $waterBillPaid,
             'electricity_bill' => $electricityBillPaid,
+            'electricity_consumption' => $electricityConsumptionPaid,
+            'water_consumption' => $waterConsumptionPaid,
             'rent_bill' => $rentBillPaid,
             'amount' => $totalPaid,
             'payment_status' => 'Completed',

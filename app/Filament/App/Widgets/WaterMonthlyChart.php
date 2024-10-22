@@ -7,6 +7,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Illuminate\Support\Facades\Auth;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Illuminate\Support\Facades\DB;
 
@@ -173,6 +174,7 @@ class WaterMonthlyChart extends ApexChartWidget
             DB::raw('SUM(water_consumption) as total_consumption')
         )
         ->whereYear('created_at', date('Y'))
+        ->where('tenant_id', Auth::user()->id)
         ->groupBy('month')
         ->orderBy('month')
         ->get();
