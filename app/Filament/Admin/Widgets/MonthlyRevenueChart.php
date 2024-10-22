@@ -35,6 +35,11 @@ class MonthlyRevenueChart extends ApexChartWidget
     protected static ?int $contentHeight = 275;
 
     /**
+     * Add this line to enable the header
+     */
+    protected static bool $showHeader = true;
+
+    /**
      * Chart options (series, labels, types, size, animations...)
      * https://apexcharts.com/docs/options
      *
@@ -52,7 +57,16 @@ class MonthlyRevenueChart extends ApexChartWidget
                 'parentHeightOffset' => 2,
                 'stacked' => false,
                 'toolbar' => [
-                    'show' => false,
+                    'show' => true,
+                    'tools' => [
+                        'download' => true,
+                        'selection' => false,
+                        'zoom' => false,
+                        'zoomin' => false,
+                        'zoomout' => false,
+                        'pan' => false,
+                        'reset' => false,
+                    ],
                 ],
             ],
             'series' => [
@@ -189,6 +203,20 @@ class MonthlyRevenueChart extends ApexChartWidget
                 y: {
                     formatter: function (val) {
                         return '₱' + val.toFixed(2)
+                    }
+                }
+            },
+            chart: {
+                events: {
+                    mounted: function(chartContext, config) {
+                        const exportButton = chartContext.toolbar.exportMenu.exportSelected.bind(chartContext.toolbar.exportMenu);
+                        const customExportButton = document.createElement('div');
+                        customExportButton.classList.add('apexcharts-menu-item');
+                        customExportButton.innerHTML = 'Download Chart';
+                        customExportButton.addEventListener('click', function() {
+                            exportButton('png');
+                        });
+                        chartContext.toolbar.elTools.appendChild(customExportButton);
                     }
                 }
             }
