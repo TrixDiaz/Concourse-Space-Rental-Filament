@@ -20,7 +20,7 @@ class RentMonthlyChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Rent Monthly Chart';
+    protected static ?string $heading = 'Rent Monthly Payment Chart';
 
       /**
      * Sort
