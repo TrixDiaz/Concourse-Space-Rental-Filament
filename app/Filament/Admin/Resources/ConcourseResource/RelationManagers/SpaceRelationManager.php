@@ -197,7 +197,9 @@ class SpaceRelationManager extends RelationManager
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->status === 'occupied')
                         ->label('Add Utility Bill'),
-                    Tables\Actions\DeleteAction::make()->label('Archive'),
+                    Tables\Actions\DeleteAction::make()
+                        ->visible(fn($record) => $record->status === 'available')
+                        ->label('Archive'),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
                 ])

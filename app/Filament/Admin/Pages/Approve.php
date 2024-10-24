@@ -17,7 +17,7 @@ class Approve extends Page implements HasForms, HasTable
 
     protected static ?string $navigationGroup = 'Applications Settings';
 
-    protected static ?string $navigationLabel = 'Approve';
+    protected static ?string $navigationLabel = 'Tenants';
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
@@ -42,7 +42,7 @@ class Approve extends Page implements HasForms, HasTable
                     ->sortable(),
                 Tables\Columns\TextColumn::make('business_name')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('owner_name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -60,7 +60,7 @@ class Approve extends Page implements HasForms, HasTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('concourse_lease_term')
-                    ->label('Due Date')
+                    ->label('Lease Term')
                     ->date()
                     ->sortable()
                     ->getStateUsing(function ($record) {

@@ -27,6 +27,8 @@ class SpaceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
 
+    protected static bool $shouldRegisterNavigation = false;
+    
     protected function updateWaterBills($state, $set, $get, $record)
     {
         if ($record && $record->status === 'occupied') {

@@ -26,12 +26,17 @@ class PaymentsChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Payments Chart';
+    protected static ?string $heading = 'Rent Monthly Payments Chart';
 
     /**
      * Sort
      */
     protected static ?int $sort = 4;
+
+    /**
+     * Widget content height
+     */
+    protected static ?int $contentHeight = 275;
 
     /**
      * Filter Form
@@ -75,21 +80,12 @@ class PaymentsChart extends ApexChartWidget
             'chart' => [
                 'type' => $filters['chartType'],
                 'height' => 300,
-                'stacked' => true,
                 'toolbar' => ['show' => false],
             ],
             'series' => [
                 [
                     'name' => 'Rent',
                     'data' => $data['rent'],
-                ],
-                [
-                    'name' => 'Water',
-                    'data' => $data['water'],
-                ],
-                [
-                    'name' => 'Electricity',
-                    'data' => $data['electricity'],
                 ],
             ],
             'xaxis' => [
@@ -128,7 +124,7 @@ class PaymentsChart extends ApexChartWidget
             'markers' => [
                 'size' => $filters['chartMarkers'] ? 3 : 0,
             ],
-            'colors' => ['#f59e0b', '#3b82f6', '#10b981'],
+            'colors' => ['#f59e0b'],
             'legend' => [
                 'position' => 'top',
             ],
@@ -139,9 +135,7 @@ class PaymentsChart extends ApexChartWidget
     {
         $billData = Payment::select(
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(rent_bill) as total_rent'),
-            DB::raw('SUM(water_bill) as total_water'),
-            DB::raw('SUM(electricity_bill) as total_electricity')
+            DB::raw('SUM(rent_bill) as total_rent')
         )
             ->whereYear('created_at', date('Y'))
             ->groupBy('month')
@@ -150,15 +144,11 @@ class PaymentsChart extends ApexChartWidget
 
         $months = [];
         $rent = array_fill(0, 12, 0);
-        $water = array_fill(0, 12, 0);
-        $electricity = array_fill(0, 12, 0);
 
         foreach ($billData as $data) {
             $monthIndex = $data->month - 1;
             $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
             $rent[$monthIndex] = round($data->total_rent, 2);
-            $water[$monthIndex] = round($data->total_water, 2);
-            $electricity[$monthIndex] = round($data->total_electricity, 2);
         }
 
         // Fill in any missing months
@@ -173,8 +163,6 @@ class PaymentsChart extends ApexChartWidget
         return [
             'months' => array_values($months),
             'rent' => $rent,
-            'water' => $water,
-            'electricity' => $electricity,
         ];
     }
 
@@ -192,13 +180,12 @@ class PaymentsChart extends ApexChartWidget
     {
         $data = $this->getBillData();
         
-        $csvContent = "Month,Rent,Water,Electricity,Total\n";
+        $csvContent = "Month,Rent\n";
         foreach ($data['months'] as $index => $month) {
-            $total = $data['rent'][$index] + $data['water'][$index] + $data['electricity'][$index];
-            $csvContent .= "{$month},{$data['rent'][$index]},{$data['water'][$index]},{$data['electricity'][$index]},{$total}\n";
+            $csvContent .= "{$month},{$data['rent'][$index]}\n";
         }
 
-        $fileName = 'monthly_payments_' . date('Y-m-d') . '.csv';
+        $fileName = 'monthly_rent_payments_' . date('Y-m-d') . '.csv';
 
         return response()->streamDownload(function () use ($csvContent) {
             echo $csvContent;

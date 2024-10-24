@@ -38,7 +38,7 @@ class StatsOverview extends BaseWidget
                 ->descriptionIcon($this->getChangeIcon($revenueChart))
                 ->chart($revenueChart)
                 ->color($this->getChangeColor($revenueChart)),
-            Stat::make('New customers', $newCustomers)
+            Stat::make('New Users', $newCustomers)
                 ->description($this->getChangeDescription($customersChart))
                 ->descriptionIcon($this->getChangeIcon($customersChart))
                 ->chart($customersChart)

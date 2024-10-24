@@ -378,7 +378,7 @@ class ConcourseResource extends Resource
                     Tables\Actions\Action::make('viewSpaces')
                         ->label('View Layout')
                         ->icon('heroicon-o-map')
-                        ->url(fn(Concourse $record): string => route('filament.admin.pages.concourse-spaces', ['concourseId' => $record->id]))
+                        ->url(fn(Concourse $record): string => route('filament.admin.resources.concourses.view-spaces', ['record' => $record->id]))
                         ->color('success'),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
