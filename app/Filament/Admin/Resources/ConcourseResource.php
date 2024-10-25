@@ -73,10 +73,10 @@ class ConcourseResource extends Resource
                     ]) // reverse geocode marker location to form fields, see notes below
                     ->defaultLocation([14.599512, 120.984222]) // default for new forms Manila
                     ->draggable() // allow dragging to move marker
-                    ->clickable(true) // allow clicking to move marker
-                    ->geolocate() // adds a button to request device location and set map marker accordingly
-                    ->geolocateLabel('Get Location') // overrides the default label for geolocate button
-                    ->geolocateOnLoad(true, false) // geolocate on load, second arg 'always' (default false, only for new form))
+                    // ->clickable(true) // allow clicking to move marker
+                    // ->geolocate() // adds a button to request device location and set map marker accordingly
+                    // ->geolocateLabel('Get Location') // overrides the default label for geolocate button
+                    // ->geolocateOnLoad(true, false) // geolocate on load, second arg 'always' (default false, only for new form))
                     ->columnSpanFull(),
                 Forms\Components\Grid::make(2)->schema([
                     Forms\Components\Section::make()->schema([
