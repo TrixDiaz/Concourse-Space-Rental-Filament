@@ -4,7 +4,6 @@ namespace App\Filament\Reports;
 
 use EightyNine\Reports\Report;
 use App\Models\Concourse;
-use App\Models\Payment;
 use App\Models\Space;
 use EightyNine\Reports\Components\Body;
 use EightyNine\Reports\Components\Footer;
@@ -13,18 +12,16 @@ use EightyNine\Reports\Components\Text;
 use EightyNine\Reports\Components\VerticalSpace;
 use Filament\Forms\Form;
 use Illuminate\Support\Collection;
-use EightyNine\Reports\Components\Table;
 use Illuminate\Support\Facades\DB;
 
 class ConcourseReport extends Report
 {
+    
     public ?string $heading = "Concourse Report";
-
-    // public ?string $subHeading = "A great report";
 
     public function header(Header $header): Header
     {
-        $concourse = Concourse::first(); // Or however you want to select the Concourse
+        $concourse = Concourse::first(); 
 
         return $header
             ->schema([

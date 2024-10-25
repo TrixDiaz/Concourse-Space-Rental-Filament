@@ -21,7 +21,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
-use EightyNine\Reports\ReportsPlugin;
+
 
 class AppPanelProvider extends PanelProvider
 {
@@ -34,7 +34,7 @@ class AppPanelProvider extends PanelProvider
             ->registration(Register::class)
             ->passwordReset()
             ->topNavigation()
-            ->emailVerification()           
+            ->emailVerification()
             ->profile(EditProfile::class)
             ->colors([
                 'primary' => Color::Emerald,
@@ -52,10 +52,6 @@ class AppPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            ->widgets([
-                // Widgets\AccountWidget::class,
-                // Widgets\FilamentInfoWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -73,7 +69,6 @@ class AppPanelProvider extends PanelProvider
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentApexChartsPlugin::make(),
-                ReportsPlugin::make(),
             ]);
     }
 }
