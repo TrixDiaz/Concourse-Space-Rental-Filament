@@ -21,7 +21,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
-
+use EightyNine\Reports\ReportsPlugin;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -69,6 +69,7 @@ class AppPanelProvider extends PanelProvider
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentApexChartsPlugin::make(),
+                ReportsPlugin::make(),
             ]);
     }
 }
