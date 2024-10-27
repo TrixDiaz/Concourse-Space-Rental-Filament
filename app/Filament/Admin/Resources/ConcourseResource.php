@@ -372,7 +372,7 @@ class ConcourseResource extends Resource
                         ->label('Bills')
                         ->icon('heroicon-o-credit-card')
                         ->url(fn(Concourse $record): string => route('filament.admin.pages.concourse-spaces', ['concourseId' => $record->id])),
-                    Tables\Actions\DeleteAction::make()->label('Archive'),
+                    Tables\Actions\DeleteAction::make()->label('Archive')->visible(fn($record) => $record->spaces()->count() === 0),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make()->label('Permanent Delete'),
                     Tables\Actions\Action::make('viewSpaces')
@@ -386,13 +386,13 @@ class ConcourseResource extends Resource
             ])
             ->bulkActions([
                 ExportBulkAction::make(),
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                //     Tables\Actions\RestoreBulkAction::make(),
+                //     Tables\Actions\ForceDeleteBulkAction::make(),
+                // ]),
             ])
-            ->poll('3s');
+            ->poll('30s');
     }
 
     public static function getRelations(): array
