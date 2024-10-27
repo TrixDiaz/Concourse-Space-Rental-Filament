@@ -148,26 +148,11 @@ class WaterMonthlyChart extends ApexChartWidget
                 'shared' => true,
                 'intersect' => false,
                 'y' => [
-                    {
-                        formatter: function (y) {
-                            if (typeof y !== "undefined") {
-                                return y.toFixed(2) + " m³";
-                            }
-                            return y;
-                        }
-                    },
-                    {
-                        formatter: function (y) {
-                            if (typeof y !== "undefined") {
-                                return "₱" + y.toFixed(2);
-                            }
-                            return y;
-                        }
-                    }
-                ]
+                    'formatter' => null,
+                ],
             ],
-            // ... other chart options ...
         ];
+    
     }
 
     /**
