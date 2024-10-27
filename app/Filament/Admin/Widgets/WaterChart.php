@@ -3,9 +3,8 @@
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Payment;
-use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class WaterChart extends ApexChartWidget
 {
@@ -15,8 +14,8 @@ class WaterChart extends ApexChartWidget
      * @var string
      */
     protected static ?string $chartId = 'waterChart';
-
-     /**
+ 
+    /**
      * Sort
      */
     protected static ?int $sort = 6;
@@ -41,17 +40,18 @@ class WaterChart extends ApexChartWidget
      */
     protected function getOptions(): array
     {
-        $data = $this->getWaterBillData();
+        $data = $this->getBillData();
 
         return [
             'chart' => [
                 'type' => 'bar',
                 'height' => 300,
+                'toolbar' => ['show' => false],
             ],
             'series' => [
                 [
-                    'name' => 'Water Bill',
-                    'data' => $data['bills'],
+                    'name' => 'Water',
+                    'data' => $data['water'],
                 ],
             ],
             'xaxis' => [
@@ -79,35 +79,56 @@ class WaterChart extends ApexChartWidget
         ];
     }
 
-    private function getWaterBillData(): array
+    protected function getBillData(): array
     {
-        $currentYear = date('Y');
-        
         $billData = Payment::select(
             DB::raw('MONTH(created_at) as month'),
             DB::raw('SUM(water_bill) as total_water')
         )
-            ->whereYear('created_at', $currentYear)
+            ->whereYear('created_at', date('Y'))
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
-        $months = array_fill(0, 12, 0);
-        $bills = array_fill(0, 12, 0);
+        $months = [];
+        $water = array_fill(0, 12, 0);
 
         foreach ($billData as $data) {
             $monthIndex = $data->month - 1;
-            $bills[$monthIndex] = round($data->total_water, 2);
+            $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
+            $water[$monthIndex] = round($data->total_water, 2);
         }
 
-        // Fill in all months
+        // Fill in any missing months
         for ($i = 0; $i < 12; $i++) {
-            $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
+            if (!isset($months[$i])) {
+                $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
+            }
         }
+
+        ksort($months);
 
         return [
             'months' => array_values($months),
-            'bills' => array_values($bills),
+            'water' => $water,
         ];
+    }
+
+    public function exportData()
+    {
+        $data = $this->getBillData();
+        
+        $csvContent = "Month,Water\n";
+        foreach ($data['months'] as $index => $month) {
+            $csvContent .= "{$month},{$data['water'][$index]}\n";
+        }
+
+        $fileName = 'monthly_water_payments_' . date('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($csvContent) {
+            echo $csvContent;
+        }, $fileName, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 }

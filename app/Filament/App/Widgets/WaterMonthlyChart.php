@@ -81,15 +81,21 @@ class WaterMonthlyChart extends ApexChartWidget
         return [
             'chart' => [
                 'type' => $filters['ordersChartType'],
-                'height' => 250,
+                'height' => 300,
                 'toolbar' => [
                     'show' => false,
                 ],
             ],
             'series' => [
                 [
-                    'name' => 'Water Consumption',
+                    'name' => 'Water Consumption (m³)',
+                    'type' => 'column',
                     'data' => $monthlyData['consumption'],
+                ],
+                [
+                    'name' => 'Water Bills (₱)',
+                    'type' => 'line',
+                    'data' => $monthlyData['bills'],
                 ],
             ],
             'plotOptions' => [
@@ -107,90 +113,97 @@ class WaterMonthlyChart extends ApexChartWidget
                 ],
             ],
             'yaxis' => [
-                'labels' => [
-                    'style' => [
-                        'fontWeight' => 400,
-                        'fontFamily' => 'inherit',
+                [
+                    'title' => [
+                        'text' => 'Water Consumption (m³)',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontWeight' => 400,
+                            'fontFamily' => 'inherit',
+                        ],
                     ],
                 ],
-            ],
-            'fill' => [
-                'type' => 'gradient',
-                'gradient' => [
-                    'shade' => 'dark',
-                    'type' => 'vertical',
-                    'shadeIntensity' => 0.5,
-                    'gradientToColors' => ['#fbbf24'],
-                    'inverseColors' => true,
-                    'opacityFrom' => 1,
-                    'opacityTo' => 1,
-                    'stops' => [0, 100],
-                ],
-            ],
-
-            'dataLabels' => [
-                'enabled' => false,
-            ],
-            'grid' => [
-                'show' => $filters['ordersChartGrid'],
-            ],
-            'markers' => [
-                'size' => $filters['ordersChartMarkers'] ? 3 : 0,
-            ],
-            'tooltip' => [
-                'enabled' => true,
-            ],
-            'stroke' => [
-                'width' => $filters['ordersChartType'] === 'line' ? 4 : 0,
-            ],
-            'colors' => ['#f59e0b'],
-            'annotations' => [
-                'yaxis' => [
-                    [
-                        'y' => $filters['ordersChartAnnotations'],
-                        'borderColor' => '#ef4444',
-                        'borderWidth' => 1,
-                        'label' => [
-                            'borderColor' => '#ef4444',
-                            'style' => [
-                                'color' => '#fffbeb',
-                                'background' => '#ef4444',
-                            ],
-                            'text' => 'Annotation: ' . $filters['ordersChartAnnotations'],
+                [
+                    'opposite' => true,
+                    'title' => [
+                        'text' => 'Water Bills (₱)',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontWeight' => 400,
+                            'fontFamily' => 'inherit',
                         ],
                     ],
                 ],
             ],
+            'dataLabels' => [
+                'enabled' => false,
+            ],
+            'stroke' => [
+                'width' => [0, 4],
+            ],
+            'colors' => ['#3b82f6', '#ef4444'],
+            'tooltip' => [
+                'shared' => true,
+                'intersect' => false,
+                'y' => [
+                    {
+                        formatter: function (y) {
+                            if (typeof y !== "undefined") {
+                                return y.toFixed(2) + " m³";
+                            }
+                            return y;
+                        }
+                    },
+                    {
+                        formatter: function (y) {
+                            if (typeof y !== "undefined") {
+                                return "₱" + y.toFixed(2);
+                            }
+                            return y;
+                        }
+                    }
+                ]
+            ],
+            // ... other chart options ...
         ];
     }
 
     /**
-     * Get monthly water consumption data
+     * Get monthly water consumption and bills data
      */
     protected function getMonthlyWaterConsumption(): array
     {
         $data = Payment::select(
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(water_consumption) as total_consumption')
+            DB::raw('SUM(water_consumption) as total_consumption'),
+            DB::raw('SUM(water_bill) as total_bill')
         )
         ->whereYear('created_at', date('Y'))
-        ->where('tenant_id', Auth::user()->id)
+        ->where('tenant_id', Auth::id())
         ->groupBy('month')
         ->orderBy('month')
         ->get();
 
         $months = [];
         $consumption = array_fill(0, 12, 0);
+        $bills = array_fill(0, 12, 0);
+
+        for ($i = 0; $i < 12; $i++) {
+            $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
+        }
 
         foreach ($data as $item) {
             $monthIndex = $item->month - 1;
-            $months[$monthIndex] = date('M', mktime(0, 0, 0, $item->month, 1));
             $consumption[$monthIndex] = $item->total_consumption;
+            $bills[$monthIndex] = $item->total_bill;
         }
 
         return [
             'months' => $months,
             'consumption' => $consumption,
+            'bills' => $bills,
         ];
     }
 }
