@@ -178,6 +178,11 @@ class TenantSpace extends Page implements HasForms, HasTable
                         // Get current date
                         $now = Carbon::now();
 
+                        // Check if lease_end is null
+                        if (!$record->lease_end) {
+                            return false;
+                        }
+
                         // Calculate the date 3 months before lease end
                         $threeMonthsBefore = $record->lease_end->copy()->subMonths(3);
 
