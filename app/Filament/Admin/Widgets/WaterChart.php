@@ -15,12 +15,22 @@ class WaterChart extends ApexChartWidget
      */
     protected static ?string $chartId = 'waterChart';
 
+     /**
+     * Sort
+     */
+    protected static ?int $sort = 6;
+
+    /**
+     * Widget content height
+     */
+    protected static ?int $contentHeight = 275;
+
     /**
      * Widget Title
      *
      * @var string|null
      */
-    protected static ?string $heading = 'WaterChart';
+    protected static ?string $heading = 'Water Monthly Payments Chart';
 
     /**
      * Chart options (series, labels, types, size, animations...)
