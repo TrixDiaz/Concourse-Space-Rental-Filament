@@ -26,13 +26,7 @@ class CreateConcourse extends CreateRecord
             ->success()
             ->icon('heroicon-o-currency-dollar')
             ->title('Concourse Created')
-            ->body("New Concourse {$record->name} address in {$record->address} Created!")
-            ->actions([
-                Action::make('view')
-                    ->label('Mark as read')
-                    ->link()
-                    ->markAsRead(),
-            ]);
+            ->body("New Concourse {$record->name} address in {$record->address} Created!");
 
         // Get all users with the 'panel_user' or 'accountant' role
         $notifiedUsers = User::role(['panel_user'])->get();

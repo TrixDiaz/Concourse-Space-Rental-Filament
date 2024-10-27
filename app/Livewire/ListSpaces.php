@@ -164,34 +164,12 @@ class ListSpaces extends Component implements HasTable, HasForms
                             ->title('Application Submitted')
                             ->body('Your application has been submitted.')
                             ->icon('heroicon-o-document-text')
-                            ->actions([
-                                Action::make('view')
-                                    ->label('Mark as read')
-                                    ->button()
-                                    ->url($applicationUrl),
-                                Action::make('delete')
-                                    ->label('Delete')
-                                    ->color('danger')
-                                    ->icon('heroicon-o-trash')
-                                    ->action(fn(Notification $notification) => $notification->delete())
-                            ])
                             ->sendToDatabase(Auth::user());
 
                         Notification::make()
                             ->title('New Application')
                             ->body('A new application has been submitted.')
                             ->icon('heroicon-o-document-text')
-                            ->actions([
-                                Action::make('view')
-                                    ->label('View Application')
-                                    ->button()
-                                    ->url($applicationUrl),
-                                Action::make('delete')
-                                    ->label('Delete')
-                                    ->color('danger')
-                                    ->icon('heroicon-o-trash')
-                                    ->action(fn(Notification $notification) => $notification->delete())
-                            ])
                             ->sendToDatabase(User::find(1));
 
                         // Send email to admin (User with ID 1)

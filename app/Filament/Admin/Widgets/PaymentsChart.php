@@ -133,36 +133,33 @@ class PaymentsChart extends ApexChartWidget
 
     protected function getBillData(): array
     {
+        $currentYear = date('Y');
+        
         $billData = Payment::select(
             DB::raw('MONTH(created_at) as month'),
             DB::raw('SUM(rent_bill) as total_rent')
         )
-            ->whereYear('created_at', date('Y'))
+            ->whereYear('created_at', $currentYear)
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
-        $months = [];
+        $months = array_fill(0, 12, 0);
         $rent = array_fill(0, 12, 0);
 
         foreach ($billData as $data) {
             $monthIndex = $data->month - 1;
-            $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
             $rent[$monthIndex] = round($data->total_rent, 2);
         }
 
-        // Fill in any missing months
+        // Fill in all months
         for ($i = 0; $i < 12; $i++) {
-            if (!isset($months[$i])) {
-                $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
-            }
+            $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
         }
-
-        ksort($months);
 
         return [
             'months' => array_values($months),
-            'rent' => $rent,
+            'rent' => array_values($rent),
         ];
     }
 
