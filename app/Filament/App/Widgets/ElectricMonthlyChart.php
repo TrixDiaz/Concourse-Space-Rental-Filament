@@ -86,15 +86,21 @@ class ElectricMonthlyChart extends ApexChartWidget
         return [
             'chart' => [
                 'type' => $filters['ordersChartType'],
-                'height' => 250,
+                'height' => 300,
                 'toolbar' => [
                     'show' => false,
                 ],
             ],
             'series' => [
                 [
-                    'name' => 'Electricity Consumption',
+                    'name' => 'Electricity Consumption (kWh)',
+                    'type' => 'column',
                     'data' => $monthlyData['consumption'],
+                ],
+                [
+                    'name' => 'Electricity Bills (₱)',
+                    'type' => 'line',
+                    'data' => $monthlyData['bills'],
                 ],
             ],
             'plotOptions' => [
@@ -112,58 +118,42 @@ class ElectricMonthlyChart extends ApexChartWidget
                 ],
             ],
             'yaxis' => [
-                'labels' => [
-                    'style' => [
-                        'fontWeight' => 400,
-                        'fontFamily' => 'inherit',
+                [
+                    'title' => [
+                        'text' => 'Electricity Consumption (kWh)',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontWeight' => 400,
+                            'fontFamily' => 'inherit',
+                        ],
+                    ],
+                ],
+                [
+                    'opposite' => true,
+                    'title' => [
+                        'text' => 'Electricity Bills (₱)',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontWeight' => 400,
+                            'fontFamily' => 'inherit',
+                        ],
                     ],
                 ],
             ],
-            'fill' => [
-                'type' => 'gradient',
-                'gradient' => [
-                    'shade' => 'dark',
-                    'type' => 'vertical',
-                    'shadeIntensity' => 0.5,
-                    'gradientToColors' => ['#fbbf24'],
-                    'inverseColors' => true,
-                    'opacityFrom' => 1,
-                    'opacityTo' => 1,
-                    'stops' => [0, 100],
-                ],
-            ],
-
             'dataLabels' => [
                 'enabled' => false,
             ],
-            'grid' => [
-                'show' => $filters['ordersChartGrid'],
-            ],
-            'markers' => [
-                'size' => $filters['ordersChartMarkers'] ? 3 : 0,
-            ],
-            'tooltip' => [
-                'enabled' => true,
-            ],
             'stroke' => [
-                'width' => $filters['ordersChartType'] === 'line' ? 4 : 0,
+                'width' => [0, 4],
             ],
-            'colors' => ['#f59e0b'],
-            'annotations' => [
-                'yaxis' => [
-                    [
-                        'y' => $filters['ordersChartAnnotations'],
-                        'borderColor' => '#ef4444',
-                        'borderWidth' => 1,
-                        'label' => [
-                            'borderColor' => '#ef4444',
-                            'style' => [
-                                'color' => '#fffbeb',
-                                'background' => '#ef4444',
-                            ],
-                            'text' => 'Annotation: ' . $filters['ordersChartAnnotations'],
-                        ],
-                    ],
+            'colors' => ['#f59e0b', '#ef4444'],
+            'tooltip' => [
+                'shared' => true,
+                'intersect' => false,
+                'y' => [
+                    'formatter' => null,
                 ],
             ],
         ];
@@ -176,26 +166,33 @@ class ElectricMonthlyChart extends ApexChartWidget
     {
         $data = Payment::select(
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(electricity_consumption) as total_consumption')
+            DB::raw('SUM(electricity_consumption) as total_consumption'),
+            DB::raw('SUM(electricity_bill) as total_bill')
         )
         ->whereYear('created_at', date('Y'))
-        ->where('tenant_id', Auth::user()->id)
+        ->where('tenant_id', Auth::id())
         ->groupBy('month')
         ->orderBy('month')
         ->get();
 
         $months = [];
         $consumption = array_fill(0, 12, 0);
+        $bills = array_fill(0, 12, 0);
+
+        for ($i = 0; $i < 12; $i++) {
+            $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
+        }
 
         foreach ($data as $item) {
             $monthIndex = $item->month - 1;
-            $months[$monthIndex] = date('M', mktime(0, 0, 0, $item->month, 1));
             $consumption[$monthIndex] = $item->total_consumption;
+            $bills[$monthIndex] = $item->total_bill;
         }
 
         return [
             'months' => $months,
             'consumption' => $consumption,
+            'bills' => $bills,
         ];
     }
 }
