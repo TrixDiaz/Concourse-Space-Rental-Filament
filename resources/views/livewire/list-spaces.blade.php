@@ -24,7 +24,7 @@
                     <span style="color: {{ $space->status === 'available' ? 'blue' : 'green' }}; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
 
                     <div x-show="showInfo" class="absolute z-10 p-2 w-auto bg-white border border-gray-300 rounded shadow-lg" style="top: 100%; left: 50%; transform: translateX(-50%);">
-                        <x-filament::section style="width: 200px;">
+                        <x-filament::section style="width: 150px;">
                             <x-slot name="heading">
                                 <h3 class="text-lg font-semibold">Location: {{ $space->name }}</h3>
                             </x-slot>
@@ -32,7 +32,6 @@
                             <x-slot name="description">
                                 <p class="capitalize">Status: {{ $space->status }}</p>
                             </x-slot>
-                            <x-filament::button wire:click="applyNow({{ $space->id }})">Apply Now</x-filament::button>
                         </x-filament::section>
                     </div>
                 </div>
