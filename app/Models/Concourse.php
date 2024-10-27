@@ -146,3 +146,4 @@ class Concourse extends Model
     }
 
 }
+

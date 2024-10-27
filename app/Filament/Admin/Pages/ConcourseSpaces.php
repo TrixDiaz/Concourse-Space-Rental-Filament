@@ -35,7 +35,8 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             $concourse = $record->concourse;
 
             // Update the space's water consumption
-            $record->update(['water_consumption' => $state]);
+            $record->water_consumption = $state;
+            $record->save();
 
             // Recalculate the concourse's total water consumption
             $concourse->updateTotalWaterConsumption();
@@ -47,10 +48,6 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             $set('water_bills', $record->water_bills);
             $set('water_payment_status', $record->water_payment_status);
 
-            Notification::make()
-                ->title('Water bill updated')
-                ->success()
-                ->send();
         }
     }
 
@@ -72,10 +69,6 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             $set('electricity_bills', $record->electricity_bills);
             $set('electricity_payment_status', $record->electricity_payment_status);
 
-            Notification::make()
-                ->title('Electricity bill updated')
-                ->success()
-                ->send();
         }
     }
 
@@ -89,19 +82,13 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                         ->prefix('m3')
                         ->minValue(0)
                         ->numeric()
-                        ->required()
-                        ->afterStateUpdated(function ($state, $set, $get, $record) {
-                            $this->updateWaterBills($state, $set, $get, $record);
-                        }),
+                        ->required(),
                     Forms\Components\TextInput::make('electricity_consumption')
                         ->label('Electricity Consumption')
                         ->prefix('kWh')
                         ->minValue(0)
                         ->numeric()
-                        ->required()
-                        ->afterStateUpdated(function ($state, $set, $get, $record) {
-                            $this->updateElectricityBills($state, $set, $get, $record);
-                        }),
+                        ->required(),
                 ])->columns(2),
             ]);
     }
@@ -201,11 +188,18 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('Bills')
-                    ->form($this->getFormSchema()),
+                    ->form($this->getFormSchema())
+                    ->visible(fn($record) => $record->status === 'occupied')
+                    ->using(function ($record, array $data) {
+                        $this->updateWaterBills($data['water_consumption'], fn($value) => null, fn() => null, $record);
+                        $this->updateElectricityBills($data['electricity_consumption'], fn($value) => null, fn() => null, $record);
+                        return $record;
+                    }),
                 Tables\Actions\Action::make('Add Monthly Rent')
                     ->icon('heroicon-m-currency-dollar')
                     ->color('warning')
                     ->requiresConfirmation()
+                    ->visible(fn($record) => $record->status === 'occupied')
                     ->action(function (Space $record) {
                         $rentAmount = $record->price ?? 0;
                         $record->rent_bills = $rentAmount;
@@ -245,19 +239,13 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                         ->prefix('m3')
                         ->minValue(0)
                         ->numeric()
-                        ->required()
-                        ->afterStateUpdated(function ($state, $set, $get, $record) {
-                            $this->updateWaterBills($state, $set, $get, $record);
-                        }),
+                        ->required(),
                     Forms\Components\TextInput::make('electricity_consumption')
                         ->label('Electricity Consumption')
                         ->prefix('kWh')
                         ->minValue(0)
                         ->numeric()
-                        ->required()
-                        ->afterStateUpdated(function ($state, $set, $get, $record) {
-                            $this->updateElectricityBills($state, $set, $get, $record);
-                        }),
+                        ->required(),
                 ])->columns(2),
         ];
     }

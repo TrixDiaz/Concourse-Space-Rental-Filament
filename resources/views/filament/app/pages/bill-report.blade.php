@@ -83,14 +83,11 @@
             }
 
             /* Hide all non-essential table elements */
-            .filament-tables-pagination,
-            .filament-tables-header-cell button,
             .filament-tables-search-input,
             .filament-tables-filter-indicator,
             .filament-tables-filter-trigger,
             .filament-tables-column-toggling-trigger,
             .filament-tables-actions-container,
-            .filament-tables-footer,
             .filament-tables-header {
                 display: none !important;
             }
@@ -138,11 +135,9 @@
                 row.style.display = 'table-row';
             });
 
-            // Hide header and footer
+            // Hide header
             const header = document.querySelector('.filament-tables-header');
-            const footer = document.querySelector('.filament-tables-footer');
             if (header) header.style.display = 'none';
-            if (footer) footer.style.display = 'none';
 
             // Print the page
             window.print();
@@ -155,9 +150,8 @@
                 row.style.display = '';
             });
 
-            // Restore header and footer
+            // Restore header
             if (header) header.style.display = '';
-            if (footer) footer.style.display = '';
         }
 
         function exportToExcel() {
