@@ -345,7 +345,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                 case 'Electricity Bill':
                     $electricityBillPaid = $space->electricity_bills;
                     $space->electricity_bills = 0;
-                    $space->electricity_payment_status = 'Paid';
+                    $space->electricity_payment_status = 'paid';
                     $electricityConsumptionPaid = $space->electricity_consumption;
                     $space->electricity_consumption = 0;
                     $totalPaid += $electricityBillPaid;
@@ -353,7 +353,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                 case 'Monthly Rent':
                     $rentBillPaid = $space->rent_bills;
                     $space->rent_bills = 0;
-                    $space->rent_payment_status = 'Paid';
+                    $space->rent_payment_status = 'paid';
                     $totalPaid += $rentBillPaid;
                     break;
             }
@@ -369,15 +369,15 @@ class TenantSpace extends Page implements HasForms, HasTable
             $payment = Payment::create([
                 'tenant_id' => $space->user_id,
                 'space_id' => $spaceId,
-                'payment_type' => 'Monthly Bills',
-                'payment_method' => 'GCash',
+                'payment_type' => $space->payment_type,
+                'payment_method' => $space->payment_method,
                 'water_bill' => $waterBillPaid,
                 'electricity_bill' => $electricityBillPaid,
                 'electricity_consumption' => $electricityConsumptionPaid,
                 'water_consumption' => $waterConsumptionPaid,
                 'rent_bill' => $rentBillPaid,
                 'amount' => $totalPaid,
-                'payment_status' => 'Completed',
+                'payment_status' => 'paid',
             ]);
 
             \Log::info('Created Payment: ', $payment->toArray());

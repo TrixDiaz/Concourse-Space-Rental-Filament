@@ -3,8 +3,8 @@
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Payment;
-use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+use Illuminate\Support\Facades\Auth;
 
 class WaterChart extends ApexChartWidget
 {
@@ -14,23 +14,13 @@ class WaterChart extends ApexChartWidget
      * @var string
      */
     protected static ?string $chartId = 'waterChart';
- 
-    /**
-     * Sort
-     */
-    protected static ?int $sort = 6;
-
-    /**
-     * Widget content height
-     */
-    protected static ?int $contentHeight = 275;
 
     /**
      * Widget Title
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Water Monthly Payments Chart';
+    protected static ?string $heading = 'WaterChart';
 
     /**
      * Chart options (series, labels, types, size, animations...)
@@ -40,22 +30,22 @@ class WaterChart extends ApexChartWidget
      */
     protected function getOptions(): array
     {
-        $data = $this->getBillData();
+        $tenantId = Auth::id(); // Get the current user's ID
+        $waterBillsByMonth = $this->getWaterBillsByMonth($tenantId);
 
         return [
             'chart' => [
                 'type' => 'bar',
                 'height' => 300,
-                'toolbar' => ['show' => false],
             ],
             'series' => [
                 [
-                    'name' => 'Water',
-                    'data' => $data['water'],
+                    'name' => 'Water Bill',
+                    'data' => $waterBillsByMonth['bills'],
                 ],
             ],
             'xaxis' => [
-                'categories' => $data['months'],
+                'categories' => $waterBillsByMonth['months'],
                 'labels' => [
                     'style' => [
                         'fontFamily' => 'inherit',
@@ -79,53 +69,26 @@ class WaterChart extends ApexChartWidget
         ];
     }
 
-    protected function getBillData(): array
+    private function getWaterBillsByMonth($tenantId): array
     {
-        $currentYear = date('Y');
-        
-        $billData = Payment::select(
-            DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(water_bill) as total_water')
-        )
-            ->whereYear('created_at', $currentYear)
-            ->groupBy('month')
-            ->orderBy('month')
+        $payments = Payment::where('tenant_id', $tenantId)
+            ->whereNotNull('water_bill')
+            ->whereYear('created_at', now()->year)
+            ->orderBy('created_at')
             ->get();
 
-        $months = array_fill(0, 12, 0);
-        $water = array_fill(0, 12, 0);
+        $months = [];
+        $bills = [];
 
-        foreach ($billData as $data) {
-            $monthIndex = $data->month - 1;
-            $water[$monthIndex] = round($data->total_water, 2);
-        }
-
-        // Fill in all months
-        for ($i = 0; $i < 12; $i++) {
-            $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
+        foreach ($payments as $payment) {
+            $month = $payment->created_at->format('M');
+            $months[] = $month;
+            $bills[] = $payment->water_bill;
         }
 
         return [
-            'months' => array_values($months),
-            'water' => array_values($water),
+            'months' => $months,
+            'bills' => $bills,
         ];
-    }
-
-    public function exportData()
-    {
-        $data = $this->getBillData();
-        
-        $csvContent = "Month,Water\n";
-        foreach ($data['months'] as $index => $month) {
-            $csvContent .= "{$month},{$data['water'][$index]}\n";
-        }
-
-        $fileName = 'monthly_water_payments_' . date('Y-m-d') . '.csv';
-
-        return response()->streamDownload(function () use ($csvContent) {
-            echo $csvContent;
-        }, $fileName, [
-            'Content-Type' => 'text/csv',
-        ]);
     }
 }
