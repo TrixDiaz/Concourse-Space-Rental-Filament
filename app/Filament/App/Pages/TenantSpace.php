@@ -369,8 +369,8 @@ class TenantSpace extends Page implements HasForms, HasTable
             $payment = Payment::create([
                 'tenant_id' => $space->user_id,
                 'space_id' => $spaceId,
-                'payment_type' => $space->payment_type,
-                'payment_method' => $space->payment_method,
+                'payment_type' => 'e-wallet',
+                'payment_method' => 'gcash',
                 'water_bill' => $waterBillPaid,
                 'electricity_bill' => $electricityBillPaid,
                 'electricity_consumption' => $electricityConsumptionPaid,
