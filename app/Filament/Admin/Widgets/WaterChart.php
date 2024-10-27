@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Widgets;
 use App\Models\Payment;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WaterChart extends ApexChartWidget
 {
@@ -40,8 +41,7 @@ class WaterChart extends ApexChartWidget
      */
     protected function getOptions(): array
     {
-        $tenantId = Auth::id(); // Get the current user's ID
-        $waterBillsByMonth = $this->getWaterBillsByMonth($tenantId);
+        $data = $this->getWaterBillData();
 
         return [
             'chart' => [
@@ -51,11 +51,11 @@ class WaterChart extends ApexChartWidget
             'series' => [
                 [
                     'name' => 'Water Bill',
-                    'data' => $waterBillsByMonth['bills'],
+                    'data' => $data['bills'],
                 ],
             ],
             'xaxis' => [
-                'categories' => $waterBillsByMonth['months'],
+                'categories' => $data['months'],
                 'labels' => [
                     'style' => [
                         'fontFamily' => 'inherit',
@@ -79,26 +79,35 @@ class WaterChart extends ApexChartWidget
         ];
     }
 
-    private function getWaterBillsByMonth($tenantId): array
+    private function getWaterBillData(): array
     {
-        $payments = Payment::where('tenant_id', $tenantId)
-            ->whereNotNull('water_bill')
-            ->whereYear('created_at', now()->year)
-            ->orderBy('created_at')
+        $currentYear = date('Y');
+        
+        $billData = Payment::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(water_bill) as total_water')
+        )
+            ->whereYear('created_at', $currentYear)
+            ->groupBy('month')
+            ->orderBy('month')
             ->get();
 
-        $months = [];
-        $bills = [];
+        $months = array_fill(0, 12, 0);
+        $bills = array_fill(0, 12, 0);
 
-        foreach ($payments as $payment) {
-            $month = $payment->created_at->format('M');
-            $months[] = $month;
-            $bills[] = $payment->water_bill;
+        foreach ($billData as $data) {
+            $monthIndex = $data->month - 1;
+            $bills[$monthIndex] = round($data->total_water, 2);
+        }
+
+        // Fill in all months
+        for ($i = 0; $i < 12; $i++) {
+            $months[$i] = date('M', mktime(0, 0, 0, $i + 1, 1));
         }
 
         return [
-            'months' => $months,
-            'bills' => $bills,
+            'months' => array_values($months),
+            'bills' => array_values($bills),
         ];
     }
 }
