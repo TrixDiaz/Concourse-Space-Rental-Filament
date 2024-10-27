@@ -41,13 +41,13 @@ class EditApplication extends EditRecord
                         // Update application status
                         $application->update(['application_status' => 'rejected']);
 
-                        // Update space status to 'available'
+                        // Update space status to 'available' and set user_id to null
                         $space = Space::find($application->space_id);
                         if ($space) {
                             $space->update([
                                 'status' => 'available',
                                 'application_id' => null,
-                                'user_id' => null,
+                                'user_id' => null,  // Set user_id to null when rejecting
                             ]);
                         }
 
