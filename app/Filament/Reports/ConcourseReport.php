@@ -16,10 +16,6 @@ use Illuminate\Support\Facades\DB;
 
 class ConcourseReport extends Report 
 {
-    public static string $view = 'filament.reports.concourse-report';
-
-    public static bool $shouldRegisterNavigation = false;
-
     public ?string $heading = "Concourse Report";
 
     public function header(Header $header): Header

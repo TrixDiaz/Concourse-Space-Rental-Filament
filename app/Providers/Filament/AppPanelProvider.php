@@ -69,7 +69,6 @@ class AppPanelProvider extends PanelProvider
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentApexChartsPlugin::make(),
-                ReportsPlugin::make(),
             ]);
     }
 }
