@@ -33,21 +33,18 @@ class EditApplication extends EditRecord
             Actions\Action::make('rejectApplication')
                 ->label('Reject Application')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->application_status === 'pending')
+                ->visible(fn($record) => $record->application_status !== 'rejected')
                 ->action(function () {
                     $application = $this->getRecord();
 
                     DB::transaction(function () use ($application) {
-                        // Update application status
-                        $application->update(['application_status' => 'rejected']);
-
                         // Update space status to 'available' and set user_id to null
                         $space = Space::find($application->space_id);
                         if ($space) {
                             $space->update([
                                 'status' => 'available',
                                 'application_id' => null,
-                                'user_id' => null,  // Set user_id to null when rejecting
+                                'user_id' => null,
                             ]);
                         }
 
@@ -56,7 +53,7 @@ class EditApplication extends EditRecord
                         Notification::make()
                             ->warning()
                             ->title('Application Rejected')
-                            ->body("You have rejected the application.")
+                            ->body("You have rejected and deleted the application.")
                             ->actions([
                                 Action::make('view')
                                     ->button()
@@ -69,17 +66,20 @@ class EditApplication extends EditRecord
                         Notification::make()
                             ->warning()
                             ->title('Application Rejected')
-                            ->body("Your application has been rejected.")
+                            ->body("Your application has been rejected and deleted.")
                             ->sendToDatabase($applicationUser);
 
                         // Send rejection email
                         $this->sendRejectionEmail($application);
 
+                        // Permanently delete the application
+                        $application->forceDelete();
+
                         // Show a success message in the UI
                         Notification::make()
                             ->warning()
                             ->title('Application Rejected')
-                            ->body("The application has been rejected and notifications sent.")
+                            ->body("The application has been rejected, deleted, and notifications sent.")
                             ->send();
 
                         // Redirect to the list view after rejection
@@ -242,6 +242,51 @@ class EditApplication extends EditRecord
                 ->color('success')
                 ->requiresConfirmation(),
             Actions\DeleteAction::make(),
+            Actions\Action::make('rejectRequirements')
+                ->label('Reject Requirements')
+                ->icon('heroicon-o-x-circle')
+                ->visible(fn($record) => $record->requirements_status !== 'rejected')
+                ->action(function () {
+                    $application = $this->getRecord();
+
+                    DB::transaction(function () use ($application) {
+                        // Update requirements status
+                        $application->update(['requirements_status' => 'rejected']);
+ 
+                        // Notify the authenticated user
+                        $authUser = Auth::user();
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Requirements Rejected')
+                            ->body("You have rejected the application requirements.")
+                            ->actions([
+                                Action::make('view')
+                                    ->button()
+                                    ->url(route('filament.admin.resources.applications.index')),
+                            ])
+                            ->sendToDatabase($authUser);
+
+                        // Notify the application's user
+                        $applicationUser = User::find($application->user_id);
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Requirements Rejected')
+                            ->body("Your application requirements have been rejected. Please review and resubmit.")
+                            ->sendToDatabase($applicationUser);
+
+                        // Show a success message in the UI
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Requirements Rejected')
+                            ->body("The application requirements have been rejected and notifications sent.")
+                            ->send();
+
+                        // Redirect to the list view after rejection
+                        return redirect()->route('filament.admin.resources.applications.index');
+                    });
+                })
+                ->color('danger')
+                ->requiresConfirmation(),
         ];
     }
 

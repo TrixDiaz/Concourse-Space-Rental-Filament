@@ -30,7 +30,7 @@ class ListApplications extends ListRecords
             'renewal' => Tab::make('Renewal')
                 ->query(fn (Builder $query): Builder => $query->where('space_type', 'renewal')),
             'rejected' => Tab::make('Rejected')
-                ->query(fn (Builder $query): Builder => $query->where('application_status', 'rejected')),
+                ->query(fn (Builder $query): Builder => $query->where('application_status', 'rejected')->orWhere('requirements_status', 'rejected')),
         ];
     }
 }
