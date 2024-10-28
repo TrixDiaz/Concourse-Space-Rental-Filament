@@ -44,14 +44,20 @@ class ElectricChart extends ApexChartWidget
 
         return [
             'chart' => [
-                'type' => 'bar',
+                'type' => 'line',  // Changed to support multiple types
                 'height' => 300,
                 'toolbar' => ['show' => false],
             ],
             'series' => [
                 [
-                    'name' => 'Electric',
+                    'name' => 'Electric Bill',
+                    'type' => 'bar',
                     'data' => $data['electric'],
+                ],
+                [
+                    'name' => 'Consumption (kWh)',
+                    'type' => 'line',
+                    'data' => $data['consumption'],
                 ],
             ],
             'xaxis' => [
@@ -63,13 +69,29 @@ class ElectricChart extends ApexChartWidget
                 ],
             ],
             'yaxis' => [
-                'labels' => [
-                    'style' => [
-                        'fontFamily' => 'inherit',
+                [
+                    'title' => [
+                        'text' => 'Electric Bill',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontFamily' => 'inherit',
+                        ],
+                    ],
+                ],
+                [
+                    'opposite' => true,
+                    'title' => [
+                        'text' => 'Consumption (kWh)',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontFamily' => 'inherit',
+                        ],
                     ],
                 ],
             ],
-            'colors' => ['#f59e0b'], // Yellow color for electricity
+            'colors' => ['#f59e0b', '#3b82f6'], // Yellow for bill, Blue for consumption
             'plotOptions' => [
                 'bar' => [
                     'borderRadius' => 3,
@@ -85,7 +107,8 @@ class ElectricChart extends ApexChartWidget
         
         $billData = Payment::select(
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(electricity_bill) as total_electric')
+            DB::raw('SUM(electricity_bill) as total_electric'),
+            DB::raw('SUM(electricity_consumption) as total_consumption')  // Fixed column name
         )
             ->whereYear('created_at', $currentYear)
             ->groupBy('month')
@@ -94,10 +117,12 @@ class ElectricChart extends ApexChartWidget
 
         $months = array_fill(0, 12, 0);
         $electric = array_fill(0, 12, 0);
+        $consumption = array_fill(0, 12, 0);  // Add this line
 
         foreach ($billData as $data) {
             $monthIndex = $data->month - 1;
             $electric[$monthIndex] = round($data->total_electric, 2);
+            $consumption[$monthIndex] = round($data->total_consumption, 2);  // Add this line
         }
 
         // Fill in all months
@@ -108,6 +133,7 @@ class ElectricChart extends ApexChartWidget
         return [
             'months' => array_values($months),
             'electric' => array_values($electric),
+            'consumption' => array_values($consumption),  // Add this line
         ];
     }
 
@@ -115,9 +141,9 @@ class ElectricChart extends ApexChartWidget
     {
         $data = $this->getBillData();
         
-        $csvContent = "Month,Electric\n";
+        $csvContent = "Month,Electric,Consumption\n";
         foreach ($data['months'] as $index => $month) {
-            $csvContent .= "{$month},{$data['electric'][$index]}\n";
+            $csvContent .= "{$month},{$data['electric'][$index]},{$data['consumption'][$index]}\n";
         }
 
         $fileName = 'monthly_electric_payments_' . date('Y-m-d') . '.csv';

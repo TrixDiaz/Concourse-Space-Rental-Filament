@@ -44,14 +44,20 @@ class WaterChart extends ApexChartWidget
 
         return [
             'chart' => [
-                'type' => 'bar',
+                'type' => 'line',  // Changed to support multiple types
                 'height' => 300,
                 'toolbar' => ['show' => false],
             ],
             'series' => [
                 [
-                    'name' => 'Water',
+                    'name' => 'Water Bill',
+                    'type' => 'bar',
                     'data' => $data['water'],
+                ],
+                [
+                    'name' => 'Consumption (m³)',
+                    'type' => 'line',
+                    'data' => $data['consumption'],
                 ],
             ],
             'xaxis' => [
@@ -63,13 +69,29 @@ class WaterChart extends ApexChartWidget
                 ],
             ],
             'yaxis' => [
-                'labels' => [
-                    'style' => [
-                        'fontFamily' => 'inherit',
+                [
+                    'title' => [
+                        'text' => 'Water Bill',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontFamily' => 'inherit',
+                        ],
+                    ],
+                ],
+                [
+                    'opposite' => true,
+                    'title' => [
+                        'text' => 'Consumption (m³)',
+                    ],
+                    'labels' => [
+                        'style' => [
+                            'fontFamily' => 'inherit',
+                        ],
                     ],
                 ],
             ],
-            'colors' => ['#3b82f6'], // Changed to a blue color for water
+            'colors' => ['#3b82f6', '#22c55e'], // Blue for bill, Green for consumption
             'plotOptions' => [
                 'bar' => [
                     'borderRadius' => 3,
@@ -83,7 +105,8 @@ class WaterChart extends ApexChartWidget
     {
         $billData = Payment::select(
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(water_bill) as total_water')
+            DB::raw('SUM(water_bill) as total_water'),
+            DB::raw('SUM(water_consumption) as total_consumption')  // Added water consumption
         )
             ->whereYear('created_at', date('Y'))
             ->groupBy('month')
@@ -92,11 +115,13 @@ class WaterChart extends ApexChartWidget
 
         $months = [];
         $water = array_fill(0, 12, 0);
+        $consumption = array_fill(0, 12, 0);  // Added consumption array
 
         foreach ($billData as $data) {
             $monthIndex = $data->month - 1;
             $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
             $water[$monthIndex] = round($data->total_water, 2);
+            $consumption[$monthIndex] = round($data->total_consumption, 2);  // Added consumption data
         }
 
         // Fill in any missing months
@@ -111,6 +136,7 @@ class WaterChart extends ApexChartWidget
         return [
             'months' => array_values($months),
             'water' => $water,
+            'consumption' => $consumption,  // Added to return array
         ];
     }
 
@@ -118,9 +144,9 @@ class WaterChart extends ApexChartWidget
     {
         $data = $this->getBillData();
         
-        $csvContent = "Month,Water\n";
+        $csvContent = "Month,Water Bill,Water Consumption\n";
         foreach ($data['months'] as $index => $month) {
-            $csvContent .= "{$month},{$data['water'][$index]}\n";
+            $csvContent .= "{$month},{$data['water'][$index]},{$data['consumption'][$index]}\n";
         }
 
         $fileName = 'monthly_water_payments_' . date('Y-m-d') . '.csv';
