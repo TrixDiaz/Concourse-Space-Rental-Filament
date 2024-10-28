@@ -32,6 +32,11 @@ class WaterMonthlyChart extends ApexChartWidget
      */
     protected static ?int $sort = 2;
 
+    /**
+     * Widget content height
+     */
+    protected static ?int $contentHeight = 260;
+
      /**
      * Filter Form
      */

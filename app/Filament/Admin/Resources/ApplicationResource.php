@@ -22,7 +22,9 @@ class ApplicationResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getModel()::where('application_status', 'pending')
+            ->orWhere('application_status', 'renewal')
+            ->count();
     }
 
     public static function form(Form $form): Form

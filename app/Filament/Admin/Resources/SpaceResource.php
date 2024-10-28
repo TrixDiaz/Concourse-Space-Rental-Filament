@@ -89,6 +89,7 @@ class SpaceResource extends Resource
                         ->prefix('m3')
                         ->minValue(0)
                         ->numeric()
+                        ->decimalPlaces(2)
                         ->required()
                         ->afterStateUpdated(function ($state, $set, $get, $record) {
                             $this->updateWaterBills($state, $set, $get, $record);
@@ -98,6 +99,7 @@ class SpaceResource extends Resource
                         ->prefix('kWh')
                         ->minValue(0)
                         ->numeric()
+                        ->decimalPlaces(2)
                         ->required()
                         ->afterStateUpdated(function ($state, $set, $get, $record) {
                             $this->updateElectricityBills($state, $set, $get, $record);
@@ -161,6 +163,7 @@ class SpaceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
+                    ->color(fn($record) => $record->status === 'occupied' ? 'secondary' : 'warning')
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('Consumptions')
                     ->label('Consumptions')

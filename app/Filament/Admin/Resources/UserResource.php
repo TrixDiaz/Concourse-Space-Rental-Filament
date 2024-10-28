@@ -19,7 +19,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class UserResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Filament Shield';
+    protected static ?string $navigationGroup = 'System Settings';
 
     protected static ?string $navigationLabel = 'Users';
 

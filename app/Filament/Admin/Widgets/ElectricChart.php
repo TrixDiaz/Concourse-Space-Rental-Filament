@@ -109,7 +109,7 @@ class ElectricChart extends ApexChartWidget
             DB::raw('MONTH(created_at) as month'),
             DB::raw('SUM(electricity_bill) as total_electric'),
             DB::raw('SUM(electricity_consumption) as total_consumption')  // Fixed column name
-        )
+        )   
             ->whereYear('created_at', $currentYear)
             ->groupBy('month')
             ->orderBy('month')

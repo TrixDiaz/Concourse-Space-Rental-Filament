@@ -16,6 +16,7 @@ use Filament\Forms\Form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Filament\Notifications\Notification;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class ConcourseSpaces extends Page implements HasForms, HasTable
 {
@@ -92,6 +93,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                 ])->columns(2),
             ]);
     }
+    
 
     public static function getRoutes(): \Closure
     {
@@ -116,7 +118,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Space::query()->where('concourse_id', $this->concourse->id))
+            ->query(Space::query()->where('concourse_id', $this->concourse->id)->where('status', 'occupied'))
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Tenant')
@@ -169,6 +171,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
+                    ->color(fn($record) => $record->status === 'occupied' ? 'secondary' : 'warning')
                     ->extraAttributes(['class' => 'capitalize']),
                 Tables\Columns\TextColumn::make('Consumptions')
                     ->label('Consumptions')

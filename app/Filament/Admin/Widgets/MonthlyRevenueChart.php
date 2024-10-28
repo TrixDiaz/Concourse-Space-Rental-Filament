@@ -152,6 +152,7 @@ class MonthlyRevenueChart extends ApexChartWidget
             DB::raw('MONTH(created_at) as month'),
             DB::raw('SUM(rent_bill) as total_rent')
         )
+            ->where('payment_status', 'paid')
             ->whereYear('created_at', date('Y'))
             ->groupBy('month')
             ->orderBy('month')

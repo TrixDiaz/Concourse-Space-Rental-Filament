@@ -42,6 +42,12 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::Red,
                 'gray' => Color::Gray,
             ])
+            ->navigationGroups([
+                'Applications Settings',
+                'Concourse Settings',
+                'Reports',
+                'System Settings',
+            ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')

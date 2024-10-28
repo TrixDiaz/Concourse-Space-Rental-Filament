@@ -54,11 +54,6 @@ class EditApplication extends EditRecord
                             ->warning()
                             ->title('Application Rejected')
                             ->body("You have rejected and deleted the application.")
-                            ->actions([
-                                Action::make('view')
-                                    ->button()
-                                    ->url(route('filament.admin.resources.applications.index')),
-                            ])
                             ->sendToDatabase($authUser);
 
                         // Notify the application's user
@@ -174,6 +169,9 @@ class EditApplication extends EditRecord
                             ]);
                         }
 
+                        // Send lease contract email
+                        $this->sendLeaseContractEmail($space, $application);
+
                         // Delete the application from the Application table
                         $application->delete();
 
@@ -225,9 +223,6 @@ class EditApplication extends EditRecord
                             'remarks' => $application->remarks,
                         ]);
 
-                        // Send lease contract email
-                        $this->sendLeaseContractEmail($space, $application);
-
                         // Show a success message in the UI
                         Notification::make()
                             ->success()
@@ -252,7 +247,7 @@ class EditApplication extends EditRecord
                     DB::transaction(function () use ($application) {
                         // Update requirements status
                         $application->update(['requirements_status' => 'rejected']);
- 
+
                         // Notify the authenticated user
                         $authUser = Auth::user();
                         Notification::make()

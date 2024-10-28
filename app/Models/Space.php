@@ -64,6 +64,11 @@ class Space extends Model
         'lease_start' => 'datetime',
         'lease_end' => 'datetime',
         'lease_due' => 'datetime',
+        'water_consumption' => 'float',
+        'electricity_consumption' => 'float',
+        'water_bills' => 'float',
+        'electricity_bills' => 'float',
+        'rent_bills' => 'float',
     ];
 
     public function user()
