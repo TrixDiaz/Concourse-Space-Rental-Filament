@@ -25,12 +25,18 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $totalRevenue = Payment::where('payment_status', 'paid')->sum('amount');
-        $newCustomers = User::role('panel_user')->count();
-        $newApplications = Application::count();
+        
+        // Water stats
+        $totalWaterBill = Payment::where('payment_status', 'paid')->sum('water_bill');
+        $totalWaterConsumption = Payment::sum('water_consumption');
+        
+        // Electric stats
+        $totalElectricBill = Payment::where('payment_status', 'paid')->sum('electricity_bill');
+        $totalElectricConsumption = Payment::sum('electricity_consumption');
 
         $revenueChart = $this->getChartData(Payment::class, 'amount');
-        $customersChart = $this->getChartData(User::class, 'id', 'count');
-        $applicationsChart = $this->getChartData(Application::class, 'id', 'count');
+        $waterBillChart = $this->getChartData(Payment::class, 'water_bill');
+        $electricBillChart = $this->getChartData(Payment::class, 'electricity_bill');
 
         return [
             Stat::make('Revenue', '₱' . number_format($totalRevenue, 2))
@@ -38,33 +44,27 @@ class StatsOverview extends BaseWidget
                 ->descriptionIcon($this->getChangeIcon($revenueChart))
                 ->chart($revenueChart)
                 ->color($this->getChangeColor($revenueChart)),
-            Stat::make('New Users', $newCustomers)
-                ->description($this->getChangeDescription($customersChart))
-                ->descriptionIcon($this->getChangeIcon($customersChart))
-                ->chart($customersChart)
-                ->color($this->getChangeColor($customersChart)),
-            Stat::make('New Applications', $newApplications)
-                ->description($this->getChangeDescription($applicationsChart))
-                ->descriptionIcon($this->getChangeIcon($applicationsChart))
-                ->chart($applicationsChart)
-                ->color($this->getChangeColor($applicationsChart)),
+            Stat::make('Water Usage & Bills', number_format($totalWaterConsumption) . ' m³')
+                ->description('₱' . number_format($totalWaterBill, 2) . ' total water bills')
+                ->descriptionIcon($this->getChangeIcon($waterBillChart))
+                ->chart($waterBillChart)
+                ->color($this->getChangeColor($waterBillChart)),
+            Stat::make('Electric Usage & Bills', number_format($totalElectricConsumption) . ' kWh')
+                ->description('₱' . number_format($totalElectricBill, 2) . ' total electric bills')
+                ->descriptionIcon($this->getChangeIcon($electricBillChart))
+                ->chart($electricBillChart)
+                ->color($this->getChangeColor($electricBillChart)),
         ];
     }
 
     private function getChartData(string $model, string $column, string $aggregation = 'sum'): array
     {
-        $query = $model::query();
-        
-        if ($model === Payment::class) {
-            $query->where('payment_status', 'paid');
-        } elseif ($model === User::class) {
-            $query->role('panel_user');
-        }
-
-        return $query->where('created_at', '>=', now()->subDays(7))
+        return Payment::query()
+            ->where('payment_status', 'paid')
+            ->where('created_at', '>=', now()->subDays(7))
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderBy('created_at')
-            ->pluck(DB::raw("$aggregation($column) as total"))
+            ->pluck(DB::raw("sum($column) as total"))
             ->toArray();
     }
 
