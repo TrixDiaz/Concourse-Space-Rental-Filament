@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('water_payment_status')->nullable();
             $table->string('electricity_payment_status')->nullable();
             $table->string('rent_payment_status')->nullable();
+            $table->decimal('penalty', 10, 2)->nullable();
             $table->boolean('is_active')->default(true);
             $table->string('requirements_status')->nullable();
             $table->string('application_status')->nullable();

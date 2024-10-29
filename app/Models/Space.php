@@ -40,6 +40,10 @@ class Space extends Model
         'electricity_due',
         'electricity_consumption',
         'rent_bills',
+        'water_payment_status',
+        'electricity_payment_status',
+        'rent_payment_status',
+        'penalty',
         'rent_due',
         'payment_due_status',
         'is_active',
@@ -71,6 +75,13 @@ class Space extends Model
         'rent_bills' => 'float',
     ];
 
+    protected $dates = [
+        'lease_start',
+        'lease_end',
+        'created_at',
+        'updated_at'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -83,7 +94,7 @@ class Space extends Model
 
     public function concourse()
     {
-        return $this->belongsTo(Concourse::class, 'concourse_id');
+        return $this->belongsTo(Concourse::class);
     }
 
     public function payments()
