@@ -188,6 +188,7 @@ class SpaceRelationManager extends RelationManager
                         ->icon('heroicon-m-currency-dollar')
                         ->color('warning')
                         ->requiresConfirmation()
+                        ->visible(fn($record) => $record->status === 'occupied')
                         ->action(function (Space $record) {
                             $rentAmount = $record->price ?? 0;
                             $record->rent_bills = $rentAmount;
