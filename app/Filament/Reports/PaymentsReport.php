@@ -20,10 +20,6 @@ class PaymentsReport extends Report
 
     public function header(Header $header): Header
     {
-        $concourse = null;
-        if (isset($this->filters['concourse_id'])) {
-            $concourse = \App\Models\Concourse::find($this->filters['concourse_id']);
-        }
 
         return $header
             ->schema([
@@ -31,11 +27,9 @@ class PaymentsReport extends Report
                     ->schema([
                         Header\Layout\HeaderColumn::make()
                             ->schema([
-                                Text::make($concourse ? $concourse->name : 'All Concourses')
+                                Text::make('Bills Report')
                                     ->title()
                                     ->primary(),
-                                Text::make($concourse ? $concourse->address : '')
-                                    ->subtitle(),
                                 Text::make('Utility Bills Report')
                                     ->subtitle(),
                             ]),
@@ -46,15 +40,12 @@ class PaymentsReport extends Report
 
     public function body(Body $body): Body
     {
-        $concourse = null;
-        if (isset($this->filters['concourse_id'])) {
-            $concourse = \App\Models\Concourse::find($this->filters['concourse_id']);
-        }
         return $body
             ->schema([       
                 Body\Layout\BodyColumn::make()
                     ->schema([
-                        Text::make($concourse ? 'Concourse ' . $concourse->name . ' Report' : 'All Concourses Report')
+                        Text::make('Concourse Summary')
+                            ->color('secondary')
                             ->title(),
                         Text::make('Detailed Space Summary')
                             ->subtitle(),
@@ -100,39 +91,14 @@ class PaymentsReport extends Report
             ->schema([
                 \Filament\Forms\Components\Select::make('concourse_id')
                     ->label('Concourse')
+                    ->multiple()
                     ->options(
                         \App\Models\Concourse::query()
                             ->pluck('name', 'id')
                     )
                     ->native(false)
                     ->required(),
-                \Filament\Forms\Components\TextInput::make('search')
-                    ->placeholder('Search')
-                    ->autofocus(),
-                \Filament\Forms\Components\Select::make('payment_status')
-                    ->label('Payment Status')
-                    ->native(false)
-                    ->options([
-                        'all' => 'All',
-                        'paid' => 'Paid',
-                        'unpaid' => 'Unpaid',
-                        'failed' => 'Failed',
-                    ]),
-                \Filament\Forms\Components\Select::make('payment_method')
-                    ->label('Payment Method')
-                    ->native(false)
-                    ->options([
-                        'all' => 'All',
-                        'gcash' => 'Gcash',
-                    ]),
-                \Filament\Forms\Components\Select::make('payment_type')
-                    ->label('Payment Type')
-                    ->native(false)
-                    ->options([
-                        'all' => 'All',
-                        'cash' => 'Cash',
-                        'e-wallet' => 'E-Wallet',
-                    ]),
+              
                 \Filament\Forms\Components\DatePicker::make('date_from')
                     ->label('Date From')
                     ->placeholder('Start Date')
@@ -147,30 +113,6 @@ class PaymentsReport extends Report
                     ->displayFormat('Y-m-d')
                     ->maxDate(now())
                     ->native(false),
-                \Filament\Forms\Components\Select::make('bill_types')
-                    ->label('Bill Types')
-                    ->multiple()
-                    ->native(false)
-                    ->options([
-                        'electricity' => 'Electricity',
-                        'water' => 'Water',
-                        'rent' => 'Rent',
-                    ]),
-                    \Filament\Forms\Components\Actions::make([
-                        \Filament\Forms\Components\Actions\Action::make('reset')
-                            ->label('Reset Filters')
-                            ->color('danger')
-                            ->action(function (Form $form) {
-                                $form->fill([
-                                    'search' => null,
-                                    'payment_status' => null,
-                                    'payment_method' => null,
-                                    'payment_type' => null,
-                                    'date_from' => null,
-                                    'date_to' => null,
-                                ]);
-                            })
-                    ]),
             ]);
     }
 
@@ -181,7 +123,7 @@ class PaymentsReport extends Report
 
         if (isset($filters['concourse_id'])) {
             $query->whereHas('space.concourse', function ($query) use ($filters) {
-                $query->where('id', $filters['concourse_id']);
+                $query->whereIn('id', $filters['concourse_id']);
             });
         }
 
@@ -229,25 +171,27 @@ class PaymentsReport extends Report
 
         return collect([
             [
-                'column1' => 'Space',
-                'column2' => 'Tenant',
-                'column3' => 'Water Usage',
-                'column4' => 'Water Bill',
-                'column5' => 'Electric Usage',
-                'column6' => 'Electric Bill',
-                'column7' => 'Unpaid Water',
-                'column8' => 'Unpaid Electric',
+                'column1' => 'Concourse',
+                'column2' => 'Space',
+                'column3' => 'Tenant',
+                'column4' => 'Water Usage',
+                'column5' => 'Water Bill',
+                'column6' => 'Electric Usage',
+                'column7' => 'Electric Bill',
+                'column8' => 'Unpaid Water',
+                'column9' => 'Unpaid Electric',
             ]
         ])->concat($payments->map(function ($payment) {
             return [
-                'column1' => $payment->space->name ?? 'N/A',
-                'column2' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
-                'column3' => (float)($payment->water_consumption ?? 0),
-                'column4' => number_format((float)($payment->water_bill ?? 0), 2),
-                'column5' => (float)($payment->electricity_consumption ?? 0),
-                'column6' => number_format((float)($payment->electricity_bill ?? 0), 2),
-                'column7' => number_format((float)($payment->water_due ?? 0), 2),
-                'column8' => number_format((float)($payment->electricity_due ?? 0), 2),
+                'column1' => $payment->space->concourse->name ?? 'N/A',
+                'column2' => $payment->space->name ?? 'N/A',
+                'column3' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
+                'column4' => (float)($payment->water_consumption ?? 0),
+                'column5' => number_format((float)($payment->water_bill ?? 0), 2),
+                'column6' => (float)($payment->electricity_consumption ?? 0),
+                'column7' => number_format((float)($payment->electricity_bill ?? 0), 2),
+                'column8' => number_format((float)($payment->water_due ?? 0), 2),
+                'column9' => number_format((float)($payment->electricity_due ?? 0), 2),
             ];
         }));
     }
@@ -258,7 +202,7 @@ class PaymentsReport extends Report
         
         if (isset($filters['concourse_id'])) {
             $query->whereHas('space.concourse', function ($query) use ($filters) {
-                $query->where('id', $filters['concourse_id']);
+                $query->whereIn('id', $filters['concourse_id']);
             });
         }
 
