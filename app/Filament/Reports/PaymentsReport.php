@@ -20,22 +20,25 @@ class PaymentsReport extends Report
 
     public function header(Header $header): Header
     {
+        $concourse = null;
+        if (isset($this->filters['concourse_id'])) {
+            $concourse = \App\Models\Concourse::find($this->filters['concourse_id']);
+        }
+
         return $header
             ->schema([
                 Header\Layout\HeaderRow::make()
                     ->schema([
                         Header\Layout\HeaderColumn::make()
                             ->schema([
-                                Text::make('Bills Report')
-                                    ->title(),
-                                Text::make('This report shows payments in the system')
+                                Text::make($concourse ? $concourse->name : 'All Concourses')
+                                    ->title()
+                                    ->primary(),
+                                Text::make($concourse ? $concourse->address : '')
+                                    ->subtitle(),
+                                Text::make('Utility Bills Report')
                                     ->subtitle(),
                             ]),
-                        Header\Layout\HeaderColumn::make()
-                            // ->schema([
-                            //     Text::make(now()->format('F, d Y'))
-                            //         ->subtitle(),
-                            // ])->alignRight(),
                     ])
             ]);
     }
@@ -43,10 +46,18 @@ class PaymentsReport extends Report
 
     public function body(Body $body): Body
     {
+        $concourse = null;
+        if (isset($this->filters['concourse_id'])) {
+            $concourse = \App\Models\Concourse::find($this->filters['concourse_id']);
+        }
         return $body
-            ->schema([
+            ->schema([       
                 Body\Layout\BodyColumn::make()
                     ->schema([
+                        Text::make($concourse ? 'Concourse ' . $concourse->name . ' Report' : 'All Concourses Report')
+                            ->title(),
+                        Text::make('Detailed Space Summary')
+                            ->subtitle(),
                         Body\Table::make()
                             ->data(
                                 fn(?array $filters) => $this->paymentsSummary($filters)
@@ -246,7 +257,7 @@ class PaymentsReport extends Report
         $query = Payment::query();
         
         if (isset($filters['concourse_id'])) {
-            $query->whereHas('tenant.space.concourse', function ($query) use ($filters) {
+            $query->whereHas('space.concourse', function ($query) use ($filters) {
                 $query->where('id', $filters['concourse_id']);
             });
         }

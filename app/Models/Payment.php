@@ -57,6 +57,11 @@ class Payment extends Model
         return $this->belongsTo(Space::class);
     }
 
+    public function concourse(): BelongsTo
+    {
+        return $this->belongsTo(Concourse::class);
+    }
+
     // Add these constants
     const STATUS_PAID = 'paid';
     const STATUS_UNPAID = 'unpaid';
