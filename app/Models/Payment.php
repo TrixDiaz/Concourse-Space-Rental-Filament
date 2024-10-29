@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Models;
-    
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
@@ -32,17 +33,26 @@ class Payment extends Model
 
     protected $casts = [
         'amount' => 'float',
+        'water_bill' => 'float',
+        'water_due' => 'float',
+        'water_consumption' => 'float',
+        'electricity_bill' => 'float',
+        'electricity_due' => 'float',
+        'electricity_consumption' => 'float',
+        'rent_bill' => 'float',
+        'rent_due' => 'float',
+        'penalty' => 'float',
         'payment_details' => 'array',
         'due_date' => 'date',
         'paid_date' => 'date',
     ];
 
-    public function tenant()
+    public function tenant(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'tenant_id');
     }
 
-    public function space()
+    public function space(): BelongsTo
     {
         return $this->belongsTo(Space::class);
     }

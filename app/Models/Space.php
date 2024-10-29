@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Space extends Model
 {
@@ -92,9 +94,14 @@ class Space extends Model
         return $this->belongsTo(Application::class);
     }
 
-    public function concourse()
+    public function concourse(): BelongsTo
     {
         return $this->belongsTo(Concourse::class);
+    }
+
+    public function tenants(): HasMany
+    {
+        return $this->hasMany(Tenant::class);
     }
 
     public function payments()
