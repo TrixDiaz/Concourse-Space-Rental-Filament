@@ -14,7 +14,6 @@ use Filament\Forms\Form;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\Payment;
-use EightyNine\Reports\Components\PageBreak;
 
 class ConcourseReport extends Report
 {
@@ -55,11 +54,23 @@ class ConcourseReport extends Report
     {
         $schema = [];
 
-        // Get all concourses if none selected in filter
-        $concourses = Concourse::all();
+        // Get concourses based on filter
+        $query = Concourse::query();
+        
+        // Only get the filtered concourse if concourse_id is set
+        if (!empty($this->filters['concourse_id'])) {
+            $query->where('id', $this->filters['concourse_id']);
+        }
+        
+        $concourses = $query->get();
+
+        // If no concourses found after filtering, return empty body
+        if ($concourses->isEmpty()) {
+            return $body->schema([]);
+        }
 
         foreach ($concourses as $concourse) {
-            // Add page break before each concourse except the first one
+            // Add vertical space between concourses
             if (!empty($schema)) {
                 $schema[] = VerticalSpace::make();
             }
@@ -78,7 +89,7 @@ class ConcourseReport extends Report
                 ->subtitle();
 
             $schema[] = Body\Table::make()
-                ->data(fn() => $this->spaceSummary([], $concourse->id));
+                ->data(fn() => $this->spaceSummary(['concourse_id' => $concourse->id]));
 
             // Space Status Summary
             $schema[] = Text::make('Space Status Summary')
@@ -86,7 +97,6 @@ class ConcourseReport extends Report
 
             $schema[] = Body\Table::make()
                 ->data(fn() => $this->spaceStatusSummary(['concourse_id' => $concourse->id]));
-
 
             $schema[] = VerticalSpace::make();
         }
@@ -98,14 +108,7 @@ class ConcourseReport extends Report
             ]);
     }
 
-    private function getSpaces(): Collection
-    {
-        return Space::query()
-            ->select('name', 'status', DB::raw('price / 100 as price'))
-            ->where('concourse_id', Concourse::first()->id)
-            ->get();
-    }
-
+  
     public function footer(Footer $footer): Footer
     {
         return $footer
@@ -133,22 +136,26 @@ class ConcourseReport extends Report
     {
         return $form
             ->schema([
-                \Filament\Forms\Components\Select::make('concourse_ids')
-                    ->label('Concourses')
-                    ->multiple()
-                    ->options(Concourse::pluck('name', 'id'))
+                \Filament\Forms\Components\Select::make('concourse_id')
+                    ->label('Concourse')
+                    ->options(Concourse::where('is_active', true)->pluck('name', 'id'))
                     ->searchable()
-                    ->native(false)
-                    ->preload()
-                    ->required(),
+                    ->required()
             ]);
     }
 
-    public function spaceSummary(?array $filters, $concourseId): Collection
+    public function spaceSummary(?array $filters): Collection
     {
-        $spaces = Space::with(['payments.tenant'])
-            ->where('concourse_id', $concourseId)
-            ->get();
+        // Build the base query
+        $query = Space::with(['payments.tenant', 'user'])
+            ->where('is_active', true);
+        
+        // Apply concourse filter
+        if (!empty($filters['concourse_id'])) {
+            $query->where('concourse_id', $filters['concourse_id']);
+        }
+        
+        $spaces = $query->get();
 
         $headerRow = [
             'column1' => 'Space Name',
@@ -165,18 +172,13 @@ class ConcourseReport extends Report
 
         return collect([$headerRow])
             ->concat($spaces->map(function ($space) {
-                // Get the latest payment for tenant name
-                $latestPayment = Payment::where('space_id', $space->id)
-                    ->with('tenant')
-                    ->latest()
-                    ->first();
-
-                // Count delayed payments
-                $delayedPaymentsCount = Payment::where('space_id', $space->id)
+                // Get delayed payments for this space
+                $delayedPayments = Payment::where('space_id', $space->id)
                     ->whereNotNull('due_date')
                     ->whereNotNull('paid_date')
-                    ->whereRaw('paid_date > due_date')
-                    ->count();
+                    ->whereRaw('paid_date > due_date');
+
+                $delayedPaymentsCount = $delayedPayments->count();
 
                 // Calculate total paid delayed amount
                 $paidDelayedAmount = Payment::where('space_id', $space->id)
@@ -186,22 +188,17 @@ class ConcourseReport extends Report
                     ->where('payment_status', Payment::STATUS_PAID)
                     ->sum(DB::raw('COALESCE(water_bill, 0) + COALESCE(electricity_bill, 0) + COALESCE(rent_bill, 0)'));
 
-                // Calculate total unpaid delayed amount from space dues
+                // Calculate unpaid delayed amount
                 $unpaidDelayedAmount = 0;
-                if ($space->water_payment_status == 'unpaid' && $space->water_due < now()) {
+                if ($space->water_payment_status == 'unpaid' && $space->water_due && $space->water_due < now()) {
                     $unpaidDelayedAmount += $space->water_bills ?? 0;
                 }
-                if ($space->electricity_payment_status == 'unpaid' && $space->electricity_due < now()) {
+                if ($space->electricity_payment_status == 'unpaid' && $space->electricity_due && $space->electricity_due < now()) {
                     $unpaidDelayedAmount += $space->electricity_bills ?? 0;
                 }
-                if ($space->rent_payment_status == 'unpaid' && $space->rent_due < now()) {
+                if ($space->rent_payment_status == 'unpaid' && $space->rent_due && $space->rent_due < now()) {
                     $unpaidDelayedAmount += $space->rent_bills ?? 0;
                 }
-
-                
-
-                // Calculate total penalties
-                $totalPenalties = $space->penalty;
 
                 return [
                     'column1' => $space->name,
@@ -213,16 +210,18 @@ class ConcourseReport extends Report
                     'column7' => number_format($unpaidDelayedAmount, 2),
                     'column8' => $space->lease_start ? $space->lease_start->format('F d, Y') : 'N/A',
                     'column9' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
-                    'column10' => $totalPenalties,
+                    'column10' => number_format($space->penalty ?? 0, 2),
                 ];
             }));
     }
 
     public function spaceStatusSummary(?array $filters): Collection
     {
-        $query = Space::query();
+        $query = Space::query()
+            ->where('is_active', true);
 
-        if (isset($filters['concourse_id'])) {
+        // Apply concourse filter
+        if (!empty($filters['concourse_id'])) {
             $query->where('concourse_id', $filters['concourse_id']);
         }
 
