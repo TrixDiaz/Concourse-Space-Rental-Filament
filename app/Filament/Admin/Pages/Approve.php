@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Pages;
 
 use App\Models\Application;
+use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -10,6 +11,9 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\FileUpload;
 
 class Approve extends Page implements HasForms, HasTable
 {
@@ -95,6 +99,49 @@ class Approve extends Page implements HasForms, HasTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])->poll('10s');
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make('view')
+                    ->form([
+                        Section::make('Application Details')
+                            ->schema([
+                                TextInput::make('business_name')
+                                    ->disabled(),
+                                TextInput::make('owner_name')
+                                    ->disabled(),
+                                TextInput::make('address')
+                                    ->disabled(),
+                                TextInput::make('phone_number')
+                                    ->disabled(),
+                                TextInput::make('email')
+                                    ->disabled(),
+                                TextInput::make('business_type')
+                                    ->disabled(),
+                                TextInput::make('status')
+                                    ->disabled(),
+                                TextInput::make('remarks')
+                                    ->disabled(),
+                            ])->columns(2),
+                        
+                        Section::make('Requirements')
+                            ->schema([
+                                Repeater::make('app_requirements')
+                                    ->relationship('appRequirements')
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->disabled(),
+                                        TextInput::make('status')
+                                            ->disabled(),
+                                        FileUpload::make('file')
+                                            ->disabled()
+                                            ->downloadable()
+                                    ])
+                                    ->columns(3)
+                                    ->disabled()
+                            ])
+                    ])
+                    ->modalWidth('7xl'),
+            ])
+            ->poll('10s');
     }
 }
