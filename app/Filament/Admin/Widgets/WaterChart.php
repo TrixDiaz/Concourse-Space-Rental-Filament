@@ -30,7 +30,7 @@ class WaterChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Water Monthly Payments Chart';
+    protected static ?string $heading = 'Water Monthly Chart';
 
     /**
      * Chart options (series, labels, types, size, animations...)

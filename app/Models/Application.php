@@ -56,7 +56,7 @@ class Application extends Model
     }
 
     public function appRequirements()
-{
+    {
         return $this->hasMany(AppRequirement::class);
     }
 }

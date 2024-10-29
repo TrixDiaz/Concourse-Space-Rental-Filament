@@ -236,7 +236,6 @@ class EditApplication extends EditRecord
                 })
                 ->color('success')
                 ->requiresConfirmation(),
-            Actions\DeleteAction::make(),
             Actions\Action::make('rejectRequirements')
                 ->label('Reject Requirements')
                 ->icon('heroicon-o-x-circle')

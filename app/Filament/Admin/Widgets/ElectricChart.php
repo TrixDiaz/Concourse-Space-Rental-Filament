@@ -30,7 +30,7 @@ class ElectricChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Electric Monthly Payments Chart';
+    protected static ?string $heading = 'Electric Monthly Chart';
 
     /**
      * Chart options (series, labels, types, size, animations...)

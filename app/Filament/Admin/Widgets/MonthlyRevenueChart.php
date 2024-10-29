@@ -22,7 +22,7 @@ class MonthlyRevenueChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Revenue per month';
+    protected static ?string $heading = 'Rent Monthly Revenue';
 
     /**
      * Sort
