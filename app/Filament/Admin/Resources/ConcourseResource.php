@@ -176,6 +176,22 @@ class ConcourseResource extends Resource
                                 ->offIcon('heroicon-s-eye-slash')
                                 ->label('Visible')
                                 ->default(true),
+
+
+                                Forms\Components\Section::make('Total Water Bill')->schema([
+                                    Forms\Components\TextInput::make('water_bills')
+                                        ->label('Monthly Water Bill')
+                                        ->default(0)
+                                        ->minValue(0)
+                                        ->numeric()
+                                        ->prefix('₱'),
+                                    Forms\Components\TextInput::make('electricity_bills')
+                                        ->label('Monthly Electricity Bill')
+                                        ->default(0)
+                                        ->minValue(0)
+                                        ->numeric()
+                                        ->prefix('₱'),
+                                ]),
                         ]),
                         
                         Forms\Components\Section::make()->schema([
