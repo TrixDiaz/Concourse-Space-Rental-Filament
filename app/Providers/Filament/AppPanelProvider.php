@@ -22,6 +22,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use EightyNine\Reports\ReportsPlugin;
+use Filament\Navigation\NavigationItem;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -50,6 +51,16 @@ class AppPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+            ])
+            ->navigationItems([
+                NavigationItem::make('Tenant Reports')
+                    ->icon('heroicon-o-document-text')
+                    ->url(fn () => route('filament.app.reports.tenant-report'))
+                    ->sort(999),
+                NavigationItem::make('Bills Report')
+                    ->icon('heroicon-o-document-text')
+                    ->url(fn () => route('filament.app.reports.bills-report'))
+                    ->sort(999),
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->middleware([
