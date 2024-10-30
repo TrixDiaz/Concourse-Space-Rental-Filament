@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Filament\Notifications\Notification;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Actions\Action;
 
 class ConcourseSpaces extends Page implements HasForms, HasTable
 {
@@ -220,7 +221,35 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
     protected function getHeaderActions(): array
     {
         return [
-            // Add any header actions if needed
+            Action::make('updateBills')
+                ->label('Update Concourse Bills')
+                ->form([
+                    Forms\Components\Section::make('Total Water Bill')->schema([
+                        Forms\Components\TextInput::make('water_bills')
+                            ->label('Monthly Water Bill')
+                            ->default(fn () => $this->concourse->water_bills ?? 0)
+                            ->minValue(0)
+                            ->numeric()
+                            ->prefix('₱'),
+                        Forms\Components\TextInput::make('electricity_bills')
+                            ->label('Monthly Electricity Bill')
+                            ->default(fn () => $this->concourse->electricity_bills ?? 0)
+                            ->minValue(0)
+                            ->numeric()
+                            ->prefix('₱'),
+                    ])
+                ])
+                ->action(function (array $data): void {
+                    $this->concourse->update([
+                        'water_bills' => $data['water_bills'],
+                        'electricity_bills' => $data['electricity_bills'],
+                    ]);
+
+                    Notification::make()
+                        ->title('Bills updated successfully')
+                        ->success()
+                        ->send();
+                }),
         ];
     }
 
