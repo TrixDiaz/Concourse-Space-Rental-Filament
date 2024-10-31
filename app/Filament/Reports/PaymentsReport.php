@@ -217,9 +217,9 @@ class PaymentsReport extends Report
             return [
                 'column1' => $payment->space->name ?? 'N/A',
                 'column2' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
-                'column3' => (float)($payment->water_consumption ?? 0),
+                'column3' => number_format((float)($payment->water_consumption ?? 0), 2),
                 'column4' => number_format((float)($payment->water_bill ?? 0), 2),
-                'column5' => (float)($payment->electricity_consumption ?? 0),
+                'column5' => number_format((float)($payment->electricity_consumption ?? 0), 2),
                 'column6' => number_format((float)($payment->electricity_bill ?? 0), 2),
                 'column7' => number_format((float)($payment->water_due ?? 0), 2),
                 'column8' => number_format((float)($payment->electricity_due ?? 0), 2),
