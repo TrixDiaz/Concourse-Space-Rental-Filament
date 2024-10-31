@@ -38,6 +38,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
 
             // Update the space's water consumption
             $record->water_consumption = $state;
+            $record->water_due = now()->addDays(7);
             $record->save();
 
             // Recalculate the concourse's total water consumption
@@ -49,7 +50,6 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             // Update the form fields
             $set('water_bills', $record->water_bills);
             $set('water_payment_status', $record->water_payment_status);
-
         }
     }
 
@@ -60,7 +60,8 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
 
             // Update the space's electricity consumption
             $record->update(['electricity_consumption' => $state]);
-
+            $record->update(['electricity_due' => now()->addDays(7)]);
+            
             // Recalculate the concourse's total electricity consumption
             $concourse->updateTotalElectricityConsumption();
 
@@ -70,7 +71,6 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             // Update the form fields
             $set('electricity_bills', $record->electricity_bills);
             $set('electricity_payment_status', $record->electricity_payment_status);
-
         }
     }
 
@@ -94,7 +94,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                 ])->columns(2),
             ]);
     }
-    
+
 
     public static function getRoutes(): \Closure
     {
@@ -126,58 +126,51 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                     ->default(fn($record) => $record->user->name ?? 'No Tenant')
                     ->description(fn($record) => $record->name)
                     ->extraAttributes(['class' => 'capitalize'])
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Price')
                     ->numeric()
-                    ->sortable()
                     ->prefix('₱')
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('sqm')
-                    ->label('Sqm')
-                    ->numeric()
-                    ->sortable()
+                Tables\Columns\TextColumn::make('Space')
+                    ->label('Space')
+                    ->default(fn($record) => 'SQM: ' . $record->sqm)
                     ->description(fn($record) => 'Price: ' . '₱' . number_format($record->price ?? 0, 2))
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('Lease Term')
                     ->label('Lease Term')
                     ->default(fn($record) => 'Lease Due:' . \Carbon\Carbon::parse($record->lease_due)->format('F j, Y'))
                     ->description(fn($record) => 'Lease End: ' . \Carbon\Carbon::parse($record->lease_end)->format('F j, Y'))
-                    ->numeric(),
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('water_bills')
                     ->label('Water Bills')
                     ->default(fn($record) => 'Water: ' . '₱' . number_format($record->water_bills ?? 0, 2))
-                    ->description(fn($record) => 'Status: ' . $record->water_payment_status ?? null . ', Consumption: ' . $record->water_consumption . ' m3')
-                    ->numeric()
-                    ->sortable()
+                    ->description(fn($record) => 'Due: ' . \Carbon\Carbon::parse($record->water_due)->format('F j, Y'))
+                    ->tooltip(fn($record) => 'Status: ' . $record->water_payment_status ?? null)
                     ->money('PHP')
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('electricity_bills')
                     ->label('Electricity Bills')
                     ->default(fn($record) => '₱' . number_format($record->electricity_bills ?? 0, 2))
-                    ->description(fn($record) => 'Status: ' . $record->electricity_payment_status ?? null)
-                    ->numeric()
-                    ->sortable()
+                    ->description(fn($record) => 'Due: ' . \Carbon\Carbon::parse($record->electricity_due)->format('F j, Y'))
+                    ->tooltip(fn($record) => 'Status: ' . $record->electricity_payment_status ?? null)
                     ->money('PHP')
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('rent_bills')
                     ->label('Rent Bills')
-                    ->numeric()
-                    ->sortable()
                     ->money('PHP')
                     ->default(fn($record) => 'Rent: ' . number_format($record->rent_bills ?? 0, 2))
-                    ->description(fn($record) => 'Status: ' . $record->rent_payment_status ?? null)
+                    ->description(fn($record) => 'Due: ' . \Carbon\Carbon::parse($record->rent_due)->format('F j, Y'))
+                    ->tooltip(fn($record) => 'Status: ' . $record->rent_payment_status ?? null)
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn($record) => $record->status === 'occupied' ? 'secondary' : 'warning')
-                    ->extraAttributes(['class' => 'capitalize']),
+                    ->extraAttributes(['class' => 'capitalize'])
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('Consumptions')
                     ->label('Consumptions')
-                    ->numeric()
-                    ->sortable()
                     ->default(fn($record) => 'Water: ' . number_format($record->water_consumption ?? 0, 2) . ' m3')
                     ->description(fn($record) => 'Electricity: ' . number_format($record->electricity_consumption ?? 0, 2) . ' kWh'),
                 Tables\Columns\IconColumn::make('is_active')
@@ -190,26 +183,30 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->label('Bills')
-                    ->form($this->getFormSchema())
-                    ->visible(fn($record) => $record->status === 'occupied')
-                    ->using(function ($record, array $data) {
-                        $this->updateWaterBills($data['water_consumption'], fn($value) => null, fn() => null, $record);
-                        $this->updateElectricityBills($data['electricity_consumption'], fn($value) => null, fn() => null, $record);
-                        return $record;
-                    }),
-                Tables\Actions\Action::make('Add Monthly Rent')
-                    ->icon('heroicon-m-currency-dollar')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->visible(fn($record) => $record->status === 'occupied')
-                    ->action(function (Space $record) {
-                        $rentAmount = $record->price ?? 0;
-                        $record->rent_bills = $rentAmount;
-                        $record->rent_payment_status = 'unpaid';
-                        $record->save();
-                    }),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->label('Bills')
+                        ->form($this->getFormSchema())
+                        ->visible(fn($record) => $record->status === 'occupied')
+                        ->using(function ($record, array $data) {
+                            $this->updateWaterBills($data['water_consumption'], fn($value) => null, fn() => null, $record);
+                            $this->updateElectricityBills($data['electricity_consumption'], fn($value) => null, fn() => null, $record);
+                            return $record;
+                        }),
+                    Tables\Actions\Action::make('Add Monthly Rent')
+                        ->icon('heroicon-m-currency-dollar')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->visible(fn($record) => $record->status === 'occupied')
+                        ->action(function (Space $record) {
+                            $rentAmount = $record->price ?? 0;
+                            $record->rent_bills = $rentAmount;
+                            $record->rent_payment_status = 'unpaid';
+                            $record->save();
+                        }),
+                ])
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->tooltip('Actions')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -227,13 +224,13 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                     Forms\Components\Section::make('Total Water Bill')->schema([
                         Forms\Components\TextInput::make('water_bills')
                             ->label('Monthly Water Bill')
-                            ->default(fn () => $this->concourse->water_bills ?? 0)
+                            ->default(fn() => $this->concourse->water_bills ?? 0)
                             ->minValue(0)
                             ->numeric()
                             ->prefix('₱'),
                         Forms\Components\TextInput::make('electricity_bills')
                             ->label('Monthly Electricity Bill')
-                            ->default(fn () => $this->concourse->electricity_bills ?? 0)
+                            ->default(fn() => $this->concourse->electricity_bills ?? 0)
                             ->minValue(0)
                             ->numeric()
                             ->prefix('₱'),

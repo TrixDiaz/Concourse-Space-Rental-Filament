@@ -86,34 +86,7 @@ class TenantSpace extends Page implements HasForms, HasTable
 
             ])
             ->actions([
-                Tables\Actions\Action::make('payBills')
-                    ->label('Pay Bills')
-                    ->button()
-                    ->action(fn($record, array $data) => $this->payWithGCash($record, $data))
-                    ->form(function ($record) {
-                        $checkboxes = [];
-
-                        if ($record->water_bills > 0) {
-                            $checkboxes[] = Checkbox::make('pay_water')
-                                ->label("Water Bill: ₱" . number_format($record->water_bills, 2))
-                                ->default(true);
-                        }
-
-                        if ($record->electricity_bills > 0) {
-                            $checkboxes[] = Checkbox::make('pay_electricity')
-                                ->label("Electricity Bill: ₱" . number_format($record->electricity_bills, 2))
-                                ->default(true);
-                        }
-
-                        if ($record->rent_bills > 0) {
-                            $checkboxes[] = Checkbox::make('pay_rent')
-                                ->label("Rent: ₱" . number_format($record->rent_bills, 2))
-                                ->default(true);
-                        }
-
-                        return $checkboxes;
-                    })
-                    ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
+                
                 Tables\Actions\Action::make('renew')
                     ->label('Renew Lease')
                     ->button()
@@ -203,6 +176,68 @@ class TenantSpace extends Page implements HasForms, HasTable
                         // Show the button if within renewal period and no matching application found
                         return $isWithinRenewalPeriod;
                     }),
+                Tables\Actions\Action::make('payBills')
+                    ->label('Pay Bills')
+                    ->button()
+                    ->action(fn($record, array $data) => $this->payWithGCash($record, $data))
+                    ->form(function ($record) {
+                        $checkboxes = [];
+                        $now = now();
+
+                        if ($record->water_bills > 0) {
+                            $waterDue = Carbon::parse($record->water_due);
+                            $penalty = $now->gt($waterDue) ? ($record->water_bills * 0.02) : 0;
+                            $totalWater = $record->water_bills + $penalty;
+                            
+                            $label = "Water Bill: ₱" . number_format($record->water_bills, 2);
+                            $label .= "\n*********************************** Due: " . $waterDue->format('F j, Y');
+                            if ($penalty > 0) {
+                                $label .= "\n2% Penalty: ₱" . number_format($penalty, 2);
+                                $label .= "\nTotal Amount Due: ₱" . number_format($totalWater, 2);
+                            }
+                            
+                            $checkboxes[] = Checkbox::make('pay_water')
+                                ->label($label)
+                                ->default(true);
+                        }
+
+                        if ($record->electricity_bills > 0) {
+                            $electricityDue = Carbon::parse($record->electricity_due);
+                            $penalty = $now->gt($electricityDue) ? ($record->electricity_bills * 0.02) : 0;
+                            $totalElectricity = $record->electricity_bills + $penalty;
+                            
+                            $label = "Electricity Bill: ₱" . number_format($record->electricity_bills, 2);
+                            $label .= "\n*********************************** Due: " . $electricityDue->format('F j, Y');
+                            if ($penalty > 0) {
+                                $label .= "\n2% Penalty: ₱" . number_format($penalty, 2);
+                                $label .= "\nTotal Amount Due: ₱" . number_format($totalElectricity, 2);
+                            }
+                            
+                            $checkboxes[] = Checkbox::make('pay_electricity')
+                                ->label($label)
+                                ->default(true);
+                        }
+
+                        if ($record->rent_bills > 0) {
+                            $rentDue = Carbon::parse($record->rent_due);
+                            $penalty = $now->gt($rentDue) ? ($record->rent_bills * 0.02) : 0;
+                            $totalRent = $record->rent_bills + $penalty;
+                            
+                            $label = "Rent: ₱" . number_format($record->rent_bills, 2);
+                            $label .= "\n*********************************** Due: " . $rentDue->format('F j, Y');
+                            if ($penalty > 0) {
+                                $label .= "\n2% Penalty: ₱" . number_format($penalty, 2);
+                                $label .= "\nTotal Amount Due: ₱" . number_format($totalRent, 2);
+                            }
+                            
+                            $checkboxes[] = Checkbox::make('pay_rent')
+                                ->label($label)
+                                ->default(true);
+                        }
+
+                        return $checkboxes;
+                    })
+                    ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
             ]);
     }
 
@@ -211,45 +246,88 @@ class TenantSpace extends Page implements HasForms, HasTable
         $lineItems = [];
         $totalAmount = 0;
         $description = "Payment for: ";
+        $now = now();
+        $dueData = [];
 
         if (isset($data['pay_water']) && $data['pay_water']) {
+            $waterDue = Carbon::parse($record->water_due);
+            $penalty = $now->gt($waterDue) ? ($record->water_bills * 0.02) : 0;
+            $totalWater = $record->water_bills + $penalty;
+
             $lineItems[] = [
                 'currency' => 'PHP',
-                'amount' => $record->water_bills * 100,
-                'description' => 'Water Bill',
+                'amount' => $totalWater * 100,
+                'description' => 'Water Bill' . ($penalty > 0 ? ' + 2% Penalty' : ''),
                 'name' => 'Water Bill',
                 'quantity' => 1,
             ];
-            $totalAmount += $record->water_bills;
-            $description .= "Water Bill, ";
+            $totalAmount += $totalWater;
+            $description .= "Water Bill" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
+
+            // Check if payment is late
+            if ($record->water_due && $waterDue->isPast()) {
+                $dueData['water_due'] = $record->water_due;
+                $dueData['paid_late'] = $now;
+            }
         }
 
         if (isset($data['pay_electricity']) && $data['pay_electricity']) {
+            $electricityDue = Carbon::parse($record->electricity_due);
+            $penalty = $now->gt($electricityDue) ? ($record->electricity_bills * 0.02) : 0;
+            $totalElectricity = $record->electricity_bills + $penalty;
+
             $lineItems[] = [
                 'currency' => 'PHP',
-                'amount' => $record->electricity_bills * 100,
-                'description' => 'Electricity Bill',
+                'amount' => $totalElectricity * 100,
+                'description' => 'Electricity Bill' . ($penalty > 0 ? ' + 2% Penalty' : ''),
                 'name' => 'Electricity Bill',
                 'quantity' => 1,
             ];
-            $totalAmount += $record->electricity_bills;
-            $description .= "Electricity Bill, ";
+            $totalAmount += $totalElectricity;
+            $description .= "Electricity Bill" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
+
+            // Check if payment is late
+            if ($record->electricity_due && $electricityDue->isPast()) {
+                $dueData['electricity_due'] = $record->electricity_due;
+                if (!isset($dueData['paid_late'])) {
+                    $dueData['paid_late'] = $now;
+                }
+            }
         }
 
         if (isset($data['pay_rent']) && $data['pay_rent']) {
+            $rentDue = Carbon::parse($record->rent_due);
+            $penalty = $now->gt($rentDue) ? ($record->rent_bills * 0.02) : 0;
+            $totalRent = $record->rent_bills + $penalty;
+
             $lineItems[] = [
                 'currency' => 'PHP',
-                'amount' => $record->rent_bills * 100,
-                'description' => 'Monthly Rent',
+                'amount' => $totalRent * 100,
+                'description' => 'Monthly Rent' . ($penalty > 0 ? ' + 2% Penalty' : ''),
                 'name' => 'Monthly Rent',
                 'quantity' => 1,
             ];
-            $totalAmount += $record->rent_bills;
-            $description .= "Monthly Rent, ";
+            $totalAmount += $totalRent;
+            $description .= "Monthly Rent" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
+
+            // Check if payment is late
+            if ($record->rent_due && $rentDue->isPast()) {
+                $dueData['rent_due'] = $record->rent_due;
+                if (!isset($dueData['paid_late'])) {
+                    $dueData['paid_late'] = $now;
+                }
+            }
         }
 
+        // Remove trailing comma and space from description
         $description = rtrim($description, ", ");
 
+        // Store due data in session for later use
+        session(['payment_due_data' => $dueData]);
+
+        // Get authenticated user details
+        $user = auth()->user();
+        
         $sessionData = [
             'data' => [
                 'attributes' => [
@@ -259,6 +337,16 @@ class TenantSpace extends Page implements HasForms, HasTable
                     'success_url' => route('filament.app.pages.tenant-space.payment-success', ['record' => $record->id]),
                     'cancel_url' => route('filament.app.pages.tenant-space.payment-cancel'),
                     'description' => $description,
+                    'customer' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone_number ?? '',
+                    ],
+                    'billing' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone_number ?? '',
+                    ],
                 ],
             ],
         ];
@@ -314,14 +402,11 @@ class TenantSpace extends Page implements HasForms, HasTable
 
     public function handlePaymentSuccess($recordId)
     {
-        \Log::info('Payment Success Called. Record ID: ' . $recordId);
-        \Log::info('Request Data: ', request()->all());
-
         $space = Space::findOrFail($recordId);
 
         // Retrieve the payment data from the session
         $paymentData = session('payment_data', []);
-        \Log::info('Payment Data from Session: ', $paymentData);
+       
 
         // Check if payment has already been processed
         if (!$paymentData || !isset($paymentData['data']['attributes']['line_items'])) {
@@ -364,16 +449,19 @@ class TenantSpace extends Page implements HasForms, HasTable
             }
         }
 
-        \Log::info('Before Save - Space: ', $space->toArray());
         $space->save();
         $space->refresh();
-        \Log::info('After Save - Updated Space: ', $space->toArray());
 
         // Create payment record only if total paid is greater than 0
         if ($totalPaid > 0) {
-            $payment = Payment::create([
+            // Get the due data from session
+            $dueData = session('payment_due_data', []);
+            $now = now();
+
+            $paymentData = [
                 'tenant_id' => $space->user_id,
                 'space_id' => $spaceId,
+                'concourse_id' => $space->concourse_id,
                 'payment_type' => 'e-wallet',
                 'payment_method' => 'gcash',
                 'water_bill' => $waterBillPaid,
@@ -383,12 +471,36 @@ class TenantSpace extends Page implements HasForms, HasTable
                 'rent_bill' => $rentBillPaid,
                 'amount' => $totalPaid,
                 'payment_status' => 'paid',
-            ]);
+                'paid_date' => $now,
+            ];
 
-            \Log::info('Created Payment: ', $payment->toArray());
+            // Add due dates and check for late payments
+            if (!empty($dueData)) {
+                if (isset($dueData['water_due'])) {
+                    $paymentData['water_due'] = $dueData['water_due'];
+                    $paymentData['is_water_late'] = true;
+                }
+                
+                if (isset($dueData['electricity_due'])) {
+                    $paymentData['electricity_due'] = $dueData['electricity_due'];
+                    $paymentData['is_electricity_late'] = true;
+                }
+                
+                if (isset($dueData['rent_due'])) {
+                    $paymentData['rent_due'] = $dueData['rent_due'];
+                    $paymentData['is_rent_late'] = true;
+                }
+
+                if (isset($dueData['paid_late'])) {
+                    $paymentData['due_date'] = $dueData['paid_late'];
+                    $paymentData['is_penalty'] = true;
+                }
+            }
+
+            $payment = Payment::create($paymentData);
 
             // Send email confirmation
-            $this->sendPaymentConfirmationEmail($space, $payment);
+            // $this->sendPaymentConfirmationEmail($space, $payment);
         }
 
         // Clear the payment data from the session
