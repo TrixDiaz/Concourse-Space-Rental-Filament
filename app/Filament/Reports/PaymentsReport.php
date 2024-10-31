@@ -11,6 +11,7 @@ use EightyNine\Reports\Components\Text;
 use EightyNine\Reports\Components\VerticalSpace;
 use Filament\Forms\Form;
 use Illuminate\Support\Collection;
+use Carbon\Carbon;
 
 class PaymentsReport extends Report
 {
@@ -212,17 +213,19 @@ class PaymentsReport extends Report
                 'column6' => 'Electric Bill',
                 'column7' => 'Unpaid Water',
                 'column8' => 'Unpaid Electric',
+                'column9' => 'Date'
             ]
         ])->concat($payments->map(function ($payment) {
             return [
                 'column1' => $payment->space->name ?? 'N/A',
                 'column2' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
-                'column3' => number_format((float)$payment->water_consumption ?? 0, 2),
-                'column4' => number_format((float)$payment->water_bill ?? 0, 2),
-                'column5' => number_format((float)$payment->electricity_consumption ?? 0, 2),
-                'column6' => number_format((float)$payment->electricity_bill ?? 0, 2),
-                'column7' => number_format((float)$payment->water_due ?? 0, 2),
-                'column8' => number_format((float)$payment->electricity_due ?? 0, 2),
+                'column3' => is_numeric($payment->water_consumption) ? number_format($payment->water_consumption, 2) : '0.00',
+                'column4' => is_numeric($payment->water_bill) ? number_format($payment->water_bill, 2) : '0.00',
+                'column5' => is_numeric($payment->electricity_consumption) ? number_format($payment->electricity_consumption, 2) : '0.00',
+                'column6' => is_numeric($payment->electricity_bill) ? number_format($payment->electricity_bill, 2) : '0.00',
+                'column7' => is_numeric($payment->water_due) ? number_format($payment->water_due, 2) : '0.00',
+                'column8' => is_numeric($payment->electricity_due) ? number_format($payment->electricity_due, 2) : '0.00',
+                'column9' => $payment->date instanceof Carbon ? $payment->date->format('Y-m-d') : 'N/A'
             ];
         }));
     }
