@@ -27,14 +27,18 @@
 
     <div
       class="relative lg:min-h-screen 2xl:min-h-[730px] before:absolute before:inset-0 before:w-full before:bg-black before:opacity-60"
-      style="background-image: url(https://readymadeui.com/dark-bg-image.webp); background-size: cover; background-repeat: no-repeat">
+      style="background-image: url(https://drivetech.ph/assets/images/mobile/Decore1.svg); 
+       background-size: cover; 
+       background-repeat: no-repeat; 
+       background-position: calc(100% + 400px) calc(100% + 500px);">
 
-      <header class='py-4 px-4 sm:px-10 z-50 min-h-[70px] relative'>
+
+
+      <header class='py-12 px-6 sm:px-24 z-50 min-h-[70px] relative'>
         <div class='lg:flex lg:items-center gap-x-2 relative'>
           <div class="flex items-center shrink-0">
-            <a href="javascript:void(0)"><img src="https://readymadeui.com/readymadeui-light.svg" alt="logo"
-                class='w-40' />
-            </a>
+          <a href="javascript:void(0)"><h1 class='text-3xl'>COMS</h1>
+                  </a>
             <button id="toggleOpen" class='lg:hidden ml-auto'>
               <svg class="w-7 h-7" fill="#fff" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd"
@@ -46,7 +50,7 @@
 
           <div id="collapseMenu"
             class="lg:ml-14 max-lg:hidden lg:!block w-full max-lg:fixed max-lg:before:fixed max-lg:before:bg-black max-lg:before:opacity-50 max-lg:before:inset-0 max-lg:before:z-50 z-50">
-            <button id="toggleClose" class='lg:hidden fixed top-2 right-4 z-[100] rounded-full bg-white p-3'>
+            <button id="toggleClose" class='mt-10 lg:hidden fixed top-2 right-4 z-[100] rounded-full bg-white p-3'>
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 fill-black" viewBox="0 0 320.591 320.591">
                 <path
                   d="M30.391 318.583a30.37 30.37 0 0 1-21.56-7.288c-11.774-11.844-11.774-30.973 0-42.817L266.643 10.665c12.246-11.459 31.462-10.822 42.921 1.424 10.362 11.074 10.966 28.095 1.414 39.875L51.647 311.295a30.366 30.366 0 0 1-21.256 7.288z"
@@ -58,79 +62,100 @@
             </button>
 
             <div
-              class='lg:flex items-center w-full gap-6 max-lg:fixed max-lg:bg-black max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50'>
-              <ul class='lg:flex gap-x-6 max-lg:space-y-3'>
+              class='pt-12 lg:flex items-center w-full gap-6 max-lg:fixed max-lg:bg-black max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:pt-12 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50'>
+              <ul class='lg:flex gap-x-6 ml-auto max-lg:space-y-3'>
                 <li class='mb-6 hidden max-lg:block'>
-                  <a href="javascript:void(0)"><img src="https://readymadeui.com/readymadeui-light.svg" alt="logo"
-                      class='w-36' />
+                  <a href="javascript:void(0)"><h1 class='text-3xl'>COMS</h1>
                   </a>
                 </li>
                 <li class='max-lg:border-b max-lg:py-3 px-3'>
                   <a href='javascript:void(0)' class='hover:text-blue-600 text-blue-600 block transition-all'>Home</a>
                 </li>
                 <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
-                    class='hover:text-blue-600 block transition-all'>Team</a>
-                </li>
-                <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
-                    class='hover:text-blue-600 block transition-all'>Feature</a>
-                </li>
-                <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
-                    class='hover:text-blue-600 block transition-all'>Blog</a>
-                </li>
-                <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
                     class='hover:text-blue-600 block transition-all'>About</a>
                 </li>
+                <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
+                    class='hover:text-blue-600 block transition-all'>Features</a>
+                </li>
+                <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
+                    class='hover:text-blue-600 block transition-all'>Contact</a>
+                </li>
+             
               </ul>
 
-              <div
-                class='flex xl:w-80 max-xl:w-full bg-transparent px-6 py-2.5 rounded border border-white lg:ml-auto  max-lg:mt-10'>
-                <input type='text' placeholder='Search something...'
-                  class='w-full bg-transparent rounded outline-none' />
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px"
-                  class="cursor-pointer fill-gray-400">
-                  <path
-                    d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z">
-                  </path>
-                </svg>
-              </div>
             </div>
           </div>
         </div>
       </header>
+<!-- Landing page -->
+<div class="max-w-5xl mx-auto text-center relative px-4 sm:px-10 mt-16">
+    <h1 class="lg:text-5xl md:text-4xl text-3xl font-semibold mb-6 md:!leading-[80px]">
+        Concessionaire Operations Monitoring System
+    </h1>
+    <p class="text-gray-400 text-lg">
+        Transform your concessionaire operations with our innovative system designed to streamline processes and improve overall management effectiveness, providing practical software solutions to help you achieve your business goals.
+    </p>
+    <div class="mt-14 flex gap-x-8 gap-y-4 justify-center max-sm:flex-col">
+        <a href="https://comsystem.online/app/register">
+            <button type='button' class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all">
+                Sign Up for Free
+            </button>
+        </a>
+        <a href="https://comsystem.online/app/login">
+            <button type='button' class="bg-transparent hover:bg-blue-600 border border-blue-600 px-6 py-3.5 rounded-md text-gray-100 transition-all">
+                Login Account
+            </button>
+        </a>
+    </div>
+</div>
 
-      <div class="max-w-5xl mx-auto text-center relative px-4 sm:px-10 mt-16">
-        <h1 class="lg:text-7xl md:text-6xl text-4xl font-semibold mb-6 md:!leading-[80px]">Build Landing Pages with
-          Typeform
-          Integration</h1>
-        <p class="text-base text-gray-400">Embark on a gastronomic journey with our curated dishes, delivered promptly
-          to your doorstep. Elevate your dining experience today. Lorem ipsum dolor sit amet, consectetur adipiscing
-          elit.</p>
-        <div class="grid sm:grid-cols-3 gap-6 items-center mt-16">
-          <div class="flex flex-col items-center text-center">
-            <h5 class="font-bold text-2xl text-blue-600 mb-2">10+</h5>
-            <p>Years Experience</p>
-          </div>
-          <div class="flex flex-col items-center text-center">
-            <h5 class="font-bold text-2xl text-blue-600 mb-2">890</h5>
-            <p>Cases Solved</p>
-          </div>
-          <div class="flex flex-col items-center text-center">
-            <h5 class="font-bold text-2xl text-blue-600 mb-2">250</h5>
-            <p>Business Partners</p>
-          </div>
-        </div>
-        <div class="mt-14 flex gap-x-8 gap-y-4 justify-center max-sm:flex-col">
-          <button type='button'
-            class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all">Start a free
-            trial</button>
-          <button type='button'
-            class="bg-transparent hover:bg-blue-600 border border-blue-600 px-6 py-3.5 rounded-md text-gray-100 transition-all">API
-            documentation</button>
-        </div>
-      </div>
+
     </div>
 
     <div class="px-4 sm:px-10">
+
+    
+      <!-- ABOUT SECTION -->
+      <div class="mt-32 rounded-md px-4 py-12">
+        <div class="grid md:grid-cols-2 justify-center items-center gap-12 max-w-7xl mx-auto">
+          <div>
+            <img src="https://readymadeui.com/management-img.webp" alt="Premium Benefits" class="w-full mx-auto" />
+          </div>
+          <div class="max-md:text-center">
+            <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">COMS exists to streamline concessionaire management for businesses operating in bustling environments.
+            </h2>
+            <p class="text-gray-400">
+By automating tedious tasks like billing notifications and tenant applications, we empower concessionaires to focus on delivering exceptional service and driving their growth.
+            </p>
+            <!-- <button type="button"
+              class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all mt-10">
+              Try it today
+            </button> -->
+          </div>
+        </div>
+      </div>
+      <!-- ABOUT SECTION  -->
+      <div class="mt-32 rounded-md px-4 py-12">
+        <div class="grid md:grid-cols-2 justify-center items-center gap-12 max-w-7xl mx-auto">
+          <div class="max-md:text-center">
+            <!-- <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Elevate Your Experience with Modern
+              Elegance</h2> -->
+            <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Elevate Your Experience with Modern
+              Elegance</h2>
+            <p class="text-gray-400">We are committed to continuous improvement, always seeking ways to enhance our platform and provide the best possible experience for our users. This commitment extends to our team, as we prioritize their development to ensure a motivated and engaged workforce.</p>
+            <button type="button"
+              class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all mt-10">
+              Try it today
+            </button>
+          </div>
+          <div>
+            <img src="https://readymadeui.com/team-image.webp" alt="Premium Benefits" class="w-full mx-auto" />
+          </div>
+        </div>
+      </div>
+
+
+    <!-- FEATURES -->
       <div class="mt-32 max-w-7xl mx-auto">
         <div class="mb-16 max-w-2xl text-center mx-auto">
           <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Our Features</h2>
@@ -147,9 +172,8 @@
               <path d="M16 9a7 7 0 1 0 7 7 7.008 7.008 0 0 0-7-7Zm0 12a5 5 0 1 1 5-5 5.006 5.006 0 0 1-5 5Z"
                 data-original="#000000" />
             </svg>
-            <h3 class="text-xl mb-4">Tailored Customization</h3>
-            <p class="text-gray-400">Customize our product to perfectly align with your brand and meet your unique
-              requirements.</p>
+            <h3 class="text-xl mb-4">Automated Billing & Payment Notifications</h3>
+            <p class="text-gray-400">Never miss a payment! COMS automatically generates bills and sends timely notifications to tenants for upcoming due dates</p>
             <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a>
           </div>
           <div class="text-center bg-[#111] px-6 py-8 rounded-2xl">
@@ -168,9 +192,8 @@
                 <path d="M178 271.894 233.894 216 334 316.105" data-original="#000000" />
               </g>
             </svg>
-            <h3 class="text-xl mb-4">Robust Security Measures</h3>
-            <p class="text-gray-400">Rest easy knowing that your data is safeguarded by the latest and most robust
-              security measures available.</p>
+            <h3 class="text-xl mb-4">Real-Time Monitoring</h3>
+            <p class="text-gray-400">Access real-time data on all ongoing operations, active contracts, and tenant payment statuses—all in one place.</p>
             <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a>
           </div>
           <div class="text-center bg-[#111] px-6 py-8 rounded-2xl">
@@ -180,15 +203,16 @@
                 d="M271.029 0c-33.091 0-61 27.909-61 61s27.909 61 61 61 60-27.909 60-61-26.909-61-60-61zm66.592 122c-16.485 18.279-40.096 30-66.592 30-26.496 0-51.107-11.721-67.592-30-14.392 15.959-23.408 36.866-23.408 60v15c0 8.291 6.709 15 15 15h151c8.291 0 15-6.709 15-15v-15c0-23.134-9.016-44.041-23.408-60zM144.946 460.404 68.505 307.149c-7.381-14.799-25.345-20.834-40.162-13.493l-19.979 9.897c-7.439 3.689-10.466 12.73-6.753 20.156l90 180c3.701 7.423 12.704 10.377 20.083 6.738l19.722-9.771c14.875-7.368 20.938-25.417 13.53-40.272zM499.73 247.7c-12.301-9-29.401-7.2-39.6 3.9l-82 100.8c-5.7 6-16.5 9.6-22.2 9.6h-69.901c-8.401 0-15-6.599-15-15s6.599-15 15-15h60c16.5 0 30-13.5 30-30s-13.5-30-30-30h-78.6c-7.476 0-11.204-4.741-17.1-9.901-23.209-20.885-57.949-30.947-93.119-22.795-19.528 4.526-32.697 12.415-46.053 22.993l-.445-.361-21.696 19.094L174.28 452h171.749c28.2 0 55.201-13.5 72.001-36l87.999-126c9.9-13.201 7.2-32.399-6.299-42.3z"
                 data-original="#000000" />
             </svg>
-            <h3 class="text-xl mb-4">24/7 Customer Support</h3>
-            <p class="text-gray-400">Get prompt and reliable assistance with our 24/7 customer support for all your
-              inquiries and concerns.</p>
+            <h3 class="text-xl mb-4">Digital Space Selection</h3>
+            <p class="text-gray-400">Give tenants the convenience of selecting concession spaces online, simplifying the application process and minimizing processing times.</p>
             <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a>
           </div>
         </div>
       </div>
 
-      <div class="max-w-4xl mx-auto text-center mt-32">
+
+      <!-- Remove this -->
+      <!-- <div class="max-w-4xl mx-auto text-center mt-32">
         <div>
           <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Transform Your Ideas with our
             Comprehensive
@@ -201,49 +225,13 @@
         <button class='px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all mt-10'>Get
           started
           today</button>
-      </div>
-
-      <div class="mt-32 rounded-md px-4 py-12">
-        <div class="grid md:grid-cols-2 justify-center items-center gap-12 max-w-7xl mx-auto">
-          <div>
-            <img src="https://readymadeui.com/management-img.webp" alt="Premium Benefits" class="w-full mx-auto" />
-          </div>
-          <div class="max-md:text-center">
-            <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Try using our templates with tailwind
-              CSS
-            </h2>
-            <p class="text-gray-400">Veniam proident aute magna anim excepteur et ex consectetur velit ullamco veniam
-              minim aute sit. Elit occaecat officia et laboris Lorem minim. Officia do aliqua adipisicing ullamco in.
-            </p>
-            <button type="button"
-              class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all mt-10">
-              Try it today
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-32 rounded-md px-4 py-12">
-        <div class="grid md:grid-cols-2 justify-center items-center gap-12 max-w-7xl mx-auto">
-          <div class="max-md:text-center">
-            <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Elevate Your Experience with Modern
-              Elegance</h2>
-            <p class="text-gray-400">Laboris qui Lorem ad tempor ut reprehenderit. Nostrud anim nulla officia ea sit
-              deserunt. Eu eu quis anim aute Laboris qui Lorem ad tempor ut reprehenderit.</p>
-            <button type="button"
-              class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all mt-10">
-              Try it today
-            </button>
-          </div>
-          <div>
-            <img src="https://readymadeui.com/team-image.webp" alt="Premium Benefits" class="w-full mx-auto" />
-          </div>
-        </div>
-      </div>
+      </div> -->
 
 
 
-      <div class="mt-32 max-w-7xl mx-auto">
+
+      <!-- TESTIMONIAL SECTION -->
+      <!-- <div class="mt-32 max-w-7xl mx-auto">
         <div class="mb-16 max-w-2xl text-center mx-auto">
           <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">What our happy client say</h2>
           <p class="text-gray-400">Laboris qui Lorem ad tempor ut reprehenderit. Nostrud anim nulla officia ea sit
@@ -359,9 +347,11 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <div class="mt-32 max-w-7xl mx-auto">
+      <!-- REMOVE THIS -->
+
+      <!-- <div class="mt-32 max-w-7xl mx-auto">
         <div class="text-center">
           <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Pricing Plans</h2>
           <p class="text-gray-400">Change your plant according your needs</p>
@@ -547,9 +537,11 @@
               started today</button>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <div class="mt-32">
+      <!-- REMOVE THIS -->
+
+      <!-- <div class="mt-32">
         <div class="max-w-7xl mx-auto">
           <div class="text-center">
             <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">LATEST BLOGS</h2>
@@ -604,9 +596,10 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <div class="mt-32">
+      <!-- REMOVE THIS -->
+      <!-- <div class="mt-32">
         <div class="mb-16 max-w-2xl text-center mx-auto">
           <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Application Metrics</h2>
           <p class="text-gray-400">Laboris qui Lorem ad tempor ut reprehenderit. Nostrud anim nulla officia ea sit
@@ -653,12 +646,12 @@
             <p class="mt-4">System Uptime (in hours)</p>
           </div>
         </div>
-      </div>
+      </div> -->
 
     </div>
 
     <footer class="bg-[#111] px-4 sm:px-10 py-12 mt-32">
-      <div class="lg:max-w-[50%] mx-auto text-center">
+      <!-- <div class="lg:max-w-[50%] mx-auto text-center">
         <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Newsletter</h2>
         <p class="text-gray-400">Subscribe to our newsletter and stay up to date with the latest news,
           updates, and exclusive offers. Get valuable insights. Join our community today!</p>
@@ -667,9 +660,9 @@
           <button type='button'
             class="px-6 py-3 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all ml-auto">Submit</button>
         </div>
-      </div>
-      <hr class="border-gray-400 my-12" />
-      <div class="grid max-sm:grid-cols-1 max-lg:grid-cols-2 lg:grid-cols-4 gap-8">
+      </div> -->
+      <!-- <hr class="border-gray-400 my-12" /> -->
+      <div class="grid max-sm:grid-cols-1 max-lg:grid-cols-2 lg:grid-cols-3 gap-8">
         <div>
           <h4 class="text-lg mb-6">About Us</h4>
           <p class="text-gray-400 mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean gravida,
@@ -700,7 +693,7 @@
             <li><a href="javascript:void(0)" class="text-gray-400 hover:text-blue-600 transition-all">Tutorials</a></li>
           </ul>
         </div>
-        <div>
+        <!-- <div>
           <h4 class="text-lg mb-6">About Us</h4>
           <ul class="space-y-4">
             <li><a href="javascript:void(0)" class="text-gray-400 hover:text-blue-600 transition-all">Our Story</a>
@@ -711,7 +704,7 @@
             <li><a href="javascript:void(0)" class="text-gray-400 hover:text-blue-600 transition-all">Testimonials</a>
             </li>
           </ul>
-        </div>
+        </div> -->
       </div>
     </footer>
 
