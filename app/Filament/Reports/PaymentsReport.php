@@ -217,12 +217,12 @@ class PaymentsReport extends Report
             return [
                 'column1' => $payment->space->name ?? 'N/A',
                 'column2' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
-                'column3' => number_format($payment->water_consumption, 2),
-                'column4' => number_format($payment->water_bill, 2),
-                'column5' => number_format($payment->electricity_consumption, 2),
-                'column6' => number_format($payment->electricity_bill, 2),
-                'column7' => number_format($payment->water_due, 2),
-                'column8' => number_format($payment->electricity_due, 2),
+                'column3' => number_format((float)$payment->water_consumption ?? 0, 2),
+                'column4' => number_format((float)$payment->water_bill ?? 0, 2),
+                'column5' => number_format((float)$payment->electricity_consumption ?? 0, 2),
+                'column6' => number_format((float)$payment->electricity_bill ?? 0, 2),
+                'column7' => number_format((float)$payment->water_due ?? 0, 2),
+                'column8' => number_format((float)$payment->electricity_due ?? 0, 2),
             ];
         }));
     }
