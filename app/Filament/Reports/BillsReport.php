@@ -166,12 +166,12 @@ class BillsReport extends Report
                 'column1' => $payment->space->concourse->name ?? 'N/A',
                 'column2' => $payment->space->name ?? 'N/A',
                 'column3' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
-                'column4' => number_format($payment->water_consumption, 2),
-                'column5' => number_format($payment->water_bill, 2),
-                'column6' => number_format($payment->electricity_consumption, 2),
-                'column7' => number_format($payment->electricity_bill, 2),
-                'column8' => number_format($payment->water_due, 2),
-                'column9' => number_format($payment->electricity_due, 2),
+                'column4' => is_numeric($payment->water_consumption) ? number_format($payment->water_consumption, 2) : '0.00',
+                'column5' => is_numeric($payment->water_bill) ? number_format($payment->water_bill, 2) : '0.00',
+                'column6' => is_numeric($payment->electricity_consumption) ? number_format($payment->electricity_consumption, 2) : '0.00',
+                'column7' => is_numeric($payment->electricity_bill) ? number_format($payment->electricity_bill, 2) : '0.00',
+                'column8' => is_numeric($payment->water_due) ? number_format($payment->water_due, 2) : '0.00',
+                'column9' => is_numeric($payment->electricity_due) ? number_format($payment->electricity_due, 2) : '0.00',
             ];
         }));
     }
