@@ -16,7 +16,7 @@ use App\Models\Payment;
 class TenantReport extends Report
 {
     public ?string $heading = "Tenant Report";
-    
+
     protected array $filters = [];
 
     public function filterFormSubmitted(array $data): void
@@ -49,15 +49,16 @@ class TenantReport extends Report
     public function body(Body $body): Body
     {
         $schema = [];
-        
-        // Get spaces based on filter
+
         $query = Space::query();
-        
+
         if (!empty($this->filters['space_id'])) {
             $query->where('id', $this->filters['space_id']);
+        } else {
+            $query->first();
         }
-        
-        $spaces = $query->get();
+
+        $spaces = !empty($this->filters['space_id']) ? $query->get() : collect([$query->first()]);
 
         if ($spaces->isEmpty()) {
             return $body->schema([]);
@@ -83,6 +84,8 @@ class TenantReport extends Report
 
             $schema[] = Body\Table::make()
                 ->data(fn() => $this->paymentDetails(['space_id' => $space->id]));
+
+            $schema[] = VerticalSpace::make();
 
             // Payment Metrics
             $schema[] = Text::make('Payment Metrics')
@@ -135,7 +138,7 @@ class TenantReport extends Report
                             ->where('is_active', true)
                             ->whereNotNull('business_name')
                             ->pluck('business_name', 'id')
-                            ->map(fn ($name) => (string) $name)
+                            ->map(fn($name) => (string) $name)
                     )
                     ->searchable()
                     ->required()
@@ -145,10 +148,10 @@ class TenantReport extends Report
     // Helper methods for data collection
     private function paymentDetails(?array $filters): Collection
     {
-        // Build the base query
         $query = Payment::query()
             ->with(['tenant', 'space'])
-            ->where('space_id', $filters['space_id'] ?? null);
+            ->where('space_id', $filters['space_id'] ?? null)
+            ->take(5);
 
         $payments = $query->get();
 
@@ -185,7 +188,8 @@ class TenantReport extends Report
     private function paymentMetrics(?array $filters): Collection
     {
         $query = Payment::query()
-            ->where('space_id', $filters['space_id'] ?? null);
+            ->where('space_id', $filters['space_id'] ?? null)
+            ->take(5);
 
         $totalPayments = $query->count();
         $paidPayments = (clone $query)->where('payment_status', 'paid')->count();

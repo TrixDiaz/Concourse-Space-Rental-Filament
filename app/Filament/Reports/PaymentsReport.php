@@ -106,9 +106,6 @@ class PaymentsReport extends Report
                     )
                     ->native(false)
                     ->required(),
-                \Filament\Forms\Components\TextInput::make('search')
-                    ->placeholder('Search')
-                    ->autofocus(),
                 \Filament\Forms\Components\Select::make('payment_status')
                     ->label('Payment Status')
                     ->native(false)
@@ -124,14 +121,6 @@ class PaymentsReport extends Report
                     ->options([
                         'all' => 'All',
                         'gcash' => 'Gcash',
-                    ]),
-                \Filament\Forms\Components\Select::make('payment_type')
-                    ->label('Payment Type')
-                    ->native(false)
-                    ->options([
-                        'all' => 'All',
-                        'cash' => 'Cash',
-                        'e-wallet' => 'E-Wallet',
                     ]),
                 \Filament\Forms\Components\DatePicker::make('date_from')
                     ->label('Date From')
@@ -156,26 +145,13 @@ class PaymentsReport extends Report
                         'water' => 'Water',
                         'rent' => 'Rent',
                     ]),
-                    \Filament\Forms\Components\Actions::make([
-                        \Filament\Forms\Components\Actions\Action::make('reset')
-                            ->label('Reset Filters')
-                            ->color('danger')
-                            ->action(function (Form $form) {
-                                $form->fill([
-                                    'search' => null,
-                                    'payment_status' => null,
-                                    'payment_method' => null,
-                                    'payment_type' => null,
-                                    'date_from' => null,
-                                    'date_to' => null,
-                                ]);
-                            })
-                    ]),
             ]);
     }
 
     public function paymentsSummary(?array $filters): Collection
     {
+        $filtersApplied = false;
+
         $query = Payment::query()
             ->with(['tenant', 'space.concourse']);
 
@@ -183,9 +159,8 @@ class PaymentsReport extends Report
             $query->whereHas('space.concourse', function ($query) use ($filters) {
                 $query->where('id', $filters['concourse_id']);
             });
+            $filtersApplied = true;
         }
-
-        $filtersApplied = false;
 
         if (isset($filters['payment_status']) && $filters['payment_status'] !== 'all') {
             $query->where('payment_status', $filters['payment_status']);

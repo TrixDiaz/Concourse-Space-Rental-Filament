@@ -118,31 +118,20 @@ class BillsReport extends Report
 
     public function paymentsSummary(?array $filters): Collection
     {
+        $filtersApplied = false;
+
         $query = Payment::query()
             ->with(['tenant', 'space.concourse']);
 
         if (isset($filters['concourse_id'])) {
             $query->whereHas('space.concourse', function ($query) use ($filters) {
                 $query->whereIn('id', $filters['concourse_id']);
+
             });
-        }
-
-        $filtersApplied = false;
-
-        if (isset($filters['payment_status']) && $filters['payment_status'] !== 'all') {
-            $query->where('payment_status', $filters['payment_status']);
             $filtersApplied = true;
         }
 
-        if (isset($filters['payment_method']) && $filters['payment_method'] !== 'all') {
-            $query->where('payment_method', $filters['payment_method']);
-            $filtersApplied = true;
-        }
-
-        if (isset($filters['payment_type']) && $filters['payment_type'] !== 'all') {
-            $query->where('payment_type', $filters['payment_type']);
-            $filtersApplied = true;
-        }
+       
 
         if (isset($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
@@ -151,15 +140,6 @@ class BillsReport extends Report
 
         if (isset($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
-            $filtersApplied = true;
-        }
-
-        if (isset($filters['bill_types']) && !empty($filters['bill_types'])) {
-            $query->where(function ($query) use ($filters) {
-                foreach ($filters['bill_types'] as $billType) {
-                    $query->orWhere($billType . '_bill', '>', 0);
-                }
-            });
             $filtersApplied = true;
         }
 

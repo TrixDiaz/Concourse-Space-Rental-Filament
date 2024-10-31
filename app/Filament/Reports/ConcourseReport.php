@@ -54,52 +54,38 @@ class ConcourseReport extends Report
     {
         $schema = [];
 
-        // Get concourses based on filter
-        $query = Concourse::query();
-        
-        // Only get the filtered concourse if concourse_id is set
-        if (!empty($this->filters['concourse_id'])) {
-            $query->where('id', $this->filters['concourse_id']);
-        }
-        
-        $concourses = $query->get();
+        $concourse = isset($this->filters['concourse_id'])
+            ? Concourse::find($this->filters['concourse_id'])
+            : Concourse::where('is_active', true)->first();
 
-        // If no concourses found after filtering, return empty body
-        if ($concourses->isEmpty()) {
+        if (!$concourse) {
             return $body->schema([]);
         }
 
-        foreach ($concourses as $concourse) {
-            // Add vertical space between concourses
-            if (!empty($schema)) {
-                $schema[] = VerticalSpace::make();
-            }
+        // Concourse Header
+        $schema[] = Text::make($concourse->name)
+            ->title();
 
-            // Concourse Header
-            $schema[] = Text::make($concourse->name)
-                ->title();
+        $schema[] = Text::make($concourse->address)
+            ->subtitle();
 
-            $schema[] = Text::make($concourse->address)
-                ->subtitle();
+        $schema[] = VerticalSpace::make();
 
-            $schema[] = VerticalSpace::make();
+        // Detailed Space Summary
+        $schema[] = Text::make('Detailed Space Summary')
+            ->subtitle();
 
-            // Detailed Space Summary
-            $schema[] = Text::make('Detailed Space Summary')
-                ->subtitle();
+        $schema[] = Body\Table::make()
+            ->data(fn() => $this->spaceSummary(['concourse_id' => $concourse->id]));
 
-            $schema[] = Body\Table::make()
-                ->data(fn() => $this->spaceSummary(['concourse_id' => $concourse->id]));
+        $schema[] = VerticalSpace::make();
 
-            // Space Status Summary
-            $schema[] = Text::make('Space Status Summary')
-                ->subtitle();
+        // Space Status Summary
+        $schema[] = Text::make('Space Status Summary')
+            ->subtitle();
 
-            $schema[] = Body\Table::make()
-                ->data(fn() => $this->spaceStatusSummary(['concourse_id' => $concourse->id]));
-
-            $schema[] = VerticalSpace::make();
-        }
+        $schema[] = Body\Table::make()
+            ->data(fn() => $this->spaceStatusSummary(['concourse_id' => $concourse->id]));
 
         return $body
             ->schema([
@@ -108,7 +94,7 @@ class ConcourseReport extends Report
             ]);
     }
 
-  
+
     public function footer(Footer $footer): Footer
     {
         return $footer
@@ -140,22 +126,28 @@ class ConcourseReport extends Report
                     ->label('Concourse')
                     ->options(Concourse::where('is_active', true)->pluck('name', 'id'))
                     ->searchable()
-                    ->required()
+                    ->nullable()
+                    ->default(Concourse::where('is_active', true)->first()?->id)
             ]);
     }
 
     public function spaceSummary(?array $filters): Collection
     {
-        // Build the base query
-        $query = Space::with(['payments.tenant', 'user'])
-            ->where('is_active', true);
-        
-        // Apply concourse filter
-        if (!empty($filters['concourse_id'])) {
-            $query->where('concourse_id', $filters['concourse_id']);
+        $concourseId = $filters['concourse_id'] ?? null;
+        if (!$concourseId) {
+            return collect();
         }
-        
-        $spaces = $query->get();
+
+        // Get all active spaces for this concourse with their related payments and user
+        $spaces = Space::query()
+            ->where('concourse_id', $concourseId)
+            ->where('is_active', true)
+            ->with(['payments' => function ($query) {
+                $query->whereNotNull('due_date')
+                    ->whereNotNull('paid_date')
+                    ->whereRaw('paid_date > due_date');
+            }, 'user'])
+            ->get();
 
         $headerRow = [
             'column1' => 'Space Name',
@@ -173,20 +165,22 @@ class ConcourseReport extends Report
         return collect([$headerRow])
             ->concat($spaces->map(function ($space) {
                 // Get delayed payments for this space
-                $delayedPayments = Payment::where('space_id', $space->id)
+                $delayedPayments = $space->payments()
                     ->whereNotNull('due_date')
                     ->whereNotNull('paid_date')
-                    ->whereRaw('paid_date > due_date');
+                    ->whereRaw('paid_date > due_date')
+                    ->get();
 
                 $delayedPaymentsCount = $delayedPayments->count();
 
                 // Calculate total paid delayed amount
-                $paidDelayedAmount = Payment::where('space_id', $space->id)
-                    ->whereNotNull('due_date')
-                    ->whereNotNull('paid_date')
-                    ->whereRaw('paid_date > due_date')
+                $paidDelayedAmount = $delayedPayments
                     ->where('payment_status', Payment::STATUS_PAID)
-                    ->sum(DB::raw('COALESCE(water_bill, 0) + COALESCE(electricity_bill, 0) + COALESCE(rent_bill, 0)'));
+                    ->sum(function ($payment) {
+                        return ($payment->water_bill ?? 0) +
+                            ($payment->electricity_bill ?? 0) +
+                            ($payment->rent_bill ?? 0);
+                    });
 
                 // Calculate unpaid delayed amount
                 $unpaidDelayedAmount = 0;
@@ -217,16 +211,18 @@ class ConcourseReport extends Report
 
     public function spaceStatusSummary(?array $filters): Collection
     {
-        $query = Space::query()
-            ->where('is_active', true);
-
-        // Apply concourse filter
-        if (!empty($filters['concourse_id'])) {
-            $query->where('concourse_id', $filters['concourse_id']);
+        // Get the concourse
+        $concourseId = $filters['concourse_id'] ?? null;
+        if (!$concourseId) {
+            return collect();
         }
 
-        $totalCount = $query->count();
-        $availableCount = (clone $query)->where('status', 'available')->count();
+        // Get spaces for this concourse only
+        $spaces = Space::where('concourse_id', $concourseId)
+            ->where('is_active', true);
+
+        $totalCount = $spaces->count();
+        $availableCount = (clone $spaces)->where('status', 'available')->count();
         $occupiedCount = $totalCount - $availableCount;
 
         return collect([

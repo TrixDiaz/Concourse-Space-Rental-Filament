@@ -139,6 +139,12 @@ class RentIncomeReport extends Report
     {
         $query = Payment::query()->where('rent_bill', '>', 0);
         $query = $this->applyFilters($query, $filters);
+        
+        // Only limit to 5 records if no filters are applied
+        if (empty($filters)) {
+            $query->take(5);
+        }
+        
         $payments = $query->get();
 
         return collect([
