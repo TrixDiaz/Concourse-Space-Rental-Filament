@@ -37,8 +37,9 @@
       <header class='py-12 px-6 sm:px-24 z-50 min-h-[70px] relative'>
         <div class='lg:flex lg:items-center gap-x-2 relative'>
           <div class="flex items-center shrink-0">
-          <a href="javascript:void(0)"><h1 class='text-3xl'>COMS</h1>
-                  </a>
+            <a href="javascript:void(0)">
+              <h1 class='text-3xl'>COMS</h1>
+            </a>
             <button id="toggleOpen" class='lg:hidden ml-auto'>
               <svg class="w-7 h-7" fill="#fff" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd"
@@ -65,7 +66,8 @@
               class='pt-12 lg:flex items-center w-full gap-6 max-lg:fixed max-lg:bg-black max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:pt-12 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50'>
               <ul class='lg:flex gap-x-6 ml-auto max-lg:space-y-3'>
                 <li class='mb-6 hidden max-lg:block'>
-                  <a href="javascript:void(0)"><h1 class='text-3xl'>COMS</h1>
+                  <a href="javascript:void(0)">
+                    <h1 class='text-3xl'>COMS</h1>
                   </a>
                 </li>
                 <li class='max-lg:border-b max-lg:py-3 px-3'>
@@ -80,41 +82,41 @@
                 <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
                     class='hover:text-blue-600 block transition-all'>Contact</a>
                 </li>
-             
+
               </ul>
 
             </div>
           </div>
         </div>
       </header>
-<!-- Landing page -->
-<div class="max-w-5xl mx-auto text-center relative px-4 sm:px-10 mt-16">
-    <h1 class="lg:text-5xl md:text-4xl text-3xl font-semibold mb-6 md:!leading-[80px]">
-        Concessionaire Operations Monitoring System
-    </h1>
-    <p class="text-gray-400 text-lg">
-        Transform your concessionaire operations with our innovative system designed to streamline processes and improve overall management effectiveness, providing practical software solutions to help you achieve your business goals.
-    </p>
-    <div class="mt-14 flex gap-x-8 gap-y-4 justify-center max-sm:flex-col">
-        <a href="https://comsystem.online/app/register">
+      <!-- Landing page -->
+      <div class="max-w-5xl mx-auto text-center relative px-4 sm:px-10 mt-16">
+        <h1 class="lg:text-5xl md:text-4xl text-3xl font-semibold mb-6 md:!leading-[80px]">
+          Concessionaire Operations Monitoring System
+        </h1>
+        <p class="text-gray-400 text-lg">
+          Transform your concessionaire operations with our innovative system designed to streamline processes and improve overall management effectiveness, providing practical software solutions to help you achieve your business goals.
+        </p>
+        <div class="mt-14 flex gap-x-8 gap-y-4 justify-center max-sm:flex-col">
+          <a href="{{ route('filament.app.auth.register') }}">
             <button type='button' class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all">
-                Sign Up for Free
+              Sign Up for Free
             </button>
-        </a>
-        <a href="https://comsystem.online/app/login">
+          </a>
+          <a href="{{ route('filament.app.auth.login') }}">
             <button type='button' class="bg-transparent hover:bg-blue-600 border border-blue-600 px-6 py-3.5 rounded-md text-gray-100 transition-all">
-                Login Account
+              Login Account
             </button>
-        </a>
-    </div>
-</div>
+          </a>
+        </div>
+      </div>
 
 
     </div>
 
     <div class="px-4 sm:px-10">
 
-    
+
       <!-- ABOUT SECTION -->
       <div class="mt-32 rounded-md px-4 py-12">
         <div class="grid md:grid-cols-2 justify-center items-center gap-12 max-w-7xl mx-auto">
@@ -125,7 +127,7 @@
             <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">COMS exists to streamline concessionaire management for businesses operating in bustling environments.
             </h2>
             <p class="text-gray-400">
-By automating tedious tasks like billing notifications and tenant applications, we empower concessionaires to focus on delivering exceptional service and driving their growth.
+              By automating tedious tasks like billing notifications and tenant applications, we empower concessionaires to focus on delivering exceptional service and driving their growth.
             </p>
             <!-- <button type="button"
               class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all mt-10">
@@ -145,7 +147,7 @@ By automating tedious tasks like billing notifications and tenant applications, 
             <p class="text-gray-400">We are committed to continuous improvement, always seeking ways to enhance our platform and provide the best possible experience for our users. This commitment extends to our team, as we prioritize their development to ensure a motivated and engaged workforce.</p>
             <button type="button"
               class="px-6 py-3.5 rounded-md text-gray-100 bg-blue-700 hover:bg-blue-800 transition-all mt-10">
-              Try it today
+              <a href="{{ route('filament.app.auth.login') }}">Try it today</a>
             </button>
           </div>
           <div>
@@ -155,7 +157,7 @@ By automating tedious tasks like billing notifications and tenant applications, 
       </div>
 
 
-    <!-- FEATURES -->
+      <!-- FEATURES -->
       <div class="mt-32 max-w-7xl mx-auto">
         <div class="mb-16 max-w-2xl text-center mx-auto">
           <h2 class="md:text-4xl text-3xl font-semibold md:!leading-[50px] mb-6">Our Features</h2>
@@ -174,7 +176,7 @@ By automating tedious tasks like billing notifications and tenant applications, 
             </svg>
             <h3 class="text-xl mb-4">Automated Billing & Payment Notifications</h3>
             <p class="text-gray-400">Never miss a payment! COMS automatically generates bills and sends timely notifications to tenants for upcoming due dates</p>
-            <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a>
+            <!-- <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a> -->
           </div>
           <div class="text-center bg-[#111] px-6 py-8 rounded-2xl">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -194,7 +196,7 @@ By automating tedious tasks like billing notifications and tenant applications, 
             </svg>
             <h3 class="text-xl mb-4">Real-Time Monitoring</h3>
             <p class="text-gray-400">Access real-time data on all ongoing operations, active contracts, and tenant payment statuses—all in one place.</p>
-            <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a>
+            <!-- <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a> -->
           </div>
           <div class="text-center bg-[#111] px-6 py-8 rounded-2xl">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -205,7 +207,7 @@ By automating tedious tasks like billing notifications and tenant applications, 
             </svg>
             <h3 class="text-xl mb-4">Digital Space Selection</h3>
             <p class="text-gray-400">Give tenants the convenience of selecting concession spaces online, simplifying the application process and minimizing processing times.</p>
-            <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a>
+            <!-- <a href="javascript:void(0);" class="text-blue-600 inline-block mt-4 hover:underline">Learn more</a> -->
           </div>
         </div>
       </div>
@@ -725,7 +727,6 @@ By automating tedious tasks like billing notifications and tenant applications, 
 
     toggleOpen.addEventListener('click', handleClick);
     toggleClose.addEventListener('click', handleClick);
-
   </script>
 </body>
 
