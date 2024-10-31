@@ -166,12 +166,12 @@ class BillsReport extends Report
                 'column1' => $payment->space->concourse->name ?? 'N/A',
                 'column2' => $payment->space->name ?? 'N/A',
                 'column3' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
-                'column4' => number_format($payment->water_consumption ?? 0, 2),
-                'column5' => number_format($payment->water_bill ?? 0, 2),
-                'column6' => number_format($payment->electricity_consumption ?? 0, 2),
-                'column7' => number_format($payment->electricity_bill ?? 0, 2),
-                'column8' => number_format($payment->water_due ?? 0, 2),
-                'column9' => number_format($payment->electricity_due ?? 0, 2),
+                'column4' => number_format($payment->water_consumption ?: 0, 2),
+                'column5' => number_format($payment->water_bill ?: 0, 2),
+                'column6' => number_format($payment->electricity_consumption ?: 0, 2),
+                'column7' => number_format($payment->electricity_bill ?: 0, 2),
+                'column8' => number_format($payment->water_due ?: 0, 2),
+                'column9' => number_format($payment->electricity_due ?: 0, 2),
             ];
         }));
     }
@@ -208,27 +208,27 @@ class BillsReport extends Report
         ])->concat(collect([
             [
                 'column1' => 'Total Water Consumption',
-                'column2' => (float)$query->sum('water_consumption'),
+                'column2' => number_format($query->sum('water_consumption') ?: 0, 2),
             ],
             [
                 'column1' => 'Total Water Bill',
-                'column2' => number_format((float)$query->sum('water_bill'), 2),
+                'column2' => number_format($query->sum('water_bill') ?: 0, 2),
             ],
             [
                 'column1' => 'Total Electric Consumption',
-                'column2' => (float)$query->sum('electricity_consumption'),
+                'column2' => number_format($query->sum('electricity_consumption') ?: 0, 2),
             ],
             [
                 'column1' => 'Total Electric Bill',
-                'column2' => number_format((float)$query->sum('electricity_bill'), 2),
+                'column2' => number_format($query->sum('electricity_bill') ?: 0, 2),
             ],
             [
                 'column1' => 'Total Unpaid Water Bill',
-                'column2' => number_format((float)$query->sum('water_due'), 2),
+                'column2' => number_format($query->sum('water_due') ?: 0, 2),
             ],
             [
                 'column1' => 'Total Unpaid Electric Bill',
-                'column2' => number_format((float)$query->sum('electricity_due'), 2),
+                'column2' => number_format($query->sum('electricity_due') ?: 0, 2),
             ],
         ]));
     }
