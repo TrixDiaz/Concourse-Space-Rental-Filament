@@ -12,7 +12,6 @@ use EightyNine\Reports\Components\Text;
 use EightyNine\Reports\Components\VerticalSpace;
 use Filament\Forms\Form;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use App\Models\Payment;
 
 class ConcourseReport extends Report
@@ -28,8 +27,6 @@ class ConcourseReport extends Report
 
     public function header(Header $header): Header
     {
-        $concourse = Concourse::first();
-
         return $header
             ->schema([
                 Header\Layout\HeaderRow::make()
@@ -76,7 +73,7 @@ class ConcourseReport extends Report
             ->subtitle();
 
         $schema[] = Body\Table::make()
-            ->data(fn() => $this->spaceSummary(['concourse_id' => $concourse->id]));
+            ->data(fn() => $this->spaceSummary($concourse->id));
 
         $schema[] = VerticalSpace::make();
 
@@ -85,7 +82,7 @@ class ConcourseReport extends Report
             ->subtitle();
 
         $schema[] = Body\Table::make()
-            ->data(fn() => $this->spaceStatusSummary(['concourse_id' => $concourse->id]));
+            ->data(fn() => $this->spaceStatusSummary($concourse->id));
 
         return $body
             ->schema([
@@ -131,19 +128,15 @@ class ConcourseReport extends Report
             ]);
     }
 
-    public function spaceSummary(?array $filters): Collection
+    public function spaceSummary(int $concourseId): Collection
     {
-        $concourseId = $filters['concourse_id'] ?? null;
-        if (!$concourseId) {
-            return collect();
-        }
-
         // Get all active spaces for this concourse with their related payments and user
         $spaces = Space::query()
             ->where('concourse_id', $concourseId)
             ->where('is_active', true)
-            ->with(['payments' => function ($query) {
-                $query->whereNotNull('due_date')
+            ->with(['payments' => function ($query) use ($concourseId) {
+                $query->where('concourse_id', $concourseId)
+                    ->whereNotNull('due_date')
                     ->whereNotNull('paid_date')
                     ->whereRaw('paid_date > due_date');
             }, 'user'])
@@ -209,14 +202,8 @@ class ConcourseReport extends Report
             }));
     }
 
-    public function spaceStatusSummary(?array $filters): Collection
+    public function spaceStatusSummary(int $concourseId): Collection
     {
-        // Get the concourse
-        $concourseId = $filters['concourse_id'] ?? null;
-        if (!$concourseId) {
-            return collect();
-        }
-
         // Get spaces for this concourse only
         $spaces = Space::where('concourse_id', $concourseId)
             ->where('is_active', true);

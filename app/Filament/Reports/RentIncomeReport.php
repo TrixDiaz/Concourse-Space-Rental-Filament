@@ -137,14 +137,12 @@ class RentIncomeReport extends Report
 
     public function paymentsSummary(?array $filters): Collection
     {
+        if (empty($filters)) {
+            return collect();
+        }
+
         $query = Payment::query()->where('rent_bill', '>', 0);
         $query = $this->applyFilters($query, $filters);
-        
-        // Only limit to 5 records if no filters are applied
-        if (empty($filters)) {
-            $query->take(5);
-        }
-        
         $payments = $query->get();
 
         return collect([
@@ -170,6 +168,10 @@ class RentIncomeReport extends Report
 
     public function paymentMethodSummary(?array $filters): Collection
     {
+        if (empty($filters)) {
+            return collect();
+        }
+
         $query = Payment::query()->where('rent_bill', '>', 0);
         $query = $this->applyFilters($query, $filters);
         $paymentMethods = $query->get()->groupBy('payment_method');
@@ -216,6 +218,10 @@ class RentIncomeReport extends Report
 
     public function grossAmountSummary(?array $filters): Collection
     {
+        if (empty($filters)) {
+            return collect();
+        }
+
         $query = Payment::query()->where('rent_bill', '>', 0);
         $query = $this->applyFilters($query, $filters);
         $payments = $query->get();

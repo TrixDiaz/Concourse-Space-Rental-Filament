@@ -115,7 +115,11 @@ class BillsReport extends Report
             $filtersApplied = true;
         }
 
-        $spaces = $filtersApplied ? $query->get() : $query->latest('updated_at')->take(5)->get();
+        if (!$filtersApplied) {
+            return collect();
+        }
+
+        $spaces = $query->latest('updated_at')->get();
 
         return collect([
             [
@@ -147,13 +151,11 @@ class BillsReport extends Report
 
     public function paymentMethodSummary(?array $filters): Collection
     {
-        $query = Concourse::query();
-        
-        if (isset($filters['concourse_id'])) {
-            $query->whereIn('id', $filters['concourse_id']);
+        if (!isset($filters['concourse_id'])) {
+            return collect();
         }
 
-        $concourses = $query->get();
+        $concourses = Concourse::query()->whereIn('id', $filters['concourse_id'])->get();
 
         return collect([
             [

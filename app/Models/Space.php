@@ -101,7 +101,7 @@ class Space extends Model
 
     public function tenants(): HasMany
     {
-        return $this->hasMany(Tenant::class);
+        return $this->hasMany(User::class, 'tenant_id');
     }
 
     public function payments()

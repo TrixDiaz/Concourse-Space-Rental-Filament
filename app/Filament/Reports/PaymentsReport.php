@@ -61,12 +61,12 @@ class PaymentsReport extends Report
                             ->subtitle(),
                         Body\Table::make()
                             ->data(
-                                fn(?array $filters) => $this->paymentsSummary($filters)
+                                fn(?array $filters) => $filters ? $this->paymentsSummary($filters) : collect()
                             ),
                         VerticalSpace::make(),
                         Body\Table::make()
                             ->data(
-                                fn(?array $filters) => $this->paymentMethodSummary($filters)
+                                fn(?array $filters) => $filters ? $this->paymentMethodSummary($filters) : collect()
                             ),
                     ]),
             ]);
@@ -151,6 +151,10 @@ class PaymentsReport extends Report
 
     public function paymentsSummary(?array $filters): Collection
     {
+        if (!$filters) {
+            return collect();
+        }
+        
         $filtersApplied = false;
 
         $query = Payment::query()
@@ -228,6 +232,10 @@ class PaymentsReport extends Report
 
     public function paymentMethodSummary(?array $filters): Collection
     {
+        if (!$filters) {
+            return collect();
+        }
+        
         $query = Payment::query();
         
         if (isset($filters['concourse_id'])) {

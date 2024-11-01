@@ -163,10 +163,10 @@ class UsersReport extends Report
         }
 
         if (!$filtersApplied) {
-            $users = $query->latest('created_at')->take(5)->get();
-        } else {
-            $users = $query->latest('created_at')->get();
+            return collect();
         }
+
+        $users = $query->latest('created_at')->get();
 
         return collect([
             [
@@ -189,12 +189,20 @@ class UsersReport extends Report
     {
         $query = User::query();
 
+        $filtersApplied = false;
+
         if (isset($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
+            $filtersApplied = true;
         }
 
         if (isset($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
+            $filtersApplied = true;
+        }
+
+        if (!$filtersApplied) {
+            return collect();
         }
 
         // Get the total count of users matching the filter
