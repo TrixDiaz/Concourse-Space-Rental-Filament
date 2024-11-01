@@ -211,9 +211,7 @@ class PaymentsReport extends Report
                 'column4' => 'Water Bill',
                 'column5' => 'Electric Usage',
                 'column6' => 'Electric Bill',
-                'column7' => 'Unpaid Water',
-                'column8' => 'Unpaid Electric',
-                'column9' => 'Date'
+                'column7' => 'Date'
             ]
         ])->concat($payments->map(function ($payment) {
             return [
@@ -223,9 +221,7 @@ class PaymentsReport extends Report
                 'column4' => is_numeric($payment->water_bill) ? number_format($payment->water_bill, 2) : '0.00',
                 'column5' => is_numeric($payment->electricity_consumption) ? number_format($payment->electricity_consumption, 2) : '0.00',
                 'column6' => is_numeric($payment->electricity_bill) ? number_format($payment->electricity_bill, 2) : '0.00',
-                'column7' => is_numeric($payment->water_due) ? number_format($payment->water_due, 2) : '0.00',
-                'column8' => is_numeric($payment->electricity_due) ? number_format($payment->electricity_due, 2) : '0.00',
-                'column9' => $payment->date instanceof Carbon ? $payment->date->format('Y-m-d') : 'N/A'
+                'column7' => $payment->created_at instanceof Carbon ? $payment->created_at->format('F j, Y') : 'N/A'
             ];
         }));
     }
@@ -275,14 +271,6 @@ class PaymentsReport extends Report
             [
                 'column1' => 'Total Electric Bill',
                 'column2' => number_format($query->sum('electricity_bill') ?: 0, 2),
-            ],
-            [
-                'column1' => 'Total Unpaid Water Bill',
-                'column2' => number_format($query->sum('water_due') ?: 0, 2),
-            ],
-            [
-                'column1' => 'Total Unpaid Electric Bill',
-                'column2' => number_format($query->sum('electricity_due') ?: 0, 2),
             ],
         ]));
     }

@@ -19,6 +19,8 @@ class PaymentConfirmation extends Mailable
     public $space;
     public $user;
     public $payment;
+    public $totalPenalty;
+    public $dueDate;
 
     /**
      * Create a new message instance.
@@ -28,6 +30,8 @@ class PaymentConfirmation extends Mailable
         $this->space = $space;
         $this->user = $user;
         $this->payment = $payment;
+        $this->totalPenalty = $payment->penalty;
+        $this->dueDate = $payment->due_date;
     }
 
     /**

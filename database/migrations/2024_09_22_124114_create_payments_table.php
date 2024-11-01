@@ -31,6 +31,10 @@ return new class extends Migration
             $table->date('due_date')->nullable();
             $table->date('paid_date')->nullable();
             $table->decimal('penalty', 10, 2)->nullable();
+            $table->boolean('is_water_late')->default(false);
+            $table->boolean('is_electricity_late')->default(false);
+            $table->boolean('is_rent_late')->default(false);
+            $table->boolean('is_penalty')->default(false);
             $table->foreign('tenant_id')->references('id')->on('users');
             $table->foreign('space_id')->references('id')->on('spaces');
             $table->foreign('concourse_id')->references('id')->on('concourses');

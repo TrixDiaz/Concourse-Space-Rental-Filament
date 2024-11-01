@@ -28,6 +28,8 @@
     <p>Dear {{ $user->name }},</p>
     <p>We are writing to confirm that we have received your payment for the following:</p>
 
+    <p><strong>Due Date:</strong> {{ $payment->due_date ? Carbon\Carbon::parse($payment->due_date)->format('F j, Y') : 'N/A' }}</p>
+
     <table>
         <thead>
             <tr>
@@ -99,6 +101,16 @@
         </tbody>
         <tfoot>
             <tr>
+                <td colspan="4"><strong>Subtotal</strong></td>
+                <td><strong>₱{{ number_format($payment->amount - $payment->penalty, 2) }}</strong></td>
+            </tr>
+            @if($payment->penalty > 0)
+            <tr>
+                <td colspan="4"><strong>Total Penalties</strong></td>
+                <td class="penalty"><strong>₱{{ number_format($payment->penalty, 2) }}</strong></td>
+            </tr>
+            @endif
+            <tr>
                 <td colspan="4"><strong>Total Amount Paid</strong></td>
                 <td><strong>₱{{ number_format($payment->amount, 2) }}</strong></td>
             </tr>
@@ -108,8 +120,9 @@
     <p><strong>Payment Details:</strong></p>
     <ul>
         <li>Space: {{ $space->name }}</li>
-        <li>Payment Method: {{ $payment->payment_method }}</li>
-        <li>Payment Date: {{ $payment->created_at->format('F j, Y, g:i a') }}</li>
+        <li>Payment Method: {{ ucfirst($payment->payment_method) }}</li>
+        <li>Payment Date: {{ $payment->paid_date->format('F j, Y, g:i a') }}</li>
+        <li>Payment Status: {{ ucfirst($payment->payment_status) }}</li>
     </ul>
 
     <p>Thank you for your prompt payment.</p>
