@@ -2,7 +2,6 @@
 
 namespace App\Filament\Reports;
 
-use App\Models\Payment;
 use EightyNine\Reports\Report;
 use EightyNine\Reports\Components\Body;
 use EightyNine\Reports\Components\Footer;
@@ -11,6 +10,8 @@ use EightyNine\Reports\Components\Text;
 use EightyNine\Reports\Components\VerticalSpace;
 use Filament\Forms\Form;
 use Illuminate\Support\Collection;
+use App\Models\Space;
+use App\Models\Concourse;
 
 class BillsReport extends Report
 {
@@ -98,56 +99,23 @@ class BillsReport extends Report
                     )
                     ->native(false)
                     ->required(),
-              
-                \Filament\Forms\Components\DatePicker::make('date_from')
-                    ->label('Date From')
-                    ->placeholder('Start Date')
-                    ->timezone('Asia/Manila')
-                    ->displayFormat('Y-m-d')
-                    ->maxDate(now())
-                    ->native(false),
-                \Filament\Forms\Components\DatePicker::make('date_to')
-                    ->label('Date To')
-                    ->placeholder('End Date')
-                    ->timezone('Asia/Manila')
-                    ->displayFormat('Y-m-d')
-                    ->maxDate(now())
-                    ->native(false),
             ]);
     }
 
     public function paymentsSummary(?array $filters): Collection
     {
         $filtersApplied = false;
-
-        $query = Payment::query()
-            ->with(['tenant', 'space.concourse']);
+        
+        $query = Space::query()
+            ->with(['concourse', 'user'])
+            ->whereHas('concourse');
 
         if (isset($filters['concourse_id'])) {
-            $query->whereHas('space.concourse', function ($query) use ($filters) {
-                $query->whereIn('id', $filters['concourse_id']);
-
-            });
+            $query->whereIn('concourse_id', $filters['concourse_id']);
             $filtersApplied = true;
         }
 
-       
-
-        if (isset($filters['date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from']);
-            $filtersApplied = true;
-        }
-
-        if (isset($filters['date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to']);
-            $filtersApplied = true;
-        }
-
-        if (!$filtersApplied) {
-            $payments = $query->latest('created_at')->take(5)->get();
-        } else {
-            $payments = $query->latest('created_at')->get();
-        }
+        $spaces = $filtersApplied ? $query->get() : $query->latest('updated_at')->take(5)->get();
 
         return collect([
             [
@@ -161,74 +129,58 @@ class BillsReport extends Report
                 'column8' => 'Unpaid Water',
                 'column9' => 'Unpaid Electric',
             ]
-        ])->concat($payments->map(function ($payment) {
+        ])->concat($spaces->map(function ($space) {
+            $user = $space->user;
             return [
-                'column1' => $payment->space->concourse->name ?? 'N/A',
-                'column2' => $payment->space->name ?? 'N/A',
-                'column3' => $payment->tenant->first_name . ' ' . $payment->tenant->last_name ?? 'N/A',
-                'column4' => is_numeric($payment->water_consumption) ? number_format($payment->water_consumption, 2) : '0.00',
-                'column5' => is_numeric($payment->water_bill) ? number_format($payment->water_bill, 2) : '0.00',
-                'column6' => is_numeric($payment->electricity_consumption) ? number_format($payment->electricity_consumption, 2) : '0.00',
-                'column7' => is_numeric($payment->electricity_bill) ? number_format($payment->electricity_bill, 2) : '0.00',
-                'column8' => is_numeric($payment->water_due) ? number_format($payment->water_due, 2) : '0.00',
-                'column9' => is_numeric($payment->electricity_due) ? number_format($payment->electricity_due, 2) : '0.00',
+                'column1' => $space->concourse->name ?? 'N/A',
+                'column2' => $space->name ?? 'N/A',
+                'column3' => $user ? "{$user->first_name} {$user->last_name}" : 'N/A',
+                'column4' => is_numeric($space->water_consumption ?? 0) ? number_format($space->water_consumption ?? 0, 2) : 'N/A',
+                'column5' => is_numeric($space->water_bills ?? 0) ? number_format($space->water_bills ?? 0, 2) : 'N/A',
+                'column6' => is_numeric($space->electricity_consumption ?? 0) ? number_format($space->electricity_consumption ?? 0, 2) : 'N/A',
+                'column7' => is_numeric($space->electricity_bills ?? 0) ? number_format($space->electricity_bills ?? 0, 2) : 'N/A',
+                'column8' => is_numeric($space->water_due ?? 0) ? number_format($space->water_due ?? 0, 2) : 'N/A',
+                'column9' => is_numeric($space->electricity_due ?? 0) ? number_format($space->electricity_due ?? 0, 2) : 'N/A',
             ];
         }));
     }
 
     public function paymentMethodSummary(?array $filters): Collection
     {
-        $query = Payment::query();
+        $query = Concourse::query();
         
         if (isset($filters['concourse_id'])) {
-            $query->whereHas('space.concourse', function ($query) use ($filters) {
-                $query->whereIn('id', $filters['concourse_id']);
-            });
+            $query->whereIn('id', $filters['concourse_id']);
         }
 
-        if (isset($filters['payment_status']) && $filters['payment_status'] !== 'all') {
-            $query->where('payment_status', $filters['payment_status']);
-        }
-
-        if (isset($filters['date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from']);
-        }
-
-        if (isset($filters['date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to']);
-        }
-
-        $paymentMethods = $query->get()->groupBy('payment_method');
+        $concourses = $query->get();
 
         return collect([
             [
                 'column1' => 'Summary',
                 'column2' => 'Total',
+                'column3' => 'Date Range',
             ]
         ])->concat(collect([
             [
                 'column1' => 'Total Water Consumption',
-                'column2' => number_format($query->sum('water_consumption') ?: 0, 2),
+                'column2' => number_format($concourses->sum('total_water_consumption') ?? 0, 2),
+                'column3' => 'All Time',
             ],
             [
                 'column1' => 'Total Water Bill',
-                'column2' => number_format($query->sum('water_bill') ?: 0, 2),
+                'column2' => number_format($concourses->sum('water_bills') ?? 0, 2),
+                'column3' => 'All Time',
             ],
             [
                 'column1' => 'Total Electric Consumption',
-                'column2' => number_format($query->sum('electricity_consumption') ?: 0, 2),
+                'column2' => number_format($concourses->sum('total_electricity_consumption') ?? 0, 2),
+                'column3' => 'All Time',
             ],
             [
                 'column1' => 'Total Electric Bill',
-                'column2' => number_format($query->sum('electricity_bill') ?: 0, 2),
-            ],
-            [
-                'column1' => 'Total Unpaid Water Bill',
-                'column2' => number_format($query->sum('water_due') ?: 0, 2),
-            ],
-            [
-                'column1' => 'Total Unpaid Electric Bill',
-                'column2' => number_format($query->sum('electricity_due') ?: 0, 2),
+                'column2' => number_format($concourses->sum('electricity_bills') ?? 0, 2),
+                'column3' => 'All Time',
             ],
         ]));
     }
