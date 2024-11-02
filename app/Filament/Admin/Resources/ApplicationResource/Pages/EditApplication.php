@@ -30,59 +30,6 @@ class EditApplication extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('rejectApplication')
-                ->label('Reject Application')
-                ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->application_status !== 'rejected')
-                ->action(function () {
-                    $application = $this->getRecord();
-
-                    DB::transaction(function () use ($application) {
-                        // Update space status to 'available' and set user_id to null
-                        $space = Space::find($application->space_id);
-                        if ($space) {
-                            $space->update([
-                                'status' => 'available',
-                                'application_id' => null,
-                                'user_id' => null,
-                            ]);
-                        }
-
-                        // Notify the authenticated user
-                        $authUser = Auth::user();
-                        Notification::make()
-                            ->warning()
-                            ->title('Application Rejected')
-                            ->body("You have rejected and deleted the application.")
-                            ->sendToDatabase($authUser);
-
-                        // Notify the application's user
-                        $applicationUser = User::find($application->user_id);
-                        Notification::make()
-                            ->warning()
-                            ->title('Application Rejected')
-                            ->body("Your application has been rejected and deleted.")
-                            ->sendToDatabase($applicationUser);
-
-                        // Send rejection email
-                        $this->sendRejectionEmail($application);
-
-                        // Permanently delete the application
-                        $application->forceDelete();
-
-                        // Show a success message in the UI
-                        Notification::make()
-                            ->warning()
-                            ->title('Application Rejected')
-                            ->body("The application has been rejected, deleted, and notifications sent.")
-                            ->send();
-
-                        // Redirect to the list view after rejection
-                        return redirect()->route('filament.admin.resources.applications.index');
-                    });
-                })
-                ->color('danger')
-                ->requiresConfirmation(),
             Actions\Action::make('approveRequirements')
                 ->label('Approve Requirements')
                 ->icon('heroicon-o-check-circle')
@@ -121,6 +68,10 @@ class EditApplication extends EditRecord
                             ->title('Application Requirements Approved')
                             ->body("The application requirements have been successfully approved and notifications sent.")
                             ->send();
+
+                        // Send lease contract email
+                        $space = Space::find($application->space_id);
+                        $this->sendLeaseContractEmail($space, $application);
 
                         // Redirect to the list view after approval
                         return redirect()->route('filament.admin.resources.applications.index');
@@ -168,9 +119,6 @@ class EditApplication extends EditRecord
                                 'remarks' => $application->remarks,
                             ]);
                         }
-
-                        // Send lease contract email
-                        $this->sendLeaseContractEmail($space, $application);
 
                         // Delete the application from the Application table
                         $application->delete();
@@ -273,6 +221,59 @@ class EditApplication extends EditRecord
                             ->warning()
                             ->title('Application Requirements Rejected')
                             ->body("The application requirements have been rejected and notifications sent.")
+                            ->send();
+
+                        // Redirect to the list view after rejection
+                        return redirect()->route('filament.admin.resources.applications.index');
+                    });
+                })
+                ->color('danger')
+                ->requiresConfirmation(),
+            Actions\Action::make('rejectApplication')
+                ->label('Reject Application')
+                ->icon('heroicon-o-x-circle')
+                ->visible(fn($record) => $record->requirements_status !== 'rejected')
+                ->action(function () {
+                    $application = $this->getRecord();
+
+                    DB::transaction(function () use ($application) {
+                        // Update space status to 'available' and set user_id to null
+                        $space = Space::find($application->space_id);
+                        if ($space) {
+                            $space->update([
+                                'status' => 'available',
+                                'application_id' => null,
+                                'user_id' => null,
+                            ]);
+                        }
+
+                        // Notify the authenticated user
+                        $authUser = Auth::user();
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Rejected')
+                            ->body("You have rejected and deleted the application.")
+                            ->sendToDatabase($authUser);
+
+                        // Notify the application's user
+                        $applicationUser = User::find($application->user_id);
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Rejected')
+                            ->body("Your application has been rejected and deleted.")
+                            ->sendToDatabase($applicationUser);
+
+                        // Send rejection email
+                        $this->sendRejectionEmail($application);
+
+                        // Permanently delete the application
+                        $application->forceDelete();
+
+                        // Show a success message in the UI
+                        Notification::make()
+                            ->warning()
+                            ->title('Application Rejected')
+                            ->body("The application has been rejected, deleted, and notifications sent.")
                             ->send();
 
                         // Redirect to the list view after rejection

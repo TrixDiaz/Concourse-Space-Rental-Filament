@@ -2,7 +2,7 @@
 
 namespace App\Filament\App\Widgets;
 
-use App\Models\Payment;
+use App\Models\Space;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
@@ -164,13 +164,14 @@ class ElectricMonthlyChart extends ApexChartWidget
      */
     protected function getMonthlyElectricityConsumption(): array
     {
-        $data = Payment::select(
+        $data = Space::select(
             DB::raw('MONTH(created_at) as month'),
             DB::raw('SUM(electricity_consumption) as total_consumption'),
-            DB::raw('SUM(electricity_bill) as total_bill')
+            DB::raw('SUM(electricity_bills) as total_bill')
         )
         ->whereYear('created_at', date('Y'))
-        ->where('tenant_id', Auth::id())
+        ->where('user_id', Auth::id())
+        ->where('electricity_payment_status', 'unpaid')
         ->groupBy('month')
         ->orderBy('month')
         ->get();

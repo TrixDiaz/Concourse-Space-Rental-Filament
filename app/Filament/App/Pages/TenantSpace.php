@@ -20,6 +20,9 @@ use App\Models\Application;
 use Carbon\Carbon;
 use Filament\Forms\Components\Checkbox;
 use App\Models\User;
+use App\Models\AppRequirement;
+use App\Filament\App\Pages\EditRequirement;
+use Illuminate\Support\Facades\Auth;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -64,19 +67,18 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->description(fn($record) => 'End: ' . $record->lease_end->format('F j, Y')),
                 Tables\Columns\TextColumn::make('Rent Bills')
                     ->label('Rent Bills')
-                    ->default(fn($record) => $record->rent_bills > 0 ? '₱' . number_format($record->rent_bills, 2) : 'N/A')
+                    ->default(fn($record) => $record->rent_bills > 0 ? '₱' . number_format($record->rent_bills, 2) : '₱0.00')
                     ->description(fn($record) => $record->rent_payment_status == 'paid' ? '' : 'Unpaid'),
                 Tables\Columns\TextColumn::make('Water Bills')
                     ->label('Water Bills')
-                    ->default(fn($record) => $record->water_bills > 0 ? '₱' . number_format($record->water_bills, 2) : 'N/A')
+                    ->default(fn($record) => $record->water_bills > 0 ? '₱' . number_format($record->water_bills, 2) : '₱0.00')
                     ->description(fn($record) => $record->water_payment_status == 'paid' ? '' : 'Unpaid'),
                 Tables\Columns\TextColumn::make('Electricity Bills')
                     ->label('Electricity Bills')
-                    ->default(fn($record) => $record->electricity_bills > 0 ? '₱' . number_format($record->electricity_bills, 2) : 'N/A')
+                    ->default(fn($record) => $record->electricity_bills > 0 ? '₱' . number_format($record->electricity_bills, 2) : '₱0.00')
                     ->description(fn($record) => $record->electricity_payment_status == 'paid' ? '' : 'Unpaid'),
             ])
             ->actions([
-
                 Tables\Actions\Action::make('renew')
                     ->label('Renew Lease')
                     ->button()
@@ -108,6 +110,15 @@ class TenantSpace extends Page implements HasForms, HasTable
                                 'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
                                 'remarks' => $data['remarks'] ?? null,
                             ]);
+
+                            // Retrieve the submitted images from AppRequirement
+                            $appRequirements = AppRequirement::where('application_id', $application->id)->get();
+
+                            // Update the deleted_at field to null for each AppRequirement
+                            foreach ($appRequirements as $appRequirement) {
+                                $appRequirement->deleted_at = null;
+                                $appRequirement->save();
+                            }
                         } else {
                             // If no application exists, create a new one
                             $application = Application::create([
@@ -183,27 +194,27 @@ class TenantSpace extends Page implements HasForms, HasTable
                                         ->content($record->concourse->name . ' - ' . $record->name),
                                     \Filament\Forms\Components\Placeholder::make('payment_due_dates')
                                         ->label('Payment Due Dates')
-                                        ->content(function() use ($record) {
+                                        ->content(function () use ($record) {
                                             return collect([
                                                 'Rent: ' . ($record->rent_due ? Carbon::parse($record->rent_due)->format('M d, Y') : 'N/A'),
                                                 'Water: ' . ($record->water_due ? Carbon::parse($record->water_due)->format('M d, Y') : 'N/A'),
                                                 'Electricity: ' . ($record->electricity_due ? Carbon::parse($record->electricity_due)->format('M d, Y') : 'N/A'),
                                             ])->map(fn($item) => "••••• {$item} •••••")
-                                            ->implode("");
+                                                ->implode("");
                                         })->columnSpanFull(),
                                     \Filament\Forms\Components\Placeholder::make('current_penalties')
                                         ->label('Current Penalties')
-                                        ->content(function() use ($record, $now) {
+                                        ->content(function () use ($record, $now) {
                                             $rentPenalty = $record->rent_due && $now->gt(Carbon::parse($record->rent_due)) ? '₱' . number_format($record->rent_bills * 0.02, 2) : 'N/A';
                                             $waterPenalty = $record->water_due && $now->gt(Carbon::parse($record->water_due)) ? '₱' . number_format($record->water_bills * 0.02, 2) : 'N/A';
                                             $electricityPenalty = $record->electricity_due && $now->gt(Carbon::parse($record->electricity_due)) ? '₱' . number_format($record->electricity_bills * 0.02, 2) : 'N/A';
-                                            
+
                                             return collect([
                                                 'Rent: ' . $rentPenalty,
                                                 'Water: ' . $waterPenalty,
                                                 'Electricity: ' . $electricityPenalty,
                                             ])->map(fn($item) => "••••• {$item} •••••")
-                                            ->implode("");
+                                                ->implode("");
                                         })->columnSpanFull(),
                                 ])
                                 ->columnSpanFull(),
@@ -212,7 +223,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                         // Existing Checkboxes Logic
                         $checkboxes = [];
                         $now = now();
-                        
+
                         if ($record->water_bills > 0) {
                             $waterDue = Carbon::parse($record->water_due);
                             $penalty = $now->gt($waterDue) ? ($record->water_bills * 0.02) : 0;
@@ -252,7 +263,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                                         ->content('₱' . number_format($record->water_bills + $record->electricity_bills + $record->rent_bills, 2)),
                                     \Filament\Forms\Components\Placeholder::make('total_penalties')
                                         ->label('Total Penalties:')
-                                        ->content(function() use ($record, $now) {
+                                        ->content(function () use ($record, $now) {
                                             $totalPenalty = 0;
                                             if ($record->rent_due && $now->gt(Carbon::parse($record->rent_due))) {
                                                 $totalPenalty += $record->rent_bills * 0.02;
@@ -267,7 +278,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                                         }),
                                     \Filament\Forms\Components\Placeholder::make('grand_total')
                                         ->label('Grand Total:')
-                                        ->content(function() use ($record, $now) {
+                                        ->content(function () use ($record, $now) {
                                             $total = $record->water_bills + $record->electricity_bills + $record->rent_bills;
                                             if ($record->rent_due && $now->gt(Carbon::parse($record->rent_due))) {
                                                 $total += $record->rent_bills * 0.02;
@@ -289,6 +300,22 @@ class TenantSpace extends Page implements HasForms, HasTable
                         return array_merge($header, $checkboxes, $footer);
                     })
                     ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
+                Tables\Actions\Action::make('Check Application')
+                    ->link()
+                    ->icon('heroicon-o-pencil')
+                    ->url(fn($record) => route('filament.app.pages.edit-requirement', ['concourse_id' => $record->concourse_id, 'space_id' => $record->id, 'user_id' => Auth::id()]))
+                    ->openUrlInNewTab()
+                    ->visible(function ($record) {
+                        // Hide if status is approved
+                        if ($record->status === 'approved') {
+                            return false;
+                        }
+
+                        return \App\Models\Application::where('user_id', Auth::id())
+                            ->where('concourse_id', $record->concourse_id)
+                            ->where('space_id', $record->id)
+                            ->exists();
+                    }),
             ]);
     }
 

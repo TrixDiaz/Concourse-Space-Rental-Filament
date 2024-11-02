@@ -145,15 +145,15 @@ class SpaceRelationManager extends RelationManager
                     ->description(fn($record) => 'Due: ' . \Carbon\Carbon::parse($record->rent_due)->format('F j, Y'))
                     ->tooltip(fn($record) => 'Status: ' . $record->rent_payment_status ?? null)
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn($record) => $record->status === 'occupied' ? 'secondary' : 'warning')
-                    ->extraAttributes(['class' => 'capitalize'])
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('Consumptions')
                     ->label('Consumptions')
                     ->default(fn($record) => 'Water: ' . number_format($record->water_consumption ?? 0, 2) . ' m3')
                     ->description(fn($record) => 'Electricity: ' . number_format($record->electricity_consumption ?? 0, 2) . ' kWh'),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn($record) => $record->status === 'occupied' ? 'secondary' : 'warning')
+                    ->extraAttributes(['class' => 'capitalize'])
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Visible in Tenant')
                     ->boolean()

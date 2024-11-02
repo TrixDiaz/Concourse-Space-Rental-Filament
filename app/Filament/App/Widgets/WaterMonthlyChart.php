@@ -2,7 +2,6 @@
 
 namespace App\Filament\App\Widgets;
 
-use App\Models\Payment;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
@@ -10,6 +9,7 @@ use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Facades\Auth;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Illuminate\Support\Facades\DB;
+use App\Models\Space;
 
 class WaterMonthlyChart extends ApexChartWidget
 {
@@ -165,13 +165,14 @@ class WaterMonthlyChart extends ApexChartWidget
      */
     protected function getMonthlyWaterConsumption(): array
     {
-        $data = Payment::select(
+        $data = Space::select(
             DB::raw('MONTH(created_at) as month'),
             DB::raw('SUM(water_consumption) as total_consumption'),
-            DB::raw('SUM(water_bill) as total_bill')
+            DB::raw('SUM(water_bills) as total_bill')
         )
         ->whereYear('created_at', date('Y'))
-        ->where('tenant_id', Auth::id())
+        ->where('user_id', Auth::id())
+        ->where('water_payment_status', 'unpaid')
         ->groupBy('month')
         ->orderBy('month')
         ->get();

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Payment;
+use App\Models\Space;
 use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
@@ -105,10 +105,10 @@ class ElectricChart extends ApexChartWidget
     {
         $currentYear = date('Y');
         
-        $billData = Payment::select(
+        $billData = Space::select(
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(electricity_bill) as total_electric'),
-            DB::raw('SUM(electricity_consumption) as total_consumption')  // Fixed column name
+            DB::raw('SUM(electricity_bills) as total_electric'),
+            DB::raw('SUM(electricity_consumption) as total_consumption')
         )   
             ->whereYear('created_at', $currentYear)
             ->groupBy('month')

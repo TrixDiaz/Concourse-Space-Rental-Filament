@@ -60,10 +60,9 @@ class ListConcourses extends Component implements HasTable, HasForms
                         ->sortable()
                         ->prefix('Spaces: ')
                         ->label('Spaces'),
-                    Tables\Columns\TextColumn::make('created_at')
-                        ->dateTime('F j, Y')
-                        ->color('gray')
-                        ->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('available_spaces')
+                        ->label('Available Spaces')
+                        ->default(fn($record) => 'Available: ' . $record->spaces()->where('status', 'available')->count()),
                 ]),
             ])
             ->filters([])

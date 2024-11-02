@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Payment;
+use App\Models\Space;
 use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
@@ -103,25 +103,27 @@ class WaterChart extends ApexChartWidget
 
     protected function getBillData(): array
     {
-        $billData = Payment::select(
+        $currentYear = date('Y');
+        
+        $billData = Space::select(
             DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(water_bill) as total_water'),
-            DB::raw('SUM(water_consumption) as total_consumption')  // Added water consumption
+            DB::raw('SUM(water_bills) as total_water'),
+            DB::raw('SUM(water_consumption) as total_consumption')
         )
-            ->whereYear('created_at', date('Y'))
+            ->whereYear('created_at', $currentYear)
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
         $months = [];
         $water = array_fill(0, 12, 0);
-        $consumption = array_fill(0, 12, 0);  // Added consumption array
+        $consumption = array_fill(0, 12, 0);
 
         foreach ($billData as $data) {
             $monthIndex = $data->month - 1;
             $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
             $water[$monthIndex] = round($data->total_water, 2);
-            $consumption[$monthIndex] = round($data->total_consumption, 2);  // Added consumption data
+            $consumption[$monthIndex] = round($data->total_consumption, 2);
         }
 
         // Fill in any missing months
@@ -136,7 +138,7 @@ class WaterChart extends ApexChartWidget
         return [
             'months' => array_values($months),
             'water' => $water,
-            'consumption' => $consumption,  // Added to return array
+            'consumption' => $consumption,
         ];
     }
 

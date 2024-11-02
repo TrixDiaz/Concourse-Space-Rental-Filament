@@ -164,16 +164,6 @@ class ApplicationResource extends Resource
                 Tables\Columns\TextColumn::make('business_type')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('concourse_lease_term')
-                    ->label('Due Date')
-                    ->date()
-                    ->sortable()
-                    ->getStateUsing(function ($record) {
-                        if ($record->concourse_lease_term) {
-                            return $record->created_at->addMonths($record->concourse_lease_term);
-                        }
-                        return null;
-                    }),
                 Tables\Columns\TextColumn::make('requirements_status')
                     ->searchable()
                     ->badge()

@@ -3,7 +3,7 @@
 namespace App\Filament\App\Widgets;
 
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
-use App\Models\Payment;
+use App\Models\Space;
 use Illuminate\Support\Facades\Auth;
 
 class RentMonthlyChart extends ApexChartWidget
@@ -107,10 +107,10 @@ class RentMonthlyChart extends ApexChartWidget
     private function getMonthlyRentData(): array
     {
         $currentYear = now()->year;
-        $monthlyData = Payment::selectRaw('MONTH(created_at) as month, SUM(rent_bill) as total_rent')
+        $monthlyData = Space::selectRaw('MONTH(created_at) as month, SUM(rent_bills) as total_rent')
             ->whereYear('created_at', $currentYear)
-            ->where('payment_status', 'paid')
-            ->where('tenant_id', Auth::user()->id)
+            ->where('rent_payment_status', 'unpaid')
+            ->where('user_id', Auth::user()->id)
             ->groupBy('month')
             ->orderBy('month')
             ->get();
