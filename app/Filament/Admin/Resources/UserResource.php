@@ -82,9 +82,10 @@ class UserResource extends Resource
                                     ->native(false)
                                     ->maxDate(now()->subYears(18))
                                     ->displayFormat('d/m/Y'),
-                                Forms\Components\DateTimePicker::make('email_verified_at')
+                                Forms\Components\DatePicker::make('email_verified_at')
                                     ->label('Email Verified At')
-                                    ->native(false),
+                                    ->native(false)
+                                    ->default(now()),
                                 Forms\Components\Select::make('roles')
                                     ->multiple()
                                     ->relationship('roles', 'name')
