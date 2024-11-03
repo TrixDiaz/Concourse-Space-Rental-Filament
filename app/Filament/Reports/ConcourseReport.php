@@ -122,9 +122,7 @@ class ConcourseReport extends Report
                 \Filament\Forms\Components\Select::make('concourse_id')
                     ->label('Concourse')
                     ->options(Concourse::where('is_active', true)->pluck('name', 'id'))
-                    ->searchable()
-                    ->nullable()
-                    ->default(Concourse::where('is_active', true)->first()?->id)
+                    ->searchable(),
             ]);
     }
 

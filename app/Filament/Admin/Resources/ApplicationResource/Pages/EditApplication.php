@@ -129,11 +129,6 @@ class EditApplication extends EditRecord
                             ->success()
                             ->title('Application Approved')
                             ->body("You successfully approved the application and associated space.")
-                            ->actions([
-                                Action::make('view')
-                                    ->button()
-                                    ->url(route('filament.admin.resources.applications.index')),
-                            ])
                             ->sendToDatabase($authUser);
 
                         // Notify the application's user
@@ -201,11 +196,6 @@ class EditApplication extends EditRecord
                             ->warning()
                             ->title('Application Requirements Rejected')
                             ->body("You have rejected the application requirements.")
-                            ->actions([
-                                Action::make('view')
-                                    ->button()
-                                    ->url(route('filament.admin.resources.applications.index')),
-                            ])
                             ->sendToDatabase($authUser);
 
                         // Notify the application's user
