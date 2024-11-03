@@ -65,6 +65,11 @@ class Concourse extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function calculateWaterRate()
     {
         $totalWaterBill = $this->water_bills ?? 0;

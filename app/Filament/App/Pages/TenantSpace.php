@@ -22,6 +22,7 @@ use Filament\Forms\Components\Checkbox;
 use App\Models\User;
 use App\Models\AppRequirement;
 use App\Filament\App\Pages\EditRequirement;
+use App\Services\ReportForm;
 use Illuminate\Support\Facades\Auth;
 
 class TenantSpace extends Page implements HasForms, HasTable
@@ -316,6 +317,39 @@ class TenantSpace extends Page implements HasForms, HasTable
                             ->where('space_id', $record->id)
                             ->exists();
                     }),
+                Tables\Actions\Action::make('Report')
+                    ->link()
+                    ->icon('heroicon-o-paper-airplane')
+                    ->form(fn($record) => ReportForm::schema($record))
+                    ->action(function (array $data, $record) {
+                        $ticket = new \App\Models\Ticket($data);
+                        $ticket->save();
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Success')
+                            ->body('Your ticket has been submitted successfully.')
+                            ->success()
+                            ->send();
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Success')
+                            ->body('Your ticket has been submitted successfully.')
+                            ->success()
+                            ->sendToDatabase(auth()->user());
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('New Ticket')
+                            ->body('A new ticket has been submitted.')
+                            ->success()
+                            ->sendToDatabase(User::find(1));
+                    })
+                    ->visible(fn($record) => true),
+            ])->headerActions([
+                Tables\Actions\Action::make('My Report')
+                    ->link()
+                    ->icon('heroicon-o-paper-airplane')
+                    ->url(fn($record) => route('filament.app.pages.my-report'))
+                    ->openUrlInNewTab()
             ]);
     }
 

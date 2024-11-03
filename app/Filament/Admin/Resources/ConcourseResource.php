@@ -281,6 +281,7 @@ class ConcourseResource extends Resource
                                     }
                                 }),
                         ])->hiddenOn('create')
+                        
                     ])->columnSpan([
                         'sm' => 3,
                         'md' => 3,

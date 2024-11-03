@@ -45,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Applications Settings',
                 'Concourse Settings',
+                'Others',
                 'Reports',
                 'System Settings',
             ])

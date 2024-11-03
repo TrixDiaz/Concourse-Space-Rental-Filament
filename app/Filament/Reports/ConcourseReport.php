@@ -130,15 +130,11 @@ class ConcourseReport extends Report
 
     public function spaceSummary(int $concourseId): Collection
     {
-        // Get all active spaces for this concourse with their related payments and user
         $spaces = Space::query()
             ->where('concourse_id', $concourseId)
             ->where('is_active', true)
             ->with(['payments' => function ($query) use ($concourseId) {
-                $query->where('concourse_id', $concourseId)
-                    ->whereNotNull('due_date')
-                    ->whereNotNull('paid_date')
-                    ->whereRaw('paid_date > due_date');
+                $query->where('concourse_id', $concourseId);
             }, 'user'])
             ->get();
 
@@ -157,16 +153,15 @@ class ConcourseReport extends Report
 
         return collect([$headerRow])
             ->concat($spaces->map(function ($space) {
-                // Get delayed payments for this space
-                $delayedPayments = $space->payments()
-                    ->whereNotNull('due_date')
-                    ->whereNotNull('paid_date')
-                    ->whereRaw('paid_date > due_date')
-                    ->get();
+                $delayedPayments = $space->payments
+                    ->filter(function ($payment) {
+                        return $payment->due_date 
+                            && $payment->paid_date 
+                            && $payment->paid_date->gt($payment->due_date);
+                    });
 
                 $delayedPaymentsCount = $delayedPayments->count();
 
-                // Calculate total paid delayed amount
                 $paidDelayedAmount = $delayedPayments
                     ->where('payment_status', Payment::STATUS_PAID)
                     ->sum(function ($payment) {
@@ -175,7 +170,6 @@ class ConcourseReport extends Report
                             ($payment->rent_bill ?? 0);
                     });
 
-                // Calculate unpaid delayed amount
                 $unpaidDelayedAmount = 0;
                 if ($space->water_payment_status == 'unpaid' && $space->water_due && $space->water_due < now()) {
                     $unpaidDelayedAmount += $space->water_bills ?? 0;
@@ -204,7 +198,6 @@ class ConcourseReport extends Report
 
     public function spaceStatusSummary(int $concourseId): Collection
     {
-        // Get spaces for this concourse only
         $spaces = Space::where('concourse_id', $concourseId)
             ->where('is_active', true);
 
