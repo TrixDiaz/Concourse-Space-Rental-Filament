@@ -42,7 +42,7 @@ class EditTicket extends EditRecord
                 ->action(function (array $data) {
                     $this->getRecord()->update([
                         'status' => 'resolved',
-                        'resolution_remarks' => $data['remarks']
+                        'remarks' => $data['remarks']
                     ]);
                     $this->sendResolvedNotification();
                 })
@@ -78,6 +78,12 @@ class EditTicket extends EditRecord
         $user_id = Space::find($space_id)->user_id;
         $user = User::find($user_id);
         $authUser = auth()->user();
+
+        Notification::make()
+        ->success()
+        ->title('Ticket Resolved')
+        ->body("Ticket {$record->title} has been resolved!")
+        ->send();
 
         Notification::make()
             ->success()
