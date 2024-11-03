@@ -55,12 +55,6 @@ final class RequirementForm
                         ])
                         ->required()
                         ->native(false),
-                    Forms\Components\DatePicker::make('lease_start')
-                        ->label('Lease Start Date')
-                        ->required(),
-                    Forms\Components\DatePicker::make('lease_end')
-                        ->label('Lease End Date')
-                        ->required(),
                     Forms\Components\TextInput::make('concourse_lease_term')
                         ->label('Concourse Lease Term')
                         ->default($concourseLeaseTerm)
