@@ -44,7 +44,9 @@
                                 type="text"
                                 placeholder="SQM"
                                 min="0"
-                                wire:model.live="sqm" />
+                                wire:model.live="sqm"
+                                onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                             <x-slot name="suffix">
                                 X Rate {{ $rate }}
                             </x-slot>
@@ -271,7 +273,9 @@
                         type="text"
                         placeholder="SQM"
                         min="0"
-                        wire:model.live="sqm" />
+                        wire:model.live="sqm"
+                        onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                     <x-slot name="suffix">
                         X Rate {{ $rate }}
                     </x-slot>
