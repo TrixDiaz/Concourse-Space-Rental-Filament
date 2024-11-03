@@ -27,8 +27,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ConcourseRateSeeder::class);
         $this->call(ConcourseSeeder::class);
         $this->call(SpaceSeeder::class);
-        // $this->call(ApplicationSeeder::class);
-        // $this->call(RequirementSeeder::class);
-        // $this->call(PaymentSeeder::class);
+        $this->call(ApplicationSeeder::class);
+        $this->call(RequirementSeeder::class);
+        $this->call(PaymentSeeder::class);
     }
 }

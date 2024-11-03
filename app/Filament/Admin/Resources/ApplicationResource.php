@@ -142,9 +142,11 @@ class ApplicationResource extends Resource
                     ->sortable()
                     ->label('Tenant'),
                 Tables\Columns\TextColumn::make('concourse.name')
-                    ->sortable(),
+                    ->sortable()
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('space.name')
-                    ->sortable(),
+                    ->sortable()
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('business_name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -82,7 +82,7 @@ class EditApplication extends EditRecord
             Actions\Action::make('approveApplication')
                 ->label('Approve Application')
                 ->icon('heroicon-o-check-circle')
-                ->visible(fn($record) => $record->requirements_status === 'approved')
+                ->visible(fn($record) => $record->requirements_status == 'approved' || $record->requirements_status == 'rejected')
                 ->action(function () {
                     $application = $this->getRecord();
 
@@ -232,7 +232,7 @@ class EditApplication extends EditRecord
             Actions\Action::make('rejectApplication')
                 ->label('Reject Application')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->requirements_status !== 'rejected')
+                ->visible(fn($record) => $record->requirements_status == 'rejected')
                 ->action(function () {
                     $application = $this->getRecord();
 
@@ -268,6 +268,9 @@ class EditApplication extends EditRecord
 
                         // Permanently delete the application
                         $application->forceDelete();
+
+                        // Additional function to perform after deletion
+                        $this->additionalDeletionTasks($application);
 
                         // Show a success message in the UI
                         Notification::make()
@@ -385,5 +388,11 @@ class EditApplication extends EditRecord
         $tenantUser = User::find($application->user_id);
 
         Mail::to($tenantUser->email)->send(new ApplicationRejectedMail($application));
+    }
+
+    private function additionalDeletionTasks($application)
+    {
+        // Implement additional tasks here, for example, logging or further cleanup
+        // Log::info("Application permanently deleted: {$application->id}");
     }
 }
