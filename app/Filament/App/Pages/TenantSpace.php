@@ -64,8 +64,14 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->searchable(),
                 Tables\Columns\TextColumn::make('Contract')
                     ->label('Contract')
-                    ->default(fn($record) => $record->lease_start ? 'Start: ' . $record->lease_start->format('F j, Y') : null)
-                    ->description(fn($record) => $record->lease_end ? 'End: ' . $record->lease_end->format('F j, Y') : null),
+                    ->default(function($record) {
+                        if (!$record->lease_start) return null;
+                        return 'Start: ' . $record->lease_start->format('F j, Y');
+                    })
+                    ->description(function($record) {
+                        if (!$record->lease_end) return null;
+                        return 'End: ' . $record->lease_end->format('F j, Y');
+                    }),
                 Tables\Columns\TextColumn::make('Rent Bills')
                     ->label('Rent Bills')
                     ->default(fn($record) => $record->rent_bills > 0 ? '₱' . number_format($record->rent_bills, 2) : '₱0.00')
