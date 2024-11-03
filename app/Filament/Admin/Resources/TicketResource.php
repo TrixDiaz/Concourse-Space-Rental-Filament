@@ -247,7 +247,7 @@ class TicketResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->visible(fn($record) => auth()->user()->hasRole('super_admin') || $record->assignedTo == auth()->user()->id),
+                    ->visible(fn($record) => auth()->user()->hasRole('super_admin') || auth()->user()->hasRole('analyst') || $record->assigned_to == auth()->user()->name),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
