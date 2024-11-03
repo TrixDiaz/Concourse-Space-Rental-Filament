@@ -25,7 +25,7 @@ class ViewSpaceConcourses extends Page
     public $canCreateSpace = false;
     public $drawMode = false;
     public $spaceDimensions = null;
-    public $sqm;
+    public $sqm = 0;
     public $rate;
 
     public function mount(int | string $record): void
@@ -117,6 +117,7 @@ class ViewSpaceConcourses extends Page
 
     protected function computePrice()
     {
+        $this->sqm = (int) $this->sqm;
         $this->price = $this->sqm * $this->rate;
     }
 
