@@ -54,7 +54,8 @@ class MyReport extends Page implements HasTable
                         'medium' => 'warning',
                         'critical' => 'danger',
                         default => 'secondary', // Default color if none of the above
-                    }),
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('F j, Y')
                     ->toggleable(isToggledHiddenByDefault: true),

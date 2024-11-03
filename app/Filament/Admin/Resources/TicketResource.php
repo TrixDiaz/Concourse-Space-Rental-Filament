@@ -43,6 +43,11 @@ class TicketResource extends Resource
                             ->relationship('space', 'name')
                             ->required()
                             ->disabled(),
+                        Forms\Components\Select::make('created_by')
+                            ->label('Created by')
+                            ->relationship('createdBy', 'name')
+                            ->required()
+                            ->disabled(),
                         Forms\Components\TextInput::make('title')
                             ->required()
                             ->maxLength(255)

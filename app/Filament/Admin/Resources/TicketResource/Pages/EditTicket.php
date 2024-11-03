@@ -45,6 +45,9 @@ class EditTicket extends EditRecord
                         'remarks' => $data['remarks']
                     ]);
                     $this->sendResolvedNotification();
+                    
+                    // Add redirect after resolution
+                    redirect()->route('filament.admin.resources.tickets.index');
                 })
                 ->visible(fn($record) => $record->status == 'in_progress')
                 ->color('success'),
