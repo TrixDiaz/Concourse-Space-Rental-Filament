@@ -326,6 +326,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                 Tables\Actions\Action::make('Report')
                     ->link()
                     ->icon('heroicon-o-paper-airplane')
+                    ->visible(fn($record) => $record->status === 'occupied')
                     ->form(fn($record) => ReportForm::schema($record))
                     ->action(function (array $data, $record) {
                         $ticket = new \App\Models\Ticket($data);
@@ -348,8 +349,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                             ->body('A new ticket has been submitted.')
                             ->success()
                             ->sendToDatabase(User::find(1));
-                    })
-                    ->visible(fn($record) => true),
+                    }),
             ])->headerActions([
                 Tables\Actions\Action::make('My Report')
                     ->link()

@@ -1,6 +1,6 @@
 <div>
-    <div id="map" style="height: 400px; width: 100%;" class="mb-4"></div>
     {{ $this->table }}
+    <div id="map" style="height: 400px; width: 100%;" class="mb-4"></div>
 </div>
 
 @push('scripts')
