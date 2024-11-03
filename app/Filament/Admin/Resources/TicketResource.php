@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -41,11 +42,6 @@ class TicketResource extends Resource
                             ->disabled(),
                         Forms\Components\Select::make('space_id')
                             ->relationship('space', 'name')
-                            ->required()
-                            ->disabled(),
-                        Forms\Components\Select::make('created_by')
-                            ->label('Created by')
-                            ->relationship('createdBy', 'name')
                             ->required()
                             ->disabled(),
                         Forms\Components\TextInput::make('title')
@@ -220,6 +216,8 @@ class TicketResource extends Resource
                 Tables\Columns\TextColumn::make('incident_ticket_number')
                     ->description(fn($record) => $record->concern_type)
                     ->searchable(),
+                Tables\Columns\TextColumn::make('created_by')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize'])
@@ -248,7 +246,10 @@ class TicketResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options(Ticket::query()->select('status')->distinct()->pluck('status')),
+                SelectFilter::make('concern_type')
+                    ->options(Ticket::query()->select('concern_type')->distinct()->pluck('concern_type')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

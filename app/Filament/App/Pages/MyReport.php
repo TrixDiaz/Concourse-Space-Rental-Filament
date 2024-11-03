@@ -65,7 +65,9 @@ class MyReport extends Page implements HasTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options(Ticket::query()->select('status')->distinct()->pluck('status'))
+                    ->options(Ticket::query()->select('status')->distinct()->pluck('status')),
+                SelectFilter::make('concern_type')
+                    ->options(Ticket::query()->select('concern_type')->distinct()->pluck('concern_type')),
             ])
             ->actions([
                 Tables\Actions\Action::make('view')
