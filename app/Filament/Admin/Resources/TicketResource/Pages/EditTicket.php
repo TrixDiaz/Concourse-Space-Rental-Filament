@@ -49,7 +49,7 @@ class EditTicket extends EditRecord
                     // Add redirect after resolution
                     redirect()->route('filament.admin.resources.tickets.index');
                 })
-                ->visible(fn($record) => $record->status == 'in_progress')
+                ->visible(fn($record) => $record->status == 'in_progress' || auth()->user()->hasRole('super_admin'))
                 ->color('success'),
         ];
     }
