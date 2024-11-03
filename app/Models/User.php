@@ -16,18 +16,18 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     use HasFactory, Notifiable, SoftDeletes, HasRoles, HasPanelShield;
 
-    public function canAccessPanel(Panel $panel): bool
-    {
-        if ($panel->getId() === 'admin') {
-            return $this->hasRole('super_admin') || $this->hasRole('accountant');
-        }
+    // public function canAccessPanel(Panel $panel): bool
+    // {
+    //     if ($panel->getId() === 'admin') {
+    //         return $this->hasRole('super_admin') || $this->hasRole('accountant') || $this->hasRole('admin') ;
+    //     }
         
-        if ($panel->getId() === 'app' && $this->hasRole('panel_user')) {
-            return true;
-        } 
+    //     if ($panel->getId() === 'app' && $this->hasRole('panel_user')) {
+    //         return true;
+    //     } 
     
-        return false;
-    }
+    //     return false;
+    // }
 
     protected static function boot()
     {
