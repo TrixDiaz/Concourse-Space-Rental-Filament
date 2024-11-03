@@ -30,8 +30,8 @@ class UserSeeder extends Seeder
         ]);
 
         // Create 500 fake users
-        User::factory()->count(500)->create()->each(function ($user) {
-            $user->assignRole('panel_user');
-        });
+        // User::factory()->count(500)->create()->each(function ($user) {
+        //     $user->assignRole('panel_user');
+        // });
     }
 }
