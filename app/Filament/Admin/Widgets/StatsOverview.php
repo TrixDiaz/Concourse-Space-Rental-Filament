@@ -5,8 +5,7 @@ namespace App\Filament\Admin\Widgets;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Payment;
-use App\Models\Application;
-use App\Models\User;
+use App\Models\Space;
 use Illuminate\Support\Facades\DB;
 
 class StatsOverview extends BaseWidget
@@ -24,19 +23,19 @@ class StatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        $totalRevenue = Payment::where('payment_status', 'paid')->sum('amount');
+        $totalRevenue = Payment::where('payment_status', 'paid')->sum('rent_bill');
         
-        // Water stats
-        $totalWaterBill = Payment::where('payment_status', 'paid')->sum('water_bill');
-        $totalWaterConsumption = Payment::sum('water_consumption');
+        // Water stats from Spaces
+        $totalWaterBill = Space::sum('water_bills');
+        $totalWaterConsumption = Space::sum('water_consumption');
         
-        // Electric stats
-        $totalElectricBill = Payment::where('payment_status', 'paid')->sum('electricity_bill');
-        $totalElectricConsumption = Payment::sum('electricity_consumption');
+        // Electric stats from Spaces
+        $totalElectricBill = Space::sum('electricity_bills');
+        $totalElectricConsumption = Space::sum('electricity_consumption');
 
-        $revenueChart = $this->getChartData(Payment::class, 'amount');
-        $waterBillChart = $this->getChartData(Payment::class, 'water_bill');
-        $electricBillChart = $this->getChartData(Payment::class, 'electricity_bill');
+        $revenueChart = $this->getChartData(Payment::class, 'rent_bill');
+        $waterBillChart = $this->getSpaceChartData('water_bills');
+        $electricBillChart = $this->getSpaceChartData('electricity_bills');
 
         return [
             Stat::make('Revenue', '₱' . number_format($totalRevenue, 2))
@@ -61,6 +60,16 @@ class StatsOverview extends BaseWidget
     {
         return Payment::query()
             ->where('payment_status', 'paid')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('created_at')
+            ->pluck(DB::raw("sum($column) as total"))
+            ->toArray();
+    }
+
+    private function getSpaceChartData(string $column): array
+    {
+        return Space::query()
             ->where('created_at', '>=', now()->subDays(7))
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderBy('created_at')

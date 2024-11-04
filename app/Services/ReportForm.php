@@ -32,13 +32,13 @@ final class ReportForm
                 ->rows(3),
             Forms\Components\Select::make('concern_type')
                 ->options([
-                    'maintenance_and_repair' => 'Maintenance and Repair',
-                    'safety_and_security' => 'Safety and Security',
-                    'cleanliness_and_sanitation' => 'Cleanliness and Sanitation',
-                    'lease_and_contractual' => 'Lease and Contractual Issues',
-                    'utilities_concerns' => 'Utilities Concerns',
-                    'aesthetic_and_comestics' => 'Aesthetic and Comestics Issues',
-                    'general_support' => 'General Support',
+                    'maintenance and repair' => 'Maintenance and Repair',
+                    'safety and security' => 'Safety and Security',
+                    'cleanliness and sanitation' => 'Cleanliness and Sanitation',
+                    'lease and contractual' => 'Lease and Contractual Issues',
+                    'utilities concerns' => 'Utilities Concerns',
+                    'aesthetic and comestics' => 'Aesthetic and Comestics Issues',
+                    'general support' => 'General Support',
                     'others' => 'Others',
                 ])
                 ->native(false)

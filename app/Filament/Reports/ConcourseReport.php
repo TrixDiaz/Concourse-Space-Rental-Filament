@@ -179,7 +179,7 @@ class ConcourseReport extends Report
         }
 
         if (!$filtersApplied) {
-            $spaces = $query->latest('created_at')->take(5)->get();
+            $spaces = $query->latest('created_at')->get();
         } else {
             $spaces = $query->latest('created_at')->get();
         }

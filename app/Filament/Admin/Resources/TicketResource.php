@@ -210,14 +210,18 @@ class TicketResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('incident_ticket_number')
+                ->description(fn($record) => $record->concern_type)
+                ->searchable(),
                 Tables\Columns\TextColumn::make('concourse.name')
                     ->description(fn($record) => $record->space->name)
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('incident_ticket_number')
-                    ->description(fn($record) => $record->concern_type)
+                    ->sortable(),   
+                Tables\Columns\TextColumn::make('createdBy.name')
+                    ->label('Tenant')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_by')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('remarks')
+                    ->limit(10)
+                    ->default(fn($record) => $record->remarks ? $record->remarks : 'No remarks'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize'])

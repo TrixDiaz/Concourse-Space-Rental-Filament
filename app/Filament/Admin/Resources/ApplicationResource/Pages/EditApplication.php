@@ -20,10 +20,10 @@ use Illuminate\Support\Facades\Mail;
 
 class EditApplication extends EditRecord
 {
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index');
+    // }
 
     protected static string $resource = ApplicationResource::class;
 
@@ -174,7 +174,7 @@ class EditApplication extends EditRecord
                             ->send();
 
                         // Redirect to the list view after approval
-                        return redirect()->route('filament.admin.resources.applications.index');
+                        return redirect($this->getResource()::getUrl('index'));
                     });
                 })
                 ->color('success')
@@ -182,7 +182,7 @@ class EditApplication extends EditRecord
             Actions\Action::make('rejectRequirements')
                 ->label('Reject Requirements')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->requirements_status !== 'rejected')
+                ->visible(fn($record) => $record->requirements_status !== 'approved' || $record->requirements_status === 'pending')
                 ->action(function () {
                     $application = $this->getRecord();
 
@@ -222,7 +222,7 @@ class EditApplication extends EditRecord
             Actions\Action::make('rejectApplication')
                 ->label('Reject Application')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->requirements_status == 'rejected')
+                ->visible(fn($record) => $record->requirements_status == 'approved' || $record->requirements_status == 'pending')
                 ->action(function () {
                     $application = $this->getRecord();
 

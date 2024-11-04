@@ -25,8 +25,6 @@ class ListApplications extends ListRecords
         return [
             'pending' => Tab::make('Pending')
                 ->query(fn(Builder $query): Builder => $query->where('application_status', 'pending')->orWhere('application_status', 'renewal')),
-            'new' => Tab::make('New')
-                ->query(fn(Builder $query): Builder => $query->where('space_type', 'new')),
             'renewal' => Tab::make('Renewal')
                 ->query(fn(Builder $query): Builder => $query->where('space_type', 'renewal')),
             'all' => Tab::make('All')

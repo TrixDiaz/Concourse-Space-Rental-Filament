@@ -29,20 +29,17 @@ class MyReport extends Page implements HasTable
             ->columns([
                 Tables\Columns\TextColumn::make('incident_ticket_number')
                     ->label('Ticket Number')
-                    ->copyable()
+                    ->description(fn($record) => $record->concern_type)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('concourse.name')
                     ->label('Concourse')
                     ->description(fn($record) => $record->space->name),
-                Tables\Columns\TextColumn::make('assignedTo.name')
-                    ->label('Assigned To')
-                    ->description(fn($record) => $record->concern_type),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->extraAttributes(['class' => 'capitalize'])
                     ->color(fn($record) => match ($record->status) {
                         'pending' => 'warning',
-                        'in_progress' => 'info',
+                        'in progress' => 'info',
                         'resolved' => 'success',
                         default => 'info', // Default color if none of the above
                     }),
@@ -115,7 +112,7 @@ class MyReport extends Page implements HasTable
                                     \Filament\Forms\Components\TextInput::make('assigned_to')
                                         ->label('Assigned to')
                                         ->disabled()
-                                        ->default(fn($record) => $record->assignedTo->name)
+                                        ->default(fn($record) => $record->assignedTo->name ?? 'Not assigned')
                                         ->extraAttributes(['class' => 'capitalize']),
                                 ]),
 
@@ -230,7 +227,9 @@ class MyReport extends Page implements HasTable
                             ]),
 
                         ])->columns(3),
-                    ]),
+                    ])
+                    ->modalButton('Close')
+                    ->modalActions(null),
 
             ]);
     }
