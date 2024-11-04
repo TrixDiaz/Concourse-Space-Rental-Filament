@@ -117,7 +117,7 @@ class ViewSpaceConcourses extends Page
 
     protected function computePrice()
     {
-        $this->sqm = (int) $this->sqm;
+        $this->sqm = (float) $this->sqm;
         $this->price = $this->sqm * $this->rate;
     }
 

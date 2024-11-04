@@ -75,15 +75,18 @@ class TenantSpace extends Page implements HasForms, HasTable
                 Tables\Columns\TextColumn::make('Rent Bills')
                     ->label('Rent Bills')
                     ->default(fn($record) => $record->rent_bills > 0 ? '₱' . number_format($record->rent_bills, 2) : '₱0.00')
-                    ->description(fn($record) => $record->rent_payment_status == 'paid' ? '' : 'Unpaid'),
+                    ->description(fn($record) => $record->rent_payment_status == 'paid' ? '' : 'Unpaid')
+                    ->tooltip(fn($record) => $record->rent_due ? 'Due: ' . Carbon::parse($record->rent_due)->format('M d, Y') : ''),
                 Tables\Columns\TextColumn::make('Water Bills')
                     ->label('Water Bills')
                     ->default(fn($record) => $record->water_bills > 0 ? '₱' . number_format($record->water_bills, 2) : '₱0.00')
-                    ->description(fn($record) => $record->water_payment_status == 'paid' ? '' : 'Unpaid'),
+                    ->description(fn($record) => $record->water_payment_status == 'paid' ? '' : 'Unpaid')
+                    ->tooltip(fn($record) => $record->water_due ? 'Due: ' . Carbon::parse($record->water_due)->format('M d, Y') : ''),
                 Tables\Columns\TextColumn::make('Electricity Bills')
                     ->label('Electricity Bills')
                     ->default(fn($record) => $record->electricity_bills > 0 ? '₱' . number_format($record->electricity_bills, 2) : '₱0.00')
-                    ->description(fn($record) => $record->electricity_payment_status == 'paid' ? '' : 'Unpaid'),
+                    ->description(fn($record) => $record->electricity_payment_status == 'paid' ? '' : 'Unpaid')
+                    ->tooltip(fn($record) => $record->electricity_due ? 'Due: ' . Carbon::parse($record->electricity_due)->format('M d, Y') : ''),
             ])
             ->actions([
                 Tables\Actions\Action::make('renew')

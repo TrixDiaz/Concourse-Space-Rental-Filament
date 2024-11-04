@@ -105,7 +105,15 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                                                 ->disk('public')
                                                 ->directory('requirements')
                                                 ->acceptedFileTypes(['application/pdf', 'image/*'])
-                                                ->maxSize(5120),
+                                                ->maxSize(5120)
+                                                ->openable()
+                                                ->imagePreviewHeight('250')
+                                                ->loadingIndicatorPosition('left')
+                                                ->panelAspectRatio('2:1')
+                                                ->panelLayout('integrated')
+                                                ->removeUploadedFileButtonPosition('right')
+                                                ->uploadButtonPosition('left')
+                                                ->uploadProgressIndicatorPosition('left'),
                                             Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
                                                 ->label($requirement->name)
                                                 ->extraInputAttributes(['class' => 'capitalize'])
