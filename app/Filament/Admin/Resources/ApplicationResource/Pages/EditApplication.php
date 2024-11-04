@@ -90,7 +90,7 @@ class EditApplication extends EditRecord
                         // Update application status
                         $application->update(['application_status' => 'approved']);
 
-                        // Update space status and details
+                        // Update space status and details if space is found
                         $space = Space::find($application->space_id);
                         if ($space) {
                             $space->update([
