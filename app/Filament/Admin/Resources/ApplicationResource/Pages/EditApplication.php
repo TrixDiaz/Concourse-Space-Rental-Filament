@@ -106,7 +106,9 @@ class EditApplication extends EditRecord
                                 'address' => $application->address,
                                 'phone_number' => $application->phone_number,
                                 'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
-                                'lease_end' => Carbon::parse($application->lease_start)->addMonths($application->concourse_lease_term),
+                                'lease_end' => $application->lease_end 
+                                    ? Carbon::parse($application->lease_end)->addMonths($application->concourse_lease_term)
+                                    : Carbon::parse($application->lease_start)->addMonths($application->concourse_lease_term),
                                 'lease_term' => $application->concourse_lease_term,
                                 'lease_status' => 'active',
                                 'application_status' => 'approved',
@@ -138,33 +140,6 @@ class EditApplication extends EditRecord
                             ->title('Application Approved')
                             ->body("Your application and associated space have been approved.")
                             ->sendToDatabase($applicationUser);
-
-                        // Create a new Tenant instance
-                        $space = Space::find($application->space_id);
-                        $space->update([
-                            'application_id' => $application->id,
-                            'user_id' => $application->user_id,
-                            'concourse_id' => $application->concourse_id,
-                            'lease_start' => $application->created_at,
-                            'email' => $application->email,
-                            'owner_name' => $application->owner_name,
-                            'business_name' => $application->business_name,
-                            'address' => $application->address,
-                            'phone_number' => $application->phone_number,
-                            'business_type' => $application->business_type ?? 'Not specified',
-                            'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
-                            'lease_end' => Carbon::parse($application->lease_start)->addMonths($application->concourse_lease_term),
-                            'lease_term' => $application->concourse_lease_term,
-                            'lease_status' => 'active',
-                            'application_status' => 'approved',
-                            'requirements_status' => 'approved',
-                            'space_type' => 'new',
-                            'bills' => $application->bills ? json_encode($application->bills) : null,
-                            'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : 0,
-                            'payment_status' => '',
-                            'is_active' => true,
-                            'remarks' => $application->remarks,
-                        ]);
 
                         // Show a success message in the UI
                         Notification::make()
