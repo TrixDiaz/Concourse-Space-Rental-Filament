@@ -19,6 +19,11 @@ class Approve extends Page implements HasForms, HasTable
 {
     use InteractsWithForms, InteractsWithTable;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->hasRole('super_admin');
+    }
+
     protected static ?string $navigationGroup = 'Applications Settings';
 
     protected static ?string $navigationLabel = 'Tenants';
