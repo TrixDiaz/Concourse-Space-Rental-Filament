@@ -23,32 +23,32 @@ class StatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        $totalRevenue = Payment::where('payment_status', 'paid')->sum('rent_bill');
+        $totalRevenue = Space::where('rent_payment_status', 'unpaid')->sum('rent_bills');
         
         // Water stats from Spaces
-        $totalWaterBill = Space::sum('water_bills');
-        $totalWaterConsumption = Space::sum('water_consumption');
+        $totalWaterBill = Space::where('water_payment_status', 'unpaid')->sum('water_bills');
+        $totalWaterConsumption = Space::where('water_payment_status', 'unpaid')->sum('water_consumption');
         
         // Electric stats from Spaces
-        $totalElectricBill = Space::sum('electricity_bills');
-        $totalElectricConsumption = Space::sum('electricity_consumption');
+        $totalElectricBill = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_bills');
+        $totalElectricConsumption = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_consumption');
 
-        $revenueChart = $this->getChartData(Payment::class, 'rent_bill');
+        $revenueChart = $this->getChartData(Space::class, 'rent_bills');
         $waterBillChart = $this->getSpaceChartData('water_bills');
         $electricBillChart = $this->getSpaceChartData('electricity_bills');
 
         return [
-            Stat::make('Revenue', '₱' . number_format($totalRevenue, 2))
+            Stat::make('Total Unpaid Rent', '₱' . number_format($totalRevenue, 2))
                 ->description($this->getChangeDescription($revenueChart))
                 ->descriptionIcon($this->getChangeIcon($revenueChart))
                 ->chart($revenueChart)
                 ->color($this->getChangeColor($revenueChart)),
-            Stat::make('Water Usage & Bills', number_format($totalWaterConsumption) . ' m³')
+            Stat::make('Total Unpaid Water Usage & Bills', number_format($totalWaterConsumption) . ' m³')
                 ->description('₱' . number_format($totalWaterBill, 2) . ' total water bills')
                 ->descriptionIcon($this->getChangeIcon($waterBillChart))
                 ->chart($waterBillChart)
                 ->color($this->getChangeColor($waterBillChart)),
-            Stat::make('Electric Usage & Bills', number_format($totalElectricConsumption) . ' kWh')
+            Stat::make('Total Unpaid Electric Usage & Bills', number_format($totalElectricConsumption) . ' kWh')
                 ->description('₱' . number_format($totalElectricBill, 2) . ' total electric bills')
                 ->descriptionIcon($this->getChangeIcon($electricBillChart))
                 ->chart($electricBillChart)
@@ -58,11 +58,11 @@ class StatsOverview extends BaseWidget
 
     private function getChartData(string $model, string $column, string $aggregation = 'sum'): array
     {
-        return Payment::query()
-            ->where('payment_status', 'paid')
-            ->where('created_at', '>=', now()->subDays(7))
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->orderBy('created_at')
+        return Space::query()
+            ->where('rent_payment_status', 'unpaid')
+            ->where('updated_at', '>=', now()->subDays(7))
+            ->groupBy(DB::raw('DATE(updated_at)'))
+            ->orderBy('updated_at')
             ->pluck(DB::raw("sum($column) as total"))
             ->toArray();
     }
@@ -70,9 +70,9 @@ class StatsOverview extends BaseWidget
     private function getSpaceChartData(string $column): array
     {
         return Space::query()
-            ->where('created_at', '>=', now()->subDays(7))
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->orderBy('created_at')
+            ->where('updated_at', '>=', now()->subDays(7))
+            ->groupBy(DB::raw('DATE(updated_at)'))
+            ->orderBy('updated_at')
             ->pluck(DB::raw("sum($column) as total"))
             ->toArray();
     }
