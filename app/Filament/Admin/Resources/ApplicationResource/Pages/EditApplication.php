@@ -106,7 +106,7 @@ class EditApplication extends EditRecord
                                 'address' => $application->address,
                                 'phone_number' => $application->phone_number,
                                 'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
-                                'lease_end' => Carbon::parse($application->created_at)->addMonths($application->concourse_lease_term),
+                                'lease_end' => Carbon::parse($application->lease_start)->addMonths($application->concourse_lease_term),
                                 'lease_term' => $application->concourse_lease_term,
                                 'lease_status' => 'active',
                                 'application_status' => 'approved',
