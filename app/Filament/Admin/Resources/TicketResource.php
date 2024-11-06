@@ -30,7 +30,6 @@ class TicketResource extends Resource
                     Forms\Components\Section::make()->schema([
                         Forms\Components\Hidden::make('incident_ticket_number')
                             ->required()
-                            ->maxLength(255)
                             ->columnSpanFull()
                             ->disabled(),
                     ]),
