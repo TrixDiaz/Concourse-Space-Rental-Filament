@@ -13,7 +13,7 @@
     <p>We are pleased to inform you that your ticket submitted for {{ $data['space_name'] }} at {{ $data['concourse_name'] }} has been resolved.</p>
 
     <p>Ticket Details:</p>
-    <p>Ticket Number: {{ $data['ticket_number'] }}</p>
+    <p>Ticket Number: {{ $data['incident_ticket_number'] }}</p>
     <p>Concern Type: {{ $data['concern_type'] }}</p>
     <p>Issue Description: {{ $data['description'] }}</p>
     <p>Resolution: {{ $data['resolution'] }}</p>

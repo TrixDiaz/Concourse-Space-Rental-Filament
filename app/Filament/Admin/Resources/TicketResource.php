@@ -28,7 +28,7 @@ class TicketResource extends Resource
             ->schema([
                 Forms\Components\Grid::make(2)->schema([
                     Forms\Components\Section::make()->schema([
-                        Forms\Components\TextInput::make('incident_ticket_number')
+                        Forms\Components\Hidden::make('incident_ticket_number')
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull()
