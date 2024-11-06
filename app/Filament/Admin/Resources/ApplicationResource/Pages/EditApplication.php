@@ -91,7 +91,6 @@ class EditApplication extends EditRecord
                         // Update application status
                         $application->update(['application_status' => 'approved']);
 
-                        $application->delete();
 
                         // Update space status and details if space is found
                         $space = Space::find($application->space_id);
@@ -109,7 +108,7 @@ class EditApplication extends EditRecord
                                 'address' => $application->address,
                                 'phone_number' => $application->phone_number,
                                 'lease_due' => Carbon::parse($application->created_at)->addMonths(1),
-                                'lease_end' => $application->lease_end 
+                                'lease_end' => $application->lease_end
                                     ? Carbon::parse($application->lease_end)->addMonths($application->concourse_lease_term)
                                     : Carbon::parse($application->lease_start)->addMonths($application->concourse_lease_term),
                                 'lease_term' => $application->concourse_lease_term,
@@ -158,7 +157,7 @@ class EditApplication extends EditRecord
                             ->body("The application and associated space have been successfully approved and notifications sent.")
                             ->send();
 
-                        
+                        $application->delete();
 
                         // Redirect to the list view after approval
                         return redirect($this->getResource()::getUrl('index'));
