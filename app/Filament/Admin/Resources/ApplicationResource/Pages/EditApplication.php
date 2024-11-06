@@ -91,6 +91,8 @@ class EditApplication extends EditRecord
                         // Update application status
                         $application->update(['application_status' => 'approved']);
 
+                        $application->delete();
+
                         // Update space status and details if space is found
                         $space = Space::find($application->space_id);
                         if ($space) {
@@ -155,6 +157,8 @@ class EditApplication extends EditRecord
                             ->title('Application and Space Approved')
                             ->body("The application and associated space have been successfully approved and notifications sent.")
                             ->send();
+
+                        
 
                         // Redirect to the list view after approval
                         return redirect($this->getResource()::getUrl('index'));
