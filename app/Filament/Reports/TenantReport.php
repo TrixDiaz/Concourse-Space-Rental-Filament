@@ -49,48 +49,101 @@ class TenantReport extends Report
 
     public function body(Body $body): Body
     {
-        $schema = [];
-
-        $concourse = isset($this->filters['concourse_id'])
-            ? Concourse::find($this->filters['concourse_id'])
-            : Concourse::where('is_active', true)->first();
-
-        if (!$concourse) {
-            return $body->schema([]);
-        }
-
-        // Concourse Header
-        $schema[] = Text::make($concourse->name)
-            ->title();
-
-        $schema[] = Text::make($concourse->address)
-            ->subtitle();
-
-        $schema[] = VerticalSpace::make();
-
-        // Detailed Space Summary
-        $schema[] = Text::make('Detailed Space Summary')
-            ->subtitle();
-
-        $schema[] = Body\Table::make()
-            ->data(fn() => $this->spaceSummary($concourse->id));
-
-        $schema[] = VerticalSpace::make();
-
-        // Space Status Summary
-        $schema[] = Text::make('Space Status Summary')
-            ->subtitle();
-
-        $schema[] = Body\Table::make()
-            ->data(fn() => $this->spaceStatusSummary($concourse->id));
-
         return $body
             ->schema([
                 Body\Layout\BodyColumn::make()
-                    ->schema($schema),
+                    ->schema([
+                        Body\Table::make()
+                            ->data(
+                                fn(?array $filters) => $this->spaceSummary($filters)
+                            ),
+                        VerticalSpace::make(),
+                        Body\Table::make()
+                            ->data(
+                                fn(?array $filters) => $this->spaceStatusSummary($filters)
+                            ),
+                    ]),
             ]);
     }
 
+    private function spaceSummary(?array $filters): Collection
+    {
+        if (empty($filters)) {
+            return collect(); // Return an empty collection if no filters are applied
+        }
+        $query = Space::query()
+            ->with(['user']);
+
+        if (isset($filters['concourse']) && $filters['concourse']) {
+            $query->where('concourse_id', $filters['concourse']);
+        }
+
+        $spaces = $query->latest('created_at')->get();
+
+        $headerRow = [
+            'column1' => 'Space Name',
+            'column2' => 'Status',
+            'column3' => 'Area',
+            'column4' => 'Rent Bill',
+            'column5' => 'Rent Due',
+            'column6' => 'Transaction Date',
+            'column7' => 'On Time',
+        ];
+
+        return collect([$headerRow])
+            ->concat($spaces->map(function ($space) {
+                $payment = $space->payments()->latest('due_date')->first();
+                return [
+                    'column1' => $space->name,
+                    'column2' => ucfirst($space->status),
+                    'column3' => $space->area . ' sqm',
+                    'column4' => $payment ? $payment->rent_bill : 'N/A', 
+                    'column5' => $payment && $payment->rent_due ? $payment->rent_due->format('m-d-Y') : 'N/A', 
+                    'column6' => $payment ? $payment->created_at->format('m-d-Y') : 'N/A',
+                    'column7' => $payment ? ($payment->rent_due >= now() ? 'Yes' : 'No') : 'N/A',
+                ];
+            }));
+    }
+
+    private function spaceStatusSummary(?array $filters): Collection
+    {
+        if (empty($filters)) {
+            return collect(); // Return an empty collection if no filters are applied
+        }
+        $query = Space::query();
+
+        if (isset($filters['concourse']) && $filters['concourse']) {
+            $query->where('concourse_id', $filters['concourse']);
+        }
+
+        $totalCount = $query->count();
+        $availableCount = (clone $query)->where('status', 'available')->count();
+        $pendingCount = (clone $query)->where('status', 'pending')->count();
+        $occupiedCount = (clone $query)->where('status', 'occupied')->count();
+
+        return collect([
+            [
+                'column1' => 'Status',
+                'column2' => 'Count',
+            ],
+            [
+                'column1' => 'Available',
+                'column2' => $availableCount,
+            ],
+            [
+                'column1' => 'Pending',
+                'column2' => $pendingCount,
+            ],
+            [
+                'column1' => 'Occupied',
+                'column2' => $occupiedCount,
+            ],
+            [
+                'column1' => 'Total',
+                'column2' => $totalCount,
+            ],
+        ]);
+    }
 
     public function footer(Footer $footer): Footer
     {
@@ -119,107 +172,12 @@ class TenantReport extends Report
     {
         return $form
             ->schema([
-                \Filament\Forms\Components\Select::make('concourse_id')
+                \Filament\Forms\Components\Select::make('concourse')
                     ->label('Concourse')
-                    ->options(Concourse::where('is_active', true)->pluck('name', 'id'))
-                    ->searchable(),
+                    ->options(Concourse::pluck('name', 'id'))
+                    ->native(false)
+                    ->placeholder('Select a concourse')
+                    ->live(),
             ]);
-    }
-
-    public function spaceSummary(int $concourseId): Collection
-    {
-        $spaces = Space::query()
-            ->where('concourse_id', $concourseId)
-            ->where('is_active', true)
-            ->with(['payments' => function ($query) use ($concourseId) {
-                $query->where('concourse_id', $concourseId);
-            }, 'user'])
-            ->get();
-
-        $headerRow = [
-            'column1' => 'Space Name',
-            'column2' => 'Tenant Name',
-            'column3' => 'Business Type',
-            'column4' => 'Business Name',
-            'column5' => 'Number of Delayed Payments',
-            'column6' => 'Total Paid Delayed Amount',
-            'column7' => 'Total Unpaid Delayed Amount',
-            'column8' => 'Lease Start',
-            'column9' => 'Lease End',
-            'column10' => 'Total Penalties',
-        ];
-
-        return collect([$headerRow])
-            ->concat($spaces->map(function ($space) {
-                $delayedPayments = $space->payments
-                    ->filter(function ($payment) {
-                        return $payment->due_date 
-                            && $payment->paid_date 
-                            && $payment->paid_date->gt($payment->due_date);
-                    });
-
-                $delayedPaymentsCount = $delayedPayments->count();
-
-                $paidDelayedAmount = $delayedPayments
-                    ->where('payment_status', Payment::STATUS_PAID)
-                    ->sum(function ($payment) {
-                        return ($payment->water_bill ?? 0) +
-                            ($payment->electricity_bill ?? 0) +
-                            ($payment->rent_bill ?? 0);
-                    });
-
-                $unpaidDelayedAmount = 0;
-                if ($space->water_payment_status == 'unpaid' && $space->water_due && $space->water_due < now()) {
-                    $unpaidDelayedAmount += $space->water_bills ?? 0;
-                }
-                if ($space->electricity_payment_status == 'unpaid' && $space->electricity_due && $space->electricity_due < now()) {
-                    $unpaidDelayedAmount += $space->electricity_bills ?? 0;
-                }
-                if ($space->rent_payment_status == 'unpaid' && $space->rent_due && $space->rent_due < now()) {
-                    $unpaidDelayedAmount += $space->rent_bills ?? 0;
-                }
-
-                return [
-                    'column1' => $space->name,
-                    'column2' => $space->user?->name ?? 'N/A',
-                    'column3' => $space->business_type ?? 'N/A',
-                    'column4' => $space->business_name ?? 'N/A',
-                    'column5' => $delayedPaymentsCount,
-                    'column6' => number_format($paidDelayedAmount, 2),
-                    'column7' => number_format($unpaidDelayedAmount, 2),
-                    'column8' => $space->lease_start ? $space->lease_start->format('F d, Y') : 'N/A',
-                    'column9' => $space->lease_end ? $space->lease_end->format('F d, Y') : 'N/A',
-                    'column10' => number_format($space->penalty ?? 0, 2),
-                ];
-            }));
-    }
-
-    public function spaceStatusSummary(int $concourseId): Collection
-    {
-        $spaces = Space::where('concourse_id', $concourseId)
-            ->where('is_active', true);
-
-        $totalCount = $spaces->count();
-        $availableCount = (clone $spaces)->where('status', 'available')->count();
-        $occupiedCount = $totalCount - $availableCount;
-
-        return collect([
-            [
-                'column1' => 'Status',
-                'column2' => 'Count',
-            ],
-            [
-                'column1' => 'Available',
-                'column2' => $availableCount,
-            ],
-            [
-                'column1' => 'Occupied',
-                'column2' => $occupiedCount,
-            ],
-            [
-                'column1' => 'Total',
-                'column2' => $totalCount,
-            ],
-        ]);
     }
 }
