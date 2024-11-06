@@ -1,4 +1,13 @@
-<x-mail::message>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
     <div>
         <p>Dear {{ $tenantName }},</p>
 
@@ -18,9 +27,12 @@
 
         <p>Subtotal: ₱{{ number_format($subtotal, 2) }}</p>
 
-        <p>Please note that your due date is {{ $dueDate }}. To avoid a penalty of {{ $penalty }}%, 
+        <p>Please note that your due date is {{ $dueDate }}. To avoid a penalty of {{ $penalty }}%,
             please make your payment on or before this date.</p>
 
         <p>Regards,<br>COMS</p>
     </div>
-</x-mail::message>
+
+</body>
+
+</html>

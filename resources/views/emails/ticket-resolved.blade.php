@@ -1,4 +1,13 @@
-<x-mail::message>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
     <p>Dear {{ $data['tenant_name'] }},</p>
 
     <p>We are pleased to inform you that your ticket submitted for {{ $data['space_name'] }} at {{ $data['concourse_name'] }} has been resolved.</p>
@@ -14,4 +23,6 @@
     <p>Thank you for your patience, and we're glad to have resolved this matter for you.</p>
 
     <p>Regards,<br>COMS</p>
-</x-mail::message>
+</body>
+
+</html>

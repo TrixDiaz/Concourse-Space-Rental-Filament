@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Application extends Model
+class Renew extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -52,11 +51,11 @@ class Application extends Model
 
     public function requirements()
     {
-        return $this->hasMany(AppRequirement::class);
+        return $this->hasMany(RenewAppRequirements::class);
     }
 
-    public function appRequirements()
+    public function renewAppRequirements()
     {
-        return $this->hasMany(AppRequirement::class);
+        return $this->hasMany(RenewAppRequirements::class);
     }
 }

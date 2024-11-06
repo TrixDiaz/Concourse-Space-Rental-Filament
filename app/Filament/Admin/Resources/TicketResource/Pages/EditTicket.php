@@ -6,7 +6,6 @@ use App\Filament\Admin\Resources\TicketResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
-use Filament\Notifications\Actions\Action;
 use App\Models\User;
 use App\Models\Space;
 use Illuminate\Support\Facades\Mail;
@@ -83,13 +82,13 @@ class EditTicket extends EditRecord
         $user = User::find($space->user_id);
         $authUser = auth()->user();
 
-        // Send email
+        
         Mail::to($user->email)->send(new TicketResolved([
             'tenant_name' => $user->name,
             'space_name' => $space->name,
-            'concourse_name' => $space->concourse->name, // Assuming there's a concourse relationship
+            'concourse_name' => $space->concourse->name, 
             'ticket_number' => $record->id,
-            'concern_type' => $record->type,
+            'concern_type' => $record->concern_type,
             'description' => $record->description,
             'resolution' => $record->remarks,
         ]));

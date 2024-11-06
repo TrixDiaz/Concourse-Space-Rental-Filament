@@ -20,6 +20,6 @@ class TicketResolved extends Mailable
     public function build()
     {
         return $this->subject('Ticket Resolved - COMS')
-            ->view('emails.ticket-resolved');
+            ->view('emails.ticket-resolved', ['data' => $this->data]);
     }
 }

@@ -1,8 +1,12 @@
 <x-filament-panels::page>
     <div>
-        @if($this->concourseLayout && $this->concourseLayout->layout)
+        @php
+            $concourseFilterActive = request()->query('concourse_id');
+        @endphp
+
+        @if($concourseFilterActive && $this->concourseLayout && $this->concourseLayout->layout)
             <section class="mb-6">
-                <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="rounded-lg shadow-md p-4">
                     <h2 class="text-xl font-semibold mb-4">{{ $this->concourseLayout->name }} Layout</h2>
                     <div class="relative">   
                         <img src="{{ Storage::url($this->concourseLayout->layout) }}" alt="{{ $this->concourseLayout->name }} Layout" class="w-full max-h-auto rounded-lg">
