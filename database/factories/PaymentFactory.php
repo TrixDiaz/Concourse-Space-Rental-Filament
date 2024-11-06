@@ -46,6 +46,7 @@ class PaymentFactory extends Factory
             'due_date' => $this->faker->dateTimeBetween($startDate, $endDate),
             'paid_date' => $this->faker->dateTimeBetween($startDate, $endDate),
             'created_at' => $this->faker->dateTimeBetween($startDate, $endDate),
+            'updated_at' => $this->faker->dateTimeBetween($startDate, $endDate),
             'penalty' => $this->faker->numberBetween(0, 100),
         ];
     }
