@@ -54,10 +54,6 @@ class AppPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->navigationItems([
-                NavigationItem::make('Tenant Reports')
-                    ->icon('heroicon-o-document-text')
-                    ->url(fn () => route('filament.app.reports.tenant-report'))
-                    ->sort(999),
                 NavigationItem::make('Bills Report')
                     ->icon('heroicon-o-document-text')
                     ->url(fn () => route('filament.app.reports.bills-report'))

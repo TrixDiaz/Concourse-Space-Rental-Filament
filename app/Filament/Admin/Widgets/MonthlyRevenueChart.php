@@ -7,6 +7,7 @@ use Filament\Support\RawJs;
 use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Filament\Actions\Action;
+use App\Models\Space;
 
 class MonthlyRevenueChart extends ApexChartWidget
 {
@@ -48,7 +49,7 @@ class MonthlyRevenueChart extends ApexChartWidget
 
     protected function getOptions(): array
     {
-        $rentData = $this->getRentData();
+        $data = $this->getRentData();
 
         return [
             'chart' => [
@@ -72,7 +73,13 @@ class MonthlyRevenueChart extends ApexChartWidget
             'series' => [
                 [
                     'name' => 'Rent Revenue',
-                    'data' => $rentData['amounts'],
+                    'data' => $data['amounts'],
+                    'type' => 'bar',
+                ],
+                [
+                    'name' => 'Total Space Value',
+                    'data' => $data['space_values'],
+                    'type' => 'line',
                 ],
             ],
             'plotOptions' => [
@@ -104,7 +111,7 @@ class MonthlyRevenueChart extends ApexChartWidget
                 'show' => false,
             ],
             'xaxis' => [
-                'categories' => $rentData['months'],
+                'categories' => $data['months'],
                 'labels' => [
                     'style' => [
                         'fontFamily' => 'inherit',
@@ -139,10 +146,26 @@ class MonthlyRevenueChart extends ApexChartWidget
             ],
             'stroke' => [
                 'curve' => 'smooth',
-                'width' => 1,
+                'width' => [2, 3],
                 'lineCap' => 'round',
             ],
             'colors' => ['#f59e0b', '#ea580c'],
+            'tooltip' => [
+                'enabled' => true,
+                'shared' => true,
+                'intersect' => false,
+                'followCursor' => true,
+                'marker' => [
+                    'show' => true,
+                ],
+            ],
+            'markers' => [
+                'size' => 5,
+                'hover' => [
+                    'size' => 7,
+                    'sizeOffset' => 3,
+                ],
+            ],
         ];
     }
 
@@ -158,13 +181,28 @@ class MonthlyRevenueChart extends ApexChartWidget
             ->orderBy('month')
             ->get();
 
+        $spaceData = Space::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(price) as total_price')
+        )
+            ->whereYear('created_at', date('Y'))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
         $months = [];
         $amounts = array_fill(0, 12, 0);
+        $spaceValues = array_fill(0, 12, 0);
 
         foreach ($rentData as $data) {
             $monthIndex = $data->month - 1;
             $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
             $amounts[$monthIndex] = round($data->total_rent, 2);
+        }
+
+        foreach ($spaceData as $data) {
+            $monthIndex = $data->month - 1;
+            $spaceValues[$monthIndex] = round($data->total_price, 2);
         }
 
         // Fill in any missing months
@@ -179,6 +217,7 @@ class MonthlyRevenueChart extends ApexChartWidget
         return [
             'months' => array_values($months),
             'amounts' => $amounts,
+            'space_values' => $spaceValues,
         ];
     }
 
@@ -201,14 +240,23 @@ class MonthlyRevenueChart extends ApexChartWidget
                 }
             },
             tooltip: {
-                y: {
+                shared: true,
+                intersect: false,
+                y: [{
                     formatter: function (val) {
                         return '₱' + val.toFixed(2)
                     }
-                }
+                }, {
+                    formatter: function (val) {
+                        return '₱' + val.toFixed(2)
+                    }
+                }]
             },
             chart: {
                 events: {
+                    mouseMove: function(event, chartContext, config) {
+                        // Add hover effect
+                    },
                     mounted: function(chartContext, config) {
                         const exportButton = chartContext.toolbar.exportMenu.exportSelected.bind(chartContext.toolbar.exportMenu);
                         const customExportButton = document.createElement('div');
@@ -239,9 +287,9 @@ class MonthlyRevenueChart extends ApexChartWidget
     {
         $rentData = $this->getRentData();
         
-        $csvContent = "Month,Revenue\n";
+        $csvContent = "Month,Revenue,Space Value\n";
         foreach ($rentData['months'] as $index => $month) {
-            $csvContent .= "{$month},{$rentData['amounts'][$index]}\n";
+            $csvContent .= "{$month},{$rentData['amounts'][$index]},{$rentData['space_values'][$index]}\n";
         }
 
         $fileName = 'monthly_rent_revenue_' . date('Y-m-d') . '.csv';

@@ -25,6 +25,8 @@ use App\Filament\App\Pages\EditRequirement;
 use App\Services\ReportForm;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\TicketReportMail;
+use App\Models\Concourse;
+use Filament\Tables\Filters\SelectFilter;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -88,6 +90,17 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->default(fn($record) => $record->electricity_bills > 0 ? '₱' . number_format($record->electricity_bills, 2) : '₱0.00')
                     ->description(fn($record) => $record->electricity_payment_status == 'paid' ? '' : 'Unpaid')
                     ->tooltip(fn($record) => $record->electricity_due ? 'Due: ' . Carbon::parse($record->electricity_due)->format('M d, Y') : ''),
+            ])
+            ->filters([
+                SelectFilter::make('concourse_id')
+                    ->label('Concourse')
+                    ->options(
+                        Space::where('user_id', auth()->id())
+                            ->with('concourse')
+                            ->get()
+                            ->pluck('concourse.name', 'concourse_id')
+                            ->unique()
+                    )
             ])
             ->actions([
                 Tables\Actions\Action::make('renew')
@@ -362,7 +375,8 @@ class TenantSpace extends Page implements HasForms, HasTable
 
                         Mail::to($admin->email)->send(new TicketReportMail($admin, $tenant, $ticket, $spaceName, $concourseName));
                     }),
-            ])->headerActions([
+           
+                    ])->headerActions([
                 Tables\Actions\Action::make('My Report')
                     ->link()
                     ->icon('heroicon-o-paper-airplane')

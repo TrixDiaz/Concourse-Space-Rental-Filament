@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Widgets;
 
+use App\Models\Concourse;
 use App\Models\Space;
 use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
@@ -44,20 +45,14 @@ class WaterChart extends ApexChartWidget
 
         return [
             'chart' => [
-                'type' => 'line',  // Changed to support multiple types
+                'type' => 'bar',  
                 'height' => 300,
                 'toolbar' => ['show' => false],
             ],
             'series' => [
                 [
                     'name' => 'Water Bill',
-                    'type' => 'bar',
                     'data' => $data['water'],
-                ],
-                [
-                    'name' => 'Consumption (m³)',
-                    'type' => 'line',
-                    'data' => $data['consumption'],
                 ],
             ],
             'xaxis' => [
@@ -79,19 +74,8 @@ class WaterChart extends ApexChartWidget
                         ],
                     ],
                 ],
-                [
-                    'opposite' => true,
-                    'title' => [
-                        'text' => 'Consumption (m³)',
-                    ],
-                    'labels' => [
-                        'style' => [
-                            'fontFamily' => 'inherit',
-                        ],
-                    ],
-                ],
             ],
-            'colors' => ['#3b82f6', '#22c55e'], // Blue for bill, Green for consumption
+            'colors' => ['#3b82f6'],
             'plotOptions' => [
                 'bar' => [
                     'borderRadius' => 3,
@@ -105,10 +89,9 @@ class WaterChart extends ApexChartWidget
     {
         $currentYear = date('Y');
         
-        $billData = Space::select(
+        $billData = Concourse::select(
             DB::raw('MONTH(updated_at) as month'),
             DB::raw('SUM(water_bills) as total_water'),
-            DB::raw('SUM(water_consumption) as total_consumption')
         )
             ->whereYear('updated_at', $currentYear)
             ->groupBy('month')
@@ -117,13 +100,11 @@ class WaterChart extends ApexChartWidget
 
         $months = [];
         $water = array_fill(0, 12, 0);
-        $consumption = array_fill(0, 12, 0);
 
         foreach ($billData as $data) {
             $monthIndex = $data->month - 1;
             $months[$monthIndex] = date('M', mktime(0, 0, 0, $data->month, 1));
-            $water[$monthIndex] = round($data->total_water, 2);
-            $consumption[$monthIndex] = round($data->total_consumption, 2);
+            $water[$monthIndex] = round($data->total_water, 2);;
         }
 
         // Fill in any missing months
@@ -138,7 +119,6 @@ class WaterChart extends ApexChartWidget
         return [
             'months' => array_values($months),
             'water' => $water,
-            'consumption' => $consumption,
         ];
     }
 
@@ -146,9 +126,9 @@ class WaterChart extends ApexChartWidget
     {
         $data = $this->getBillData();
         
-        $csvContent = "Month,Water Bill,Water Consumption\n";
+        $csvContent = "Month,Water Bill\n";
         foreach ($data['months'] as $index => $month) {
-            $csvContent .= "{$month},{$data['water'][$index]},{$data['consumption'][$index]}\n";
+            $csvContent .= "{$month},{$data['water'][$index]}\n";
         }
 
         $fileName = 'monthly_water_payments_' . date('Y-m-d') . '.csv';

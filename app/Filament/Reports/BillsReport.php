@@ -161,28 +161,23 @@ class BillsReport extends Report
             [
                 'column1' => 'Summary',
                 'column2' => 'Total',
-                'column3' => 'Date Range',
             ]
         ])->concat(collect([
             [
                 'column1' => 'Total Water Consumption',
                 'column2' => number_format($concourses->sum('total_water_consumption') ?? 0, 2),
-                'column3' => 'All Time',
             ],
             [
                 'column1' => 'Total Water Bill',
                 'column2' => number_format($concourses->sum('water_bills') ?? 0, 2),
-                'column3' => 'All Time',
             ],
             [
                 'column1' => 'Total Electric Consumption',
                 'column2' => number_format($concourses->sum('total_electricity_consumption') ?? 0, 2),
-                'column3' => 'All Time',
             ],
             [
                 'column1' => 'Total Electric Bill',
                 'column2' => number_format($concourses->sum('electricity_bills') ?? 0, 2),
-                'column3' => 'All Time',
             ],
         ]));
     }
