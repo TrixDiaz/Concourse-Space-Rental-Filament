@@ -9,6 +9,8 @@ use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 use App\Models\User;
 use App\Models\Space;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TicketResolved;
 
 class EditTicket extends EditRecord
 {
@@ -77,16 +79,26 @@ class EditTicket extends EditRecord
     protected function sendResolvedNotification()
     {
         $record = $this->getRecord();
-        $space_id = $record->space_id;
-        $user_id = Space::find($space_id)->user_id;
-        $user = User::find($user_id);
+        $space = Space::find($record->space_id);
+        $user = User::find($space->user_id);
         $authUser = auth()->user();
 
+        // Send email
+        Mail::to($user->email)->send(new TicketResolved([
+            'tenant_name' => $user->name,
+            'space_name' => $space->name,
+            'concourse_name' => $space->concourse->name, // Assuming there's a concourse relationship
+            'ticket_number' => $record->id,
+            'concern_type' => $record->type,
+            'description' => $record->description,
+            'resolution' => $record->remarks,
+        ]));
+
         Notification::make()
-        ->success()
-        ->title('Ticket Resolved')
-        ->body("Ticket {$record->title} has been resolved!")
-        ->send();
+            ->success()
+            ->title('Ticket Resolved')
+            ->body("Ticket {$record->title} has been resolved!")
+            ->send();
 
         Notification::make()
             ->success()

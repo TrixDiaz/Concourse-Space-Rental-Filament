@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RentBillMail;
+use App\Mail\UtilityBillMail;
 
 class SpaceRelationManager extends RelationManager
 {
@@ -38,8 +41,24 @@ class SpaceRelationManager extends RelationManager
             $set('water_bills', $record->water_bills);
             $set('water_payment_status', $record->water_payment_status);
 
+            // Send email to tenant
+            $tenant = $record->user;
+            $dueDate = now()->addDays(7)->format('F j, Y');
+            $penalty = 10; // Adjust penalty percentage as needed
+            $waterRate = $concourse->water_rate ?? 0;
+
+            Mail::to($tenant->email)->send(new UtilityBillMail(
+                tenantName: $tenant->name,
+                month: now()->format('F Y'),
+                waterConsumption: $state,
+                waterRate: $waterRate,
+                waterBill: $record->water_bills,
+                dueDate: $dueDate,
+                penalty: $penalty
+            ));
+
             Notification::make()
-                ->title('Water bill updated')
+                ->title('Water bill updated and email sent')
                 ->success()
                 ->send();
         }
@@ -63,8 +82,24 @@ class SpaceRelationManager extends RelationManager
             $set('electricity_bills', $record->electricity_bills);
             $set('electricity_payment_status', $record->electricity_payment_status);
 
+            // Send email to tenant
+            $tenant = $record->user;
+            $dueDate = now()->addDays(7)->format('F j, Y');
+            $penalty = 10; // Adjust penalty percentage as needed
+            $electricityRate = $concourse->electricity_rate ?? 0;
+
+            Mail::to($tenant->email)->send(new UtilityBillMail(
+                tenantName: $tenant->name,
+                month: now()->format('F Y'),
+                electricityConsumption: $state,
+                electricityRate: $electricityRate,
+                electricityBill: $record->electricity_bills,
+                dueDate: $dueDate,
+                penalty: $penalty
+            ));
+
             Notification::make()
-                ->title('Electricity bill updated')
+                ->title('Electricity bill updated and email sent')
                 ->success()
                 ->send();
         }
@@ -188,6 +223,25 @@ class SpaceRelationManager extends RelationManager
                             $record->rent_bills = $rentAmount;
                             $record->rent_payment_status = 'unpaid';
                             $record->save();
+
+                            // Send email to tenant
+                            $tenant = $record->user;
+                            $dueDate = now()->addDays(7)->format('F j, Y'); // Adjust due date as needed
+                            $penalty = 10; // Adjust penalty percentage as needed
+
+                            Mail::to($tenant->email)->send(new RentBillMail(
+                                tenantName: $tenant->name,
+                                month: now()->format('F Y'),
+                                rentAmount: $rentAmount,
+                                totalAmount: $rentAmount,
+                                dueDate: $dueDate,
+                                penalty: $penalty
+                            ));
+
+                            Notification::make()
+                                ->title('Rent bill added and email sent')
+                                ->success()
+                                ->send();
                         }),
                     Tables\Actions\EditAction::make()
                         ->visible(fn($record) => $record->status === 'occupied')
