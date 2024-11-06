@@ -73,13 +73,7 @@ class EditConcourse extends EditRecord
             ->success()
             ->icon('heroicon-o-currency-dollar')
             ->title('Concourse Updated')
-            ->body("Concourse {$record->name} address in {$record->address} Updated!")
-            ->actions([
-                Action::make('view')
-                    ->label('Mark as read')
-                    ->link()
-                    ->markAsRead(),
-            ]);
+            ->body("Concourse {$record->name} address in {$record->address} Updated!");
 
         // Get all users with the 'panel_user' or 'accountant' role
         $notifiedUsers = User::role(['panel_user'])->get();

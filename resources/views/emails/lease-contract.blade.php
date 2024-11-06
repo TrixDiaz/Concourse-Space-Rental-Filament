@@ -23,6 +23,8 @@
 <body>
     <h1>Lease Agreement</h1>
 
+    <p>Your application requirements for {{ $space->name }} in {{ $space->concourse->name }} at {{ $space->concourse->address }} have been approved. Please go to {{ $space->concourse->address }} to submit your security deposit, which is equivalent to two months' rent. Additionally, please read, print, and sign the attached contract, and submit it to the owner. Once these steps are completed, your application will be fully approved.</p>
+   
     <p>This Lease Agreement ("Agreement") is made and entered into on this {{ $space->lease_start instanceof \DateTime ? $space->lease_start->format('F j, Y') : \Carbon\Carbon::parse($space->lease_start)->format('F j, Y') }} by and between:</p>
 
     <p>
@@ -97,5 +99,8 @@
             <strong>Date:</strong> {{ $space->lease_start instanceof \DateTime ? $space->lease_start->format('F j, Y') : \Carbon\Carbon::parse($space->lease_start)->format('F j, Y') }}
         </p>
     </div>
+
+    <p>Regards,</p>
+    <p>COMS</p>
 </body>
 </html>

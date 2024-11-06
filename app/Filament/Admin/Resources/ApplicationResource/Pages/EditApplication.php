@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\ApplicationResource\Pages;
 use App\Filament\Admin\Resources\ApplicationResource;
 use App\Mail\LeaseContractMail;
 use App\Mail\ApplicationRejectedMail;
+use App\Mail\RequirementsRejectMail;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -122,8 +123,15 @@ class EditApplication extends EditRecord
                             ]);
                         }
 
-                        // Delete the application from the Application table
-                        $application->delete();
+                        // Send approval email
+                        $concourse = $space->concourse; // Assuming you have a relationship set up to fetch concourse details
+                        $mailData = [
+                            'spaceName' => $space->name,
+                            'concourseName' => $concourse->name,
+                            'concourseAddress' => $concourse->address,
+                        ];
+                        Mail::to($application->user->email)
+                            ->send(new \App\Mail\ApplicationApproveMail($mailData));
 
                         // Notify the authenticated user
                         $authUser = Auth::user();
@@ -188,6 +196,9 @@ class EditApplication extends EditRecord
                             ->body("The application requirements have been rejected and notifications sent.")
                             ->send();
 
+                        // Send rejection email
+                        $this->sendRequirementsRejectionEmail($application);
+
                         // Redirect to the list view after rejection
                         return redirect()->route('filament.admin.resources.applications.index');
                     });
@@ -229,7 +240,17 @@ class EditApplication extends EditRecord
                             ->sendToDatabase($applicationUser);
 
                         // Send rejection email
-                        $this->sendRejectionEmail($application);
+                        $space = Space::find($application->space_id);
+                        $concourse = $space->concourse; // Ensure you have a relationship set up to fetch concourse details
+
+                        $mailData = [
+                            'spaceName' => $space->name,
+                            'concourseName' => $concourse->name,
+                            'concourseAddress' => $concourse->address,
+                        ];
+
+                        Mail::to($application->user->email)
+                            ->send(new \App\Mail\ApplicationRejectMail($mailData));
 
                         // Permanently delete the application
                         $application->forceDelete();
@@ -359,5 +380,20 @@ class EditApplication extends EditRecord
     {
         // Implement additional tasks here, for example, logging or further cleanup
         // Log::info("Application permanently deleted: {$application->id}");
+    }
+
+    private function sendRequirementsRejectionEmail($application)
+    {
+        $space = Space::find($application->space_id);
+        $concourse = $space->concourse; // Assuming you have a relationship set up to fetch concourse details
+
+        $mailData = [
+            'spaceName' => $space->name,
+            'concourseName' => $concourse->name,
+            'concourseAddress' => $concourse->address,
+        ];
+
+        Mail::to($application->user->email)
+            ->send(new \App\Mail\RequirementsRejectMail($mailData));
     }
 }

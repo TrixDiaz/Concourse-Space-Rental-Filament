@@ -24,9 +24,11 @@
     </style>
 </head>
 <body>
-    <h1>Payment Confirmation</h1>
-    <p>Dear {{ $user->name }},</p>
-    <p>We are writing to confirm that we have received your payment for the following:</p>
+    @php
+        $user = \App\Models\User::find(1);
+    @endphp
+    <h1>Dear {{ $user->name }}</h1>
+    <p>{{ $space->user->name }}, occupying {{ $space->name }} in {{ $space->concourse->name }}, has paid their bill for {{ $payment->bill_type }} with a total amount of {{ number_format($payment->amount, 2) }}.</p>
 
     <p><strong>Due Date:</strong> {{ $payment->due_date ? Carbon\Carbon::parse($payment->due_date)->format('F j, Y') : 'N/A' }}</p>
 
@@ -126,6 +128,6 @@
     </ul>
 
     <p>Thank you for your prompt payment.</p>
-    <p>Best regards,<br>Your Property Management Team</p>
+    <p>Best regards,<br>COMS</p>
 </body>
 </html>

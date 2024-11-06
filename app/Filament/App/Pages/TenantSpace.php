@@ -24,6 +24,7 @@ use App\Models\AppRequirement;
 use App\Filament\App\Pages\EditRequirement;
 use App\Services\ReportForm;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\TicketReportMail;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -352,6 +353,14 @@ class TenantSpace extends Page implements HasForms, HasTable
                             ->body('A new ticket has been submitted.')
                             ->success()
                             ->sendToDatabase(User::find(1));
+
+                        // Send email to admin
+                        $admin = User::find(1); // Assuming admin is always user with ID 1
+                        $tenant = auth()->user();
+                        $spaceName = $record->name;
+                        $concourseName = $record->concourse->name;
+
+                        Mail::to($admin->email)->send(new TicketReportMail($admin, $tenant, $ticket, $spaceName, $concourseName));
                     }),
             ])->headerActions([
                 Tables\Actions\Action::make('My Report')
