@@ -88,6 +88,11 @@ class TenantReport extends Report
             'column5' => 'Rent Due',
             'column6' => 'Transaction Date',
             'column7' => 'On Time',
+            'column8' => 'Days Late',
+            'column9' => 'Penalty',
+            'column10' => 'Delayed Payments',
+            'column11' => 'Start Lease',
+            'column12' => 'End Lease',
         ];
 
         return collect([$headerRow])
@@ -96,11 +101,18 @@ class TenantReport extends Report
                 return [
                     'column1' => $space->name,
                     'column2' => ucfirst($space->status),
-                    'column3' => $space->area . ' sqm',
-                    'column4' => $payment ? $payment->rent_bill : 'N/A', 
+                    'column3' => $space->sqm . ' sqm',
+                    'column4' => $payment ? number_format($payment->rent_bill, 2) : 'N/A', 
                     'column5' => $payment && $payment->rent_due ? $payment->rent_due->format('m-d-Y') : 'N/A', 
                     'column6' => $payment ? $payment->created_at->format('m-d-Y') : 'N/A',
                     'column7' => $payment ? ($payment->rent_due >= now() ? 'Yes' : 'No') : 'N/A',
+                    'column8' => $payment ? number_format($payment->rent_due->diffInDays(now()), 0) : 'N/A',
+                    'column9' => $payment ? number_format($payment->penalty, 2) : 'N/A',
+                    'column10' => $payment ? (
+                        ($payment->payment_status == 'paid' && 
+                        ($payment->rent_due > now() || $payment->water_due > now() || $payment->electricity_due > now())) ? 1 : 0) : 'N/A',
+                    'column11' => $space->lease_start ? $space->lease_start->format('m-d-Y') : 'N/A',
+                    'column12' => $space->lease_end ? $space->lease_end->format('m-d-Y') : 'N/A',
                 ];
             }));
     }
