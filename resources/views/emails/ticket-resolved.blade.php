@@ -14,6 +14,7 @@
 
     <p>Ticket Details:</p>
     <p>Ticket Number: {{ $data['incident_ticket_number'] }}</p>
+    <p>Title: {{ $data['title'] }}</p>
     <p>Concern Type: {{ $data['concern_type'] }}</p>
     <p>Issue Description: {{ $data['description'] }}</p>
     <p>Resolution: {{ $data['resolution'] }}</p>

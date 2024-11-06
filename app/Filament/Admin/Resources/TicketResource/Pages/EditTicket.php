@@ -88,6 +88,8 @@ class EditTicket extends EditRecord
             'space_name' => $space->name,
             'concourse_name' => $space->concourse->name, 
             'ticket_number' => $record->id,
+            'title' => $record->title,
+            'incident_ticket_number' => $record->incident_ticket_number,
             'concern_type' => $record->concern_type,
             'description' => $record->description,
             'resolution' => $record->remarks,
