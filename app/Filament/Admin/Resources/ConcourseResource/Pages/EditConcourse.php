@@ -115,7 +115,7 @@ class EditConcourse extends EditRecord
     protected function notifySpacesAboutBills(): void
     {
         $concourse = $this->getRecord();
-        $spaces = $concourse->spaces()->where('is_active', true)->where('deleted_at', '=', null)->where('user_id', '!=', null)->get();
+        $spaces = $concourse->spaces()->where('is_active', true);
         // dd($spaces);
         foreach ($spaces as $space) {
             $notification = Notification::make()

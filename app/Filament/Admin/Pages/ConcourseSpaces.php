@@ -325,7 +325,6 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                 })
                 ->color('warning')
                 ->icon('heroicon-o-bell')
-                // ->visible(fn () => $this->hasSpacesWithBills())
                 ->requiresConfirmation(),
         ];
     }
