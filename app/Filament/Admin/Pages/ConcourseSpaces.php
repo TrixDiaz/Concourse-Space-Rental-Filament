@@ -21,6 +21,7 @@ use Filament\Actions\Action;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RentBillMail;
 use App\Mail\UtilityBillMail;
+use App\Models\User;
 
 class ConcourseSpaces extends Page implements HasForms, HasTable
 {
@@ -60,18 +61,18 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             $penalty = 10;
             $waterRate = $concourse->water_rate ?? 0;
 
-            Mail::to($tenant->email)->send(new UtilityBillMail(
-                tenantName: $tenant->name,
-                month: now()->format('F Y'),
-                waterConsumption: $state,
-                waterRate: $waterRate,
-                waterBill: $record->water_bills,
-                electricityConsumption: $record->electricity_consumption,
-                electricityRate: $concourse->electricity_rate ?? 0,
-                electricityBill: $record->electricity_bills,
-                dueDate: $dueDate,
-                penalty: $penalty
-            ));
+            // Mail::to($tenant->email)->send(new UtilityBillMail(
+            //     tenantName: $tenant->name,
+            //     month: now()->format('F Y'),
+            //     waterConsumption: $state,
+            //     waterRate: $waterRate,
+            //     waterBill: $record->water_bills,
+            //     electricityConsumption: $record->electricity_consumption,
+            //     electricityRate: $concourse->electricity_rate ?? 0,
+            //     electricityBill: $record->electricity_bills,
+            //     dueDate: $dueDate,
+            //     penalty: $penalty
+            // ));
 
             Notification::make()
                 ->title('Water bill updated and email sent')
@@ -88,7 +89,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             // Update the space's electricity consumption
             $record->update(['electricity_consumption' => $state]);
             $record->update(['electricity_due' => now()->addDays(7)]);
-            
+
             // Recalculate the concourse's total electricity consumption
             $concourse->updateTotalElectricityConsumption();
 
@@ -105,18 +106,18 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             $penalty = 10;
             $electricityRate = $concourse->electricity_rate ?? 0;
 
-            Mail::to($tenant->email)->send(new UtilityBillMail(
-                tenantName: $tenant->name,
-                month: now()->format('F Y'),
-                waterConsumption: $record->water_consumption,
-                waterRate: $concourse->water_rate ?? 0,
-                waterBill: $record->water_bills,
-                electricityConsumption: $state,
-                electricityRate: $electricityRate,
-                electricityBill: $record->electricity_bills,
-                dueDate: $dueDate,
-                penalty: $penalty
-            ));
+            // Mail::to($tenant->email)->send(new UtilityBillMail(
+            //     tenantName: $tenant->name,
+            //     month: now()->format('F Y'),
+            //     waterConsumption: $record->water_consumption,
+            //     waterRate: $concourse->water_rate ?? 0,
+            //     waterBill: $record->water_bills,
+            //     electricityConsumption: $state,
+            //     electricityRate: $electricityRate,
+            //     electricityBill: $record->electricity_bills,
+            //     dueDate: $dueDate,
+            //     penalty: $penalty
+            // ));
 
             Notification::make()
                 ->title('Electricity bill updated and email sent')
@@ -317,6 +318,15 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                         ->success()
                         ->send();
                 }),
+            Action::make('notifySpaces')
+                ->label('Notify Spaces')
+                ->action(function () {
+                    $this->notifySpacesAboutBills();
+                })
+                ->color('warning')
+                ->icon('heroicon-o-bell')
+                // ->visible(fn () => $this->hasSpacesWithBills())
+                ->requiresConfirmation(),
         ];
     }
 
@@ -347,5 +357,30 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                         ->required(),
                 ])->columns(2),
         ];
+    }
+
+    protected function notifySpacesAboutBills(): void
+    {
+        $concourse = $this->getRecord();
+        $spaces = $concourse->spaces()->where('is_active', true)->where('deleted_at', '=', null)->where('user_id', '!=', null)->get();
+        // dd($spaces);
+        foreach ($spaces as $space) {
+            $notification = Notification::make()
+                ->warning()
+                ->title('Monthly Bill Available')
+                ->body("Your monthly bill for space {$space->name} in {$concourse->name} is now available for review.");
+
+            // Send notification to the space owner or associated user
+            $spaceUser = User::find($space->user_id);
+            if ($spaceUser) {
+                $notification->sendToDatabase($spaceUser);
+            }
+        }
+
+        Notification::make()
+            ->success()
+            ->title('Notifications Sent')
+            ->body('All spaces have been notified about their monthly bills.')
+            ->send();
     }
 }

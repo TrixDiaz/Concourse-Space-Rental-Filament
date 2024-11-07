@@ -47,18 +47,18 @@ class SpaceRelationManager extends RelationManager
             $penalty = 10; // Adjust penalty percentage as needed
             $waterRate = $concourse->water_rate ?? 0;
 
-            Mail::to($tenant->email)->send(new UtilityBillMail(
-                tenantName: $tenant->name,
-                month: now()->format('F Y'),
-                waterConsumption: $state,
-                waterRate: $waterRate,
-                waterBill: $record->water_bills,
-                electricityConsumption: $record->electricity_consumption,
-                electricityRate: $concourse->electricity_rate ?? 0,
-                electricityBill: $record->electricity_bills,
-                dueDate: $dueDate,
-                penalty: $penalty
-            ));
+            // Mail::to($tenant->email)->send(new UtilityBillMail(
+            //     tenantName: $tenant->name,
+            //     month: now()->format('F Y'),
+            //     waterConsumption: $state,
+            //     waterRate: $waterRate,
+            //     waterBill: $record->water_bills,
+            //     electricityConsumption: $record->electricity_consumption,
+            //     electricityRate: $concourse->electricity_rate ?? 0,
+            //     electricityBill: $record->electricity_bills,
+            //     dueDate: $dueDate,
+            //     penalty: $penalty
+            // ));
 
             Notification::make()
                 ->title('Water bill updated and email sent')
@@ -91,18 +91,18 @@ class SpaceRelationManager extends RelationManager
             $penalty = 10; // Adjust penalty percentage as needed
             $electricityRate = $concourse->electricity_rate ?? 0;
 
-            Mail::to($tenant->email)->send(new UtilityBillMail(
-                tenantName: $tenant->name,
-                month: now()->format('F Y'),
-                waterConsumption: $record->water_consumption,
-                waterRate: $concourse->water_rate ?? 0,
-                waterBill: $record->water_bills,
-                electricityConsumption: $state,
-                electricityRate: $electricityRate,
-                electricityBill: $record->electricity_bills,
-                dueDate: $dueDate,
-                penalty: $penalty
-            ));
+            // Mail::to($tenant->email)->send(new UtilityBillMail(
+            //     tenantName: $tenant->name,
+            //     month: now()->format('F Y'),
+            //     waterConsumption: $record->water_consumption,
+            //     waterRate: $concourse->water_rate ?? 0,
+            //     waterBill: $record->water_bills,
+            //     electricityConsumption: $state,
+            //     electricityRate: $electricityRate,
+            //     electricityBill: $record->electricity_bills,
+            //     dueDate: $dueDate,
+            //     penalty: $penalty
+            // ));
 
             Notification::make()
                 ->title('Electricity bill updated and email sent')
