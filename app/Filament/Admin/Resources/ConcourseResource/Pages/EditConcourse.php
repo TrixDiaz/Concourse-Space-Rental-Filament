@@ -37,15 +37,6 @@ class EditConcourse extends EditRecord
                 ->label('View Layout')
                 ->url(fn() => $this->getResource()::getUrl('view-spaces', ['record' => $this->getRecord()]))
                 ->color('success'),
-            Actions\Action::make('notifySpaces')
-                ->label('Notify Spaces')
-                ->action(function () {
-                    $this->notifySpacesAboutBills();
-                })
-                ->color('warning')
-                ->icon('heroicon-o-bell')
-                // ->visible(fn () => $this->hasSpacesWithBills())
-                ->requiresConfirmation(),
         ];
     }
 
@@ -112,28 +103,5 @@ class EditConcourse extends EditRecord
         }
     }
 
-    protected function notifySpacesAboutBills(): void
-    {
-        $concourse = $this->getRecord();
-        $spaces = $concourse->spaces()->where('is_active', true)->get();
-
-        foreach ($spaces as $space) {
-            $notification = Notification::make()
-                ->warning()
-                ->title('Monthly Bill Available')
-                ->body("Your monthly bill for space {$space->name} in {$concourse->name} is now available for review.");
-
-            // Send notification to the space owner or associated user
-            $spaceUser = User::find($space->user_id);
-            if ($spaceUser) {
-                $notification->sendToDatabase($spaceUser);
-            }
-        }
-
-        Notification::make()
-            ->success()
-            ->title('Notifications Sent')
-            ->body('All spaces have been notified about their monthly bills.')
-            ->send();
-    }
+   
 }

@@ -360,10 +360,8 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
 
     protected function notifySpacesAboutBills(): void
     {
-        // Use the concourse property instead of record
         $concourse = $this->concourse;
         
-        // Get all active spaces for this concourse
         $spaces = $concourse->spaces()
             ->where('is_active', true)
             ->get();
@@ -378,6 +376,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
         }
 
         foreach ($spaces as $space) {
+            // Create database notification
             $notification = Notification::make()
                 ->warning()
                 ->title('Monthly Bill Available')
@@ -386,14 +385,29 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             // Send notification to the space owner or associated user
             $spaceUser = User::find($space->user_id);
             if ($spaceUser) {
+                // Send database notification
                 $notification->sendToDatabase($spaceUser);
+
+                // Send email notification
+                Mail::to($spaceUser->email)->send(new UtilityBillMail(
+                    tenantName: $spaceUser->name,
+                    month: now()->format('F Y'),
+                    waterConsumption: $space->water_consumption,
+                    waterRate: $concourse->water_rate ?? 0,
+                    waterBill: $space->water_bills,
+                    electricityConsumption: $space->electricity_consumption,
+                    electricityRate: $concourse->electricity_rate ?? 0,
+                    electricityBill: $space->electricity_bills,
+                    dueDate: now()->addDays(7)->format('F j, Y'),
+                    penalty: 10
+                ));
             }
         }
 
         Notification::make()
             ->success()
             ->title('Notifications Sent')
-            ->body('All spaces have been notified about their monthly bills.')
+            ->body('All spaces have been notified about their monthly bills via email and database notifications.')
             ->send();
     }
 }
