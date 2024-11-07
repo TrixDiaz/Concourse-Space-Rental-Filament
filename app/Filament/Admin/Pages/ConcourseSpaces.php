@@ -360,9 +360,23 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
 
     protected function notifySpacesAboutBills(): void
     {
-        $concourse = $this->getRecord();
-        $spaces = $concourse->spaces()->where('is_active', true)->where('deleted_at', '=', null)->where('user_id', '!=', null)->get();
-        // dd($spaces);
+        // Get the current concourse record
+        $concourse = Concourse::find($this->record->id);
+        
+        // Get all active spaces for this concourse
+        $spaces = $concourse->spaces()
+            ->where('is_active', true)
+            ->get();
+
+        if ($spaces->isEmpty()) {
+            Notification::make()
+                ->warning()
+                ->title('No Active Spaces')
+                ->body('There are no active spaces to notify.')
+                ->send();
+            return;
+        }
+
         foreach ($spaces as $space) {
             $notification = Notification::make()
                 ->warning()
