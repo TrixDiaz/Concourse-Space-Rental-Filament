@@ -24,11 +24,11 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $totalRevenue = Space::where('rent_payment_status', 'unpaid')->sum('rent_bills');
-        
+
         // Water stats from Spaces
         $totalWaterBill = Space::where('water_payment_status', 'unpaid')->sum('water_bills');
         $totalWaterConsumption = Space::where('water_payment_status', 'unpaid')->sum('water_consumption');
-        
+
         // Electric stats from Spaces
         $totalElectricBill = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_bills');
         $totalElectricConsumption = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_consumption');
@@ -43,13 +43,13 @@ class StatsOverview extends BaseWidget
                 ->descriptionIcon($this->getChangeIcon($revenueChart))
                 ->chart($revenueChart)
                 ->color($this->getChangeColor($revenueChart)),
-            Stat::make('Total Unpaid Water Usage & Bills', number_format($totalWaterConsumption) . ' m³')
-                ->description('₱' . number_format($totalWaterBill, 2) . ' total water bills')
+            Stat::make('Total Unpaid Water Usage & Bills', '₱' . number_format($totalWaterBill, 2))
+                ->description(number_format($totalWaterConsumption) . ' Consumption m³')
                 ->descriptionIcon($this->getChangeIcon($waterBillChart))
                 ->chart($waterBillChart)
                 ->color($this->getChangeColor($waterBillChart)),
-            Stat::make('Total Unpaid Electric Usage & Bills', number_format($totalElectricConsumption) . ' kWh')
-                ->description('₱' . number_format($totalElectricBill, 2) . ' total electric bills')
+            Stat::make('Total Unpaid Electric Usage & Bills', '₱' . number_format($totalElectricBill, 2))
+                ->description(number_format($totalElectricConsumption) . ' Consumption kWh')
                 ->descriptionIcon($this->getChangeIcon($electricBillChart))
                 ->chart($electricBillChart)
                 ->color($this->getChangeColor($electricBillChart)),
