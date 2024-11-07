@@ -360,8 +360,8 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
 
     protected function notifySpacesAboutBills(): void
     {
-        // Get the current concourse record
-        $concourse = Concourse::find($this->record->id);
+        // Use the concourse property instead of record
+        $concourse = $this->concourse;
         
         // Get all active spaces for this concourse
         $spaces = $concourse->spaces()
