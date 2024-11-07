@@ -43,10 +43,9 @@
                             <x-filament::input
                                 type="text"
                                 placeholder="SQM"
-                                min="0"
                                 wire:model.live="sqm"
-                                onkeypress="return (event.charCode != 8 && event.charCode == 0) || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46"
-                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); if(!this.value) { $wire.set('sqm', 0); $wire.call('computePrice'); }" />
+                                step="0.01"
+                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                             <x-slot name="suffix">
                                 X Rate {{ $rate }}
                             </x-slot>
@@ -272,10 +271,9 @@
                     <x-filament::input
                         type="text"
                         placeholder="SQM"
-                        min="0"
                         wire:model.live="sqm"
-                        onkeypress="return (event.charCode != 8 && event.charCode == 0) || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46"
-                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); if(!this.value) { $wire.set('sqm', 0); $wire.call('computePrice'); }" />
+                        step="0.01"
+                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                     <x-slot name="suffix">
                         X Rate {{ $rate }}
                     </x-slot>

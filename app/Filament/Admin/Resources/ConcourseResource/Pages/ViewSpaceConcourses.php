@@ -52,7 +52,7 @@ class ViewSpaceConcourses extends Page
     {
         $this->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|min:0',
         ]);
 
         if (!$this->spaceDimensions) {
@@ -112,13 +112,14 @@ class ViewSpaceConcourses extends Page
 
     public function updatedSqm()
     {
+        $this->sqm = is_numeric($this->sqm) ? (float) number_format((float) $this->sqm, 2, '.', '') : 0;
         $this->computePrice();
     }
 
     protected function computePrice()
     {
-        $this->sqm = (float) $this->sqm;
-        $this->price = $this->sqm * $this->rate;
+        $this->sqm = is_numeric($this->sqm) ? (float) number_format((float) $this->sqm, 2, '.', '') : 0;
+        $this->price = number_format($this->sqm * $this->rate, 2, '.', '');
     }
 
     public function deleteSpace($spaceId)
