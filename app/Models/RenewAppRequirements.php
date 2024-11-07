@@ -20,12 +20,12 @@ class RenewAppRequirements extends Model
         'file',
     ];
 
-    public function application()
+    public function renewApplication()
     {
-        return $this->belongsTo(Application::class);
+        return $this->belongsTo(Renew::class);
     }
 
-    public function requirement()
+    public function renewRequirement()
     {
         return $this->belongsTo(Requirement::class);
     }

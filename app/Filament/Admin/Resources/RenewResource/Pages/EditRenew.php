@@ -1,32 +1,24 @@
 <?php
 
-namespace App\Filament\Admin\Resources\ApplicationResource\Pages;
+namespace App\Filament\Admin\Resources\RenewResource\Pages;
 
-use App\Filament\Admin\Resources\ApplicationResource;
+use App\Filament\Admin\Resources\RenewResource;
 use App\Mail\LeaseContractMail;
 use App\Mail\ApplicationRejectedMail;
-use App\Mail\RequirementsRejectMail;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 use App\Models\User;
 use App\Models\Space;
-use App\Models\ApprovedApplication;
-use App\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-class EditApplication extends EditRecord
+class EditRenew extends EditRecord
 {
-    // protected function getRedirectUrl(): string
-    // {
-    //     return $this->getResource()::getUrl('index');
-    // }
-
-    protected static string $resource = ApplicationResource::class;
+    protected static string $resource = RenewResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -51,7 +43,7 @@ class EditApplication extends EditRecord
                             ->actions([
                                 Action::make('view')
                                     ->button()
-                                    ->url(route('filament.admin.resources.applications.index')),
+                                    ->url(route('filament.admin.resources.renews.index')),
                             ])
                             ->sendToDatabase($authUser);
 
@@ -75,7 +67,7 @@ class EditApplication extends EditRecord
                         $this->sendLeaseContractEmail($space, $application);
 
                         // Redirect to the list view after approval
-                        return redirect()->route('filament.admin.resources.applications.index');
+                        return redirect()->route('filament.admin.resources.renews.index');
                     });
                 })
                 ->color('success')
@@ -96,29 +88,7 @@ class EditApplication extends EditRecord
                         $space = Space::find($application->space_id);
                         if ($space) {
                             $space->update([
-                                'status' => 'occupied',
-                                'application_id' => $application->id,
-                                'user_id' => $application->user_id,
-                                'concourse_id' => $application->concourse_id,
-                                'lease_start' => Carbon::now(),
-                                'email' => $application->email,
-                                'owner_name' => $application->owner_name,
-                                'business_name' => $application->business_name,
-                                'business_type' => $application->business_type,
-                                'address' => $application->address,
-                                'phone_number' => $application->phone_number,
-                                'lease_due' => Carbon::now()->addMonths(1),
                                 'lease_end' => Carbon::parse($application->lease_start)->addMonths($application->concourse_lease_term),
-                                'lease_term' => $application->concourse_lease_term,
-                                'lease_status' => 'active',
-                                'application_status' => 'approved',
-                                'requirements_status' => 'approved',
-                                'space_type' => $application->space_type,
-                                'bills' => $application->bills ? json_encode($application->bills) : null,
-                                'monthly_payment' => $application->monthly_payment ? $application->monthly_payment : 0,
-                                'payment_status' => '',
-                                'is_active' => true,
-                                'remarks' => $application->remarks,
                             ]);
                         }
 
@@ -166,7 +136,7 @@ class EditApplication extends EditRecord
             Actions\Action::make('rejectRequirements')
                 ->label('Reject Requirements')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->requirements_status === 'pending' || $record->requirements_status === 'approved' )
+                ->visible(fn($record) => $record->requirements_status === 'pending' || $record->requirements_status === 'approved')
                 ->action(function () {
                     $application = $this->getRecord();
 
@@ -201,7 +171,7 @@ class EditApplication extends EditRecord
                         $this->sendRequirementsRejectionEmail($application);
 
                         // Redirect to the list view after rejection
-                        return redirect()->route('filament.admin.resources.applications.index');
+                        return redirect()->route('filament.admin.resources.renews.index');
                     });
                 })
                 ->color('danger')
@@ -214,16 +184,6 @@ class EditApplication extends EditRecord
                     $application = $this->getRecord();
 
                     DB::transaction(function () use ($application) {
-                        // Update space status to 'available' and set user_id to null
-                        $space = Space::find($application->space_id);
-                        if ($space) {
-                            $space->update([
-                                'status' => 'available',
-                                'application_id' => null,
-                                'user_id' => null,
-                            ]);
-                        }
-
                         // Notify the authenticated user
                         $authUser = Auth::user();
                         Notification::make()

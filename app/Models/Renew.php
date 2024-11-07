@@ -49,7 +49,7 @@ class Renew extends Model
         return $this->belongsTo(Concourse::class);
     }
 
-    public function requirements()
+    public function renewRequirements()
     {
         return $this->hasMany(RenewAppRequirements::class);
     }

@@ -2,23 +2,23 @@
 
 namespace App\Filament\Admin\Resources;
 
-use App\Filament\Admin\Resources\ApplicationResource\Pages;
-use App\Models\Application;
+use App\Filament\Admin\Resources\RenewResource\Pages;
+use App\Models\Renew;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class ApplicationResource extends Resource
+class RenewResource extends Resource
 {
     protected static ?string $navigationGroup = 'Applications Settings';
 
-    protected static ?string $navigationLabel = 'Pending';
+    protected static ?string $navigationLabel = 'Renewal';
 
-    protected static ?string $model = Application::class;
+    protected static ?string $model = Renew::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-folder';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationBadge(): ?string
     {
@@ -87,51 +87,52 @@ class ApplicationResource extends Resource
                             ->default(null)
                             ->columnSpanFull(),
                     ])->columns(2),
-                Forms\Components\Section::make('List of Required Documents')
-                    ->description('Approved each documents for the application')
-                    ->schema([
-                        Forms\Components\Repeater::make('appRequirements')
-                            ->relationship()
-                            ->schema([
-                                Forms\Components\Grid::make(2)->schema([
-                                    Forms\Components\FileUpload::make('file')
-                                        ->disk('public')
-                                        ->directory('app-requirements')
-                                        ->visibility('public')
-                                        ->downloadable()
-                                        ->disabled()
-                                        ->openable()
-                                        ->columnSpanFull(),
-                                ])->columnSpan([
-                                    'sm' => 3,
-                                    'md' => 3,
-                                    'lg' => 2
-                                ]),
-                                Forms\Components\Grid::make(1)->schema([
-                                    Forms\Components\TextInput::make('name')
-                                        ->required()
-                                        ->disabled()
-                                        ->readOnly(),
-                                    Forms\Components\Select::make('status')
-                                        ->required()
-                                        ->options([
-                                            'pending' => 'Pending',
-                                            'approved' => 'Approved',
-                                            'rejected' => 'Rejected',
-                                        ]),
-                                ])->columnSpan([
-                                    'sm' => 3,
-                                    'md' => 3,
-                                    'lg' => 1
-                                ]),
-                            ])
-                            ->columns(3)
-                            ->columnSpanFull()
-                            ->defaultItems(0)
-                            ->disableItemCreation()
-                            ->disableItemDeletion(),
-                    ])->columnSpanFull(),
-            ]);
+                // Forms\Components\Section::make('List of Required Documents')
+                //     ->description('Approved each documents for the application')
+                //     ->schema([
+                //         Forms\Components\Repeater::make('renewAppRequirements')
+                //             ->relationship()
+                //             ->schema([
+                //                 Forms\Components\Grid::make(2)->schema([
+                //                     Forms\Components\FileUpload::make('file')
+                //                         ->disk('public')
+                //                         ->directory('app-requirements')
+                //                         ->visibility('public')
+                //                         ->downloadable()
+                //                         ->disabled()
+                //                         ->openable()
+                //                         ->columnSpanFull(),
+                //                 ])->columnSpan([
+                //                     'sm' => 3,
+                //                     'md' => 3,
+                //                     'lg' => 2
+                //                 ]),
+                //                 Forms\Components\Grid::make(1)->schema([
+                //                     Forms\Components\TextInput::make('name')
+                //                         ->required()
+                //                         ->disabled()
+                //                         ->readOnly(),
+                //                     Forms\Components\Select::make('status')
+                //                         ->required()
+                //                         ->options([
+                //                             'pending' => 'Pending',
+                //                             'approved' => 'Approved',
+                //                             'rejected' => 'Rejected',
+                //                         ]),
+                //                 ])->columnSpan([
+                //                     'sm' => 3,
+                //                     'md' => 3,
+                //                     'lg' => 1
+                //                 ]),
+                //             ])
+                //             ->columns(3)
+                //             ->columnSpanFull()
+                //             ->defaultItems(0)
+                //             ->disableItemCreation()
+                //             ->disableItemDeletion(),
+                //     ])->columnSpanFull(),
+         
+                ]);
     }
 
     public static function table(Table $table): Table
@@ -245,6 +246,7 @@ class ApplicationResource extends Resource
             ->poll('3s');
     }
 
+
     public static function getRelations(): array
     {
         return [
@@ -255,9 +257,9 @@ class ApplicationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListApplications::route('/'),
-            'create' => Pages\CreateApplication::route('/create'),
-            'edit' => Pages\EditApplication::route('/{record}/edit'),
+            'index' => Pages\ListRenews::route('/'),
+            'create' => Pages\CreateRenew::route('/create'),
+            'edit' => Pages\EditRenew::route('/{record}/edit'),
         ];
     }
 }

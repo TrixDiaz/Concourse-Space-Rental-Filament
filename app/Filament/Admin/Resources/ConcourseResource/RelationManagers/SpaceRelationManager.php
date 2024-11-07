@@ -53,6 +53,9 @@ class SpaceRelationManager extends RelationManager
                 waterConsumption: $state,
                 waterRate: $waterRate,
                 waterBill: $record->water_bills,
+                electricityConsumption: $record->electricity_consumption,
+                electricityRate: $concourse->electricity_rate ?? 0,
+                electricityBill: $record->electricity_bills,
                 dueDate: $dueDate,
                 penalty: $penalty
             ));
@@ -91,6 +94,9 @@ class SpaceRelationManager extends RelationManager
             Mail::to($tenant->email)->send(new UtilityBillMail(
                 tenantName: $tenant->name,
                 month: now()->format('F Y'),
+                waterConsumption: $record->water_consumption,
+                waterRate: $concourse->water_rate ?? 0,
+                waterBill: $record->water_bills,
                 electricityConsumption: $state,
                 electricityRate: $electricityRate,
                 electricityBill: $record->electricity_bills,

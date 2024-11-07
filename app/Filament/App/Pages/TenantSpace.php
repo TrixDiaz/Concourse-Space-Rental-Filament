@@ -26,7 +26,10 @@ use App\Services\ReportForm;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\TicketReportMail;
 use App\Models\Concourse;
+use App\Models\Renew;
+use App\Models\RenewAppRequirements;
 use Filament\Tables\Filters\SelectFilter;
+use App\Mail\RenewApplication;
 
 class TenantSpace extends Page implements HasForms, HasTable
 {
@@ -67,11 +70,11 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->searchable(),
                 Tables\Columns\TextColumn::make('Contract')
                     ->label('Contract')
-                    ->default(function($record) {
+                    ->default(function ($record) {
                         if (!$record->lease_start) return null;
                         return 'Start: ' . $record->lease_start->format('F j, Y');
                     })
-                    ->description(function($record) {
+                    ->description(function ($record) {
                         if (!$record->lease_end) return null;
                         return 'End: ' . $record->lease_end->format('F j, Y');
                     }),
@@ -110,15 +113,13 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->form(fn($record) => RenewForm::schema($record))
                     ->action(function (array $data, $record) {
                         // Get the application_id from the Space record
-                        $applicationId = $record->application_id;
+                        $application = $record->application_id;
 
-                        // Try to find the application, including soft-deleted ones
-                        $application = Application::withTrashed()->find($applicationId);
+
 
                         if ($application) {
-                            // If the application exists (even if soft-deleted), restore and update it
-                            $application->restore();
-                            $application->update([
+
+                            $renew = Renew::create([
                                 'user_id' => auth()->id(),
                                 'space_id' => $record->id,
                                 'concourse_id' => $record->concourse_id,
@@ -135,8 +136,26 @@ class TenantSpace extends Page implements HasForms, HasTable
                                 'remarks' => $data['remarks'] ?? null,
                             ]);
 
+                            // Store the uploaded requirements
+                            if (isset($data['requirements'])) {
+                                foreach ($data['requirements'] as $requirementId => $file) {
+                                    if ($file) {
+                                        RenewAppRequirements::create([
+                                            'requirement_id' => $requirementId,
+                                            'user_id' => Auth::id(),
+                                            'space_id' => $record->id,
+                                            'concourse_id' => $record->concourse_id,
+                                            'application_id' => $renew->id,
+                                            'name' => \App\Models\Requirement::find($requirementId)->name,
+                                            'status' => 'pending',
+                                            'file' => $file->store('requirements', 'public'),
+                                        ]);
+                                    }
+                                }
+                            }
+
                             // Retrieve the submitted images from AppRequirement
-                            $appRequirements = AppRequirement::where('application_id', $application->id)->get();
+                            $appRequirements = RenewAppRequirements::where('renew_id', $renew->id)->get();
 
                             // Update the deleted_at field to null for each AppRequirement
                             foreach ($appRequirements as $appRequirement) {
@@ -145,7 +164,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                             }
                         } else {
                             // If no application exists, create a new one
-                            $application = Application::create([
+                            $application = Renew::create([
                                 'user_id' => auth()->id(),
                                 'space_id' => $record->id,
                                 'concourse_id' => $record->concourse_id,
@@ -161,9 +180,6 @@ class TenantSpace extends Page implements HasForms, HasTable
                                 'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
                                 'remarks' => $data['remarks'] ?? null,
                             ]);
-
-                            // Update the Space with the new application_id
-                            $record->update(['application_id' => $application->id]);
                         }
 
                         Notification::make()
@@ -171,36 +187,29 @@ class TenantSpace extends Page implements HasForms, HasTable
                             ->body('Your application for lease renewal has been submitted successfully.')
                             ->success()
                             ->send();
+
+                        // Mail::to($record->user->email)->send(new RenewApplication($record));
                     })
-                    ->visible(function ($record) {
-                        // Get current date
-                        $now = Carbon::now();
+                // ->visible(function ($record) {
+                //     // Get current date
+                //     $now = Carbon::now();
 
-                        // Check if lease_end is null
-                        if (!$record->lease_end) {
-                            return false;
-                        }
+                //     // Check if lease_end is null
+                //     if (!$record->lease_end) {
+                //         return false;
+                //     }
 
-                        // Calculate the date 3 months before lease end
-                        $threeMonthsBefore = $record->lease_end->copy()->subMonths(3);
+                //     // Calculate the date 3 months before lease end
+                //     $threeMonthsBefore = $record->lease_end->copy()->subMonths(3);
 
-                        // Check if current date is after or equal to 3 months before lease end
-                        // and the lease end is still in the future
-                        $isWithinRenewalPeriod = $now->greaterThanOrEqualTo($threeMonthsBefore) && $record->lease_end->isFuture();
+                //     // Check if current date is after or equal to 3 months before lease end
+                //     // and the lease end is still in the future
+                //     $isWithinRenewalPeriod = $now->greaterThanOrEqualTo($threeMonthsBefore) && $record->lease_end->isFuture();
 
-                        // Check if there's an associated application
-                        if ($record->application_id) {
-                            // Find the application, including soft-deleted ones
-                            $application = Application::withTrashed()->find($record->application_id);
-
-                            if ($application && $application->user_id === auth()->id()) {
-                                return true;
-                            }
-                        }
-
-                        // Show the button if within renewal period and no matching application found
-                        return $isWithinRenewalPeriod;
-                    }),
+                //     // Show the button if within renewal period and no matching application found
+                //     return $isWithinRenewalPeriod;
+                // })
+                ,
                 Tables\Actions\Action::make('payBills')
                     ->label('Pay Bills')
                     ->button()
@@ -327,7 +336,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                 Tables\Actions\Action::make('Check Application')
                     ->link()
                     ->icon('heroicon-o-pencil')
-                    ->url(fn($record) => route('filament.app.pages.edit-requirement', ['concourse_id' => $record->concourse_id, 'space_id' => $record->id, 'user_id' => Auth::id()]))
+                    ->url(fn($record) => route('filament.app.pages.renew-edit-requirement', ['concourse_id' => $record->concourse_id, 'space_id' => $record->id, 'user_id' => Auth::id()]))
                     ->openUrlInNewTab()
                     ->visible(function ($record) {
                         // Hide if status is approved
@@ -335,7 +344,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                             return false;
                         }
 
-                        return \App\Models\Application::where('user_id', Auth::id())
+                        return \App\Models\Renew::where('user_id', Auth::id())
                             ->where('concourse_id', $record->concourse_id)
                             ->where('space_id', $record->id)
                             ->exists();
@@ -375,8 +384,8 @@ class TenantSpace extends Page implements HasForms, HasTable
 
                         Mail::to($admin->email)->send(new TicketReportMail($admin, $tenant, $ticket, $spaceName, $concourseName));
                     }),
-           
-                    ])->headerActions([
+
+            ])->headerActions([
                 Tables\Actions\Action::make('My Report')
                     ->link()
                     ->icon('heroicon-o-paper-airplane')

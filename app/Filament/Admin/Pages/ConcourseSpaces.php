@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 use Filament\Notifications\Notification;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Actions\Action;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RentBillMail;
+use App\Mail\UtilityBillMail;
 
 class ConcourseSpaces extends Page implements HasForms, HasTable
 {
@@ -50,6 +53,30 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             // Update the form fields
             $set('water_bills', $record->water_bills);
             $set('water_payment_status', $record->water_payment_status);
+
+            // Send email to tenant
+            $tenant = $record->user;
+            $dueDate = now()->addDays(7)->format('F j, Y');
+            $penalty = 10;
+            $waterRate = $concourse->water_rate ?? 0;
+
+            Mail::to($tenant->email)->send(new UtilityBillMail(
+                tenantName: $tenant->name,
+                month: now()->format('F Y'),
+                waterConsumption: $state,
+                waterRate: $waterRate,
+                waterBill: $record->water_bills,
+                electricityConsumption: $record->electricity_consumption,
+                electricityRate: $concourse->electricity_rate ?? 0,
+                electricityBill: $record->electricity_bills,
+                dueDate: $dueDate,
+                penalty: $penalty
+            ));
+
+            Notification::make()
+                ->title('Water bill updated and email sent')
+                ->success()
+                ->send();
         }
     }
 
@@ -71,6 +98,30 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
             // Update the form fields
             $set('electricity_bills', $record->electricity_bills);
             $set('electricity_payment_status', $record->electricity_payment_status);
+
+            // Send email to tenant
+            $tenant = $record->user;
+            $dueDate = now()->addDays(7)->format('F j, Y');
+            $penalty = 10;
+            $electricityRate = $concourse->electricity_rate ?? 0;
+
+            Mail::to($tenant->email)->send(new UtilityBillMail(
+                tenantName: $tenant->name,
+                month: now()->format('F Y'),
+                waterConsumption: $record->water_consumption,
+                waterRate: $concourse->water_rate ?? 0,
+                waterBill: $record->water_bills,
+                electricityConsumption: $state,
+                electricityRate: $electricityRate,
+                electricityBill: $record->electricity_bills,
+                dueDate: $dueDate,
+                penalty: $penalty
+            ));
+
+            Notification::make()
+                ->title('Electricity bill updated and email sent')
+                ->success()
+                ->send();
         }
     }
 
@@ -203,6 +254,25 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                             $record->rent_bills = $rentAmount;
                             $record->rent_payment_status = 'unpaid';
                             $record->save();
+
+                            // Send email to tenant
+                            $tenant = $record->user;
+                            $dueDate = now()->addDays(7)->format('F j, Y');
+                            $penalty = 10;
+
+                            Mail::to($tenant->email)->send(new RentBillMail(
+                                tenantName: $tenant->name,
+                                month: now()->format('F Y'),
+                                rentAmount: $rentAmount,
+                                totalAmount: $rentAmount,
+                                dueDate: $dueDate,
+                                penalty: $penalty
+                            ));
+
+                            Notification::make()
+                                ->title('Rent bill added and email sent')
+                                ->success()
+                                ->send();
                         }),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
