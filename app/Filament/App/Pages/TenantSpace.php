@@ -90,9 +90,6 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->default(fn($record) => $record->electricity_bills > 0 ? '₱' . number_format($record->electricity_bills, 2) : '₱0.00')
                     ->description(fn($record) => $record->electricity_payment_status == 'paid' ? '' : 'Unpaid')
                     ->tooltip(fn($record) => $record->electricity_due ? 'Due: ' . Carbon::parse($record->electricity_due)->format('M d, Y') : ''),
-                Tables\Columns\TextColumn::make('penalties')
-                    ->label('Penalties')
-                    ->default(fn($record) => $record->penalty > 0 ? '₱' . number_format($record->penalty, 2) : '₱0.00'),
             ])
             ->filters([
                 SelectFilter::make('concourse_id')
