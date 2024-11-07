@@ -136,80 +136,17 @@ class TenantSpace extends Page implements HasForms, HasTable
                                 'remarks' => $data['remarks'] ?? null,
                             ]);
 
-                        //     // Store the uploaded requirements
-                        //     if (isset($data['requirements'])) {
-                        //         foreach ($data['requirements'] as $requirementId => $file) {
-                        //             if ($file) {
-                        //                 RenewAppRequirements::create([
-                        //                     'requirement_id' => $requirementId,
-                        //                     'user_id' => Auth::id(),
-                        //                     'space_id' => $record->id,
-                        //                     'concourse_id' => $record->concourse_id,
-                        //                     'application_id' => $renew->id,
-                        //                     'name' => \App\Models\Requirement::find($requirementId)->name,
-                        //                     'status' => 'pending',
-                        //                     'file' => $file->store('requirements', 'public'),
-                        //                 ]);
-                        //             }
-                        //         }
-                        //     }
 
-                        //     // Retrieve the submitted images from AppRequirement
-                        //     $appRequirements = RenewAppRequirements::where('renew_id', $renew->id)->get();
 
-                        //     // Update the deleted_at field to null for each AppRequirement
-                        //     foreach ($appRequirements as $appRequirement) {
-                        //         $appRequirement->deleted_at = null;
-                        //         $appRequirement->save();
-                        //     }
-                        // } else {
-                        //     // If no application exists, create a new one
-                        //     $application = Renew::create([
-                        //         'user_id' => auth()->id(),
-                        //         'space_id' => $record->id,
-                        //         'concourse_id' => $record->concourse_id,
-                        //         'business_name' => $data['business_name'] ?? null,
-                        //         'owner_name' => $data['owner_name'] ?? null,
-                        //         'address' => $data['address'] ?? null,
-                        //         'phone_number' => $data['phone_number'] ?? null,
-                        //         'email' => $data['email'] ?? null,
-                        //         'business_type' => $data['business_type'] ?? null,
-                        //         'requirements_status' => 'pending',
-                        //         'application_status' => 'pending',
-                        //         'space_type' => 'renewal',
-                        //         'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
-                        //         'remarks' => $data['remarks'] ?? null,
-                        //     ]);
-                        // }
+                            Notification::make()
+                                ->title('Lease Renewal Application Submitted')
+                                ->body('Your application for lease renewal has been submitted successfully.')
+                                ->success()
+                                ->send();
 
-                        Notification::make()
-                            ->title('Lease Renewal Application Submitted')
-                            ->body('Your application for lease renewal has been submitted successfully.')
-                            ->success()
-                            ->send();
-
-                        // Mail::to($record->user->email)->send(new RenewApplication($record));
-                    })
-                // ->visible(function ($record) {
-                //     // Get current date
-                //     $now = Carbon::now();
-
-                //     // Check if lease_end is null
-                //     if (!$record->lease_end) {
-                //         return false;
-                //     }
-
-                //     // Calculate the date 3 months before lease end
-                //     $threeMonthsBefore = $record->lease_end->copy()->subMonths(3);
-
-                //     // Check if current date is after or equal to 3 months before lease end
-                //     // and the lease end is still in the future
-                //     $isWithinRenewalPeriod = $now->greaterThanOrEqualTo($threeMonthsBefore) && $record->lease_end->isFuture();
-
-                //     // Show the button if within renewal period and no matching application found
-                //     return $isWithinRenewalPeriod;
-                // })
-                ,
+                            Mail::to($record->user->email)->send(new RenewApplication($record));
+                        }
+                    }),
                 Tables\Actions\Action::make('payBills')
                     ->label('Pay Bills')
                     ->button()
