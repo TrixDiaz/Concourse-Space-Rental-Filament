@@ -87,8 +87,12 @@ class EditRenew extends EditRecord
                         // Update space status and details if space is found
                         $space = Space::find($application->space_id);
                         if ($space) {
+                            // Add months to the existing lease_end date
+                            $newLeaseEnd = Carbon::parse($space->lease_end)
+                                ->addMonths($application->concourse_lease_term);
+                            
                             $space->update([
-                                'lease_end' => Carbon::parse($application->lease_start)->addMonths($application->concourse_lease_term),
+                                'lease_end' => $newLeaseEnd,
                             ]);
                         }
 
@@ -179,7 +183,7 @@ class EditRenew extends EditRecord
             Actions\Action::make('rejectApplication')
                 ->label('Reject Application')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->requirements_status == 'rejected' || $record->requirements_status == 'pending')
+                ->visible(fn($record) => $record->requirements_status == 'rejected' || $record->requirements_status == 'pending' || $record->requirements_status == 'approved')
                 ->action(function () {
                     $application = $this->getRecord();
 
