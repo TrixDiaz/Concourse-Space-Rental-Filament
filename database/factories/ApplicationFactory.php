@@ -22,12 +22,19 @@ class ApplicationFactory extends Factory
      */
     public function definition(): array
     {
+        $requirements_status = $this->faker->randomElement(['pending', 'approved', 'rejected']);
+        
+        // If requirements are rejected, application can only be pending or rejected
+        $application_status_options = $requirements_status === 'rejected' 
+            ? ['pending', 'rejected']
+            : ['pending', 'approved', 'rejected'];
+
         return [
             'user_id' => User::factory(),
             'concourse_id' => Concourse::factory(),
             'space_id' => Space::factory(),
-            'requirements_status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
-            'application_status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
+            'requirements_status' => $requirements_status,
+            'application_status' => $this->faker->randomElement($application_status_options),
             'business_name' => $this->faker->company,
             'owner_name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,

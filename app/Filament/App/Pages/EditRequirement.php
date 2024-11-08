@@ -117,6 +117,7 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                                             Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
                                                 ->label($requirement->name)
                                                 ->extraInputAttributes(['class' => 'capitalize'])
+                                                
                                                 ->disabled(),
                                         ]);
                                 })->toArray();

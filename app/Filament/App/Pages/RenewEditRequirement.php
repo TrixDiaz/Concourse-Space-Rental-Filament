@@ -48,7 +48,7 @@ class RenewEditRequirement extends Page implements Forms\Contracts\HasForms
         $formData = $this->application->toArray();
         foreach ($this->allRequirements as $requirement) {
             $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
-            $formData['requirements'][$requirement->id] = $appRequirement ? 'requirements/' . $appRequirement->file : null;
+            $formData['requirements'][$requirement->id] = $appRequirement ? $appRequirement->file : null;
             $formData['requirement_status'][$requirement->id] = $appRequirement ? $appRequirement->status : 'pending';
         }
         $this->form->fill($formData);
@@ -98,33 +98,34 @@ class RenewEditRequirement extends Page implements Forms\Contracts\HasForms
                             ->disabled()
                             ->extraInputAttributes(['class' => 'capitalize']),
                             
-                        // Forms\Components\Section::make('Requirements')
-                        //     ->schema(function () {
-                        //         return $this->allRequirements->map(function ($requirement) {
-                        //             $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
-                        //             return Forms\Components\Grid::make(2)
-                        //                 ->schema([
-                        //                     Forms\Components\FileUpload::make("requirements.{$requirement->id}")
-                        //                         ->label('')
-                        //                         ->disk('public')
-                        //                         ->directory('renew-requirements')
-                        //                         ->acceptedFileTypes(['application/pdf', 'image/*'])
-                        //                         ->maxSize(5120)
-                        //                         ->openable()
-                        //                         ->imagePreviewHeight('250')
-                        //                         ->loadingIndicatorPosition('left')
-                        //                         ->panelAspectRatio('2:1')
-                        //                         ->panelLayout('integrated')
-                        //                         ->removeUploadedFileButtonPosition('right')
-                        //                         ->uploadButtonPosition('left')
-                        //                         ->uploadProgressIndicatorPosition('left'),
-                        //                     Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
-                        //                         ->label($requirement->name)
-                        //                         ->extraInputAttributes(['class' => 'capitalize'])
-                        //                         ->disabled(),
-                        //                 ]);
-                        //         })->toArray();
-                        //     }),
+                        Forms\Components\Section::make('Requirements')
+                            ->schema(function () {
+                                return $this->allRequirements->map(function ($requirement) {
+                                    $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
+                                    return Forms\Components\Grid::make(2)
+                                        ->schema([
+                                            Forms\Components\FileUpload::make("requirements.{$requirement->id}")
+                                                ->label('')
+                                                ->disk('public')
+                                                ->directory('renew-requirements')
+                                                ->acceptedFileTypes(['application/pdf', 'image/*'])
+                                                ->maxSize(5120)
+                                                ->openable()
+                                                ->downloadable()
+                                                ->imagePreviewHeight('250')
+                                                ->loadingIndicatorPosition('left')
+                                                ->panelAspectRatio('2:1')
+                                                ->panelLayout('integrated')
+                                                ->removeUploadedFileButtonPosition('right')
+                                                ->uploadButtonPosition('left')
+                                                ->uploadProgressIndicatorPosition('left'),
+                                            Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
+                                                ->label($requirement->name)
+                                                ->extraInputAttributes(['class' => 'capitalize'])
+                                                ->disabled(),
+                                        ]);
+                                })->toArray();
+                            }),
                     ])->columns(2),
             ])
 
@@ -143,28 +144,26 @@ class RenewEditRequirement extends Page implements Forms\Contracts\HasForms
             foreach ($data['requirements'] as $requirementId => $file) {
                 $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirementId);
                 
-                // Extract just the filename from the full path if it exists
-                $filename = $file ? basename($file) : null;
-                
-                if ($appRequirement) {
-                    if ($file) {
+                if ($file) {
+                    $filename = $file;
+                    
+                    if ($appRequirement) {
                         $appRequirement->update([
-                            'file' => $filename, // Store only the filename
+                            'file' => $filename,
                             'status' => 'pending',
                         ]);
+                    } else {
+                        RenewAppRequirements::create([
+                            'requirement_id' => $requirementId,
+                            'user_id' => Auth::id(),
+                            'space_id' => $this->application->space_id,
+                            'concourse_id' => $this->application->concourse_id,
+                            'application_id' => $this->application->id,
+                            'name' => $this->allRequirements->firstWhere('id', $requirementId)->name,
+                            'status' => 'pending',
+                            'file' => $filename,
+                        ]);
                     }
-                } else {
-                    // Create new AppRequirement if it doesn't exist
-                    RenewAppRequirements::create([
-                        'requirement_id' => $requirementId,
-                        'user_id' => Auth::id(),
-                        'space_id' => $this->application->space_id,
-                        'concourse_id' => $this->application->concourse_id,
-                        'application_id' => $this->application->id,
-                        'name' => $this->allRequirements->firstWhere('id', $requirementId)->name,
-                        'status' => 'pending',
-                        'file' => $filename, // Store only the filename
-                    ]);
                 }
             }
         }

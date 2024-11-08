@@ -62,19 +62,19 @@ final class RenewForm
                         ->readOnly(),
                 ])->columns(2),
 
-            // Forms\Components\Section::make('Requirements')
-            //     ->schema(function () {
-            //         $requirements = Requirement::all();
-            //         return $requirements->map(function ($requirement) {
-            //             return Forms\Components\FileUpload::make("requirements.{$requirement->id}")
-            //                 ->label($requirement->name)
-            //                 ->disk('public')
-            //                 ->directory('renew-requirements')
-            //                 ->acceptedFileTypes(['application/pdf', 'image/*'])
-            //                 ->maxSize(5120);
-            //         })->toArray();
-            //     })
-            //     ->columns(2),
+            Forms\Components\Section::make('Requirements')
+                ->schema(function () {
+                    $requirements = Requirement::all();
+                    return $requirements->map(function ($requirement) {
+                        return Forms\Components\FileUpload::make("requirements.{$requirement->id}")
+                            ->label($requirement->name)
+                            ->disk('public')
+                            ->directory('renew-requirements')
+                            ->acceptedFileTypes(['application/pdf', 'image/*'])
+                            ->maxSize(5120);
+                    })->toArray();
+                })
+                ->columns(2),
         ];
     }
 }

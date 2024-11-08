@@ -56,6 +56,6 @@ class Renew extends Model
 
     public function renewAppRequirements()
     {
-        return $this->hasMany(RenewAppRequirements::class);
+        return $this->hasMany(RenewAppRequirements::class, 'application_id');
     }
 }

@@ -87,52 +87,51 @@ class RenewResource extends Resource
                             ->default(null)
                             ->columnSpanFull(),
                     ])->columns(2),
-                // Forms\Components\Section::make('List of Required Documents')
-                //     ->description('Approved each documents for the application')
-                //     ->schema([
-                //         Forms\Components\Repeater::make('renewAppRequirements')
-                //             ->relationship()
-                //             ->schema([
-                //                 Forms\Components\Grid::make(2)->schema([
-                //                     Forms\Components\FileUpload::make('file')
-                //                         ->disk('public')
-                //                         ->directory('app-requirements')
-                //                         ->visibility('public')
-                //                         ->downloadable()
-                //                         ->disabled()
-                //                         ->openable()
-                //                         ->columnSpanFull(),
-                //                 ])->columnSpan([
-                //                     'sm' => 3,
-                //                     'md' => 3,
-                //                     'lg' => 2
-                //                 ]),
-                //                 Forms\Components\Grid::make(1)->schema([
-                //                     Forms\Components\TextInput::make('name')
-                //                         ->required()
-                //                         ->disabled()
-                //                         ->readOnly(),
-                //                     Forms\Components\Select::make('status')
-                //                         ->required()
-                //                         ->options([
-                //                             'pending' => 'Pending',
-                //                             'approved' => 'Approved',
-                //                             'rejected' => 'Rejected',
-                //                         ]),
-                //                 ])->columnSpan([
-                //                     'sm' => 3,
-                //                     'md' => 3,
-                //                     'lg' => 1
-                //                 ]),
-                //             ])
-                //             ->columns(3)
-                //             ->columnSpanFull()
-                //             ->defaultItems(0)
-                //             ->disableItemCreation()
-                //             ->disableItemDeletion(),
-                //     ])->columnSpanFull(),
-         
-                ]);
+                Forms\Components\Section::make('List of Required Documents')
+                    ->description('Approved each documents for the application')
+                    ->schema([
+                        Forms\Components\Repeater::make('renewAppRequirements')
+                            ->relationship('renewAppRequirements')
+                            ->schema([
+                                Forms\Components\Grid::make(2)->schema([
+                                    Forms\Components\FileUpload::make('file')
+                                        ->disk('public')
+                                        ->directory('app-requirements')
+                                        ->visibility('public')
+                                        ->downloadable()
+                                        ->disabled()
+                                        ->openable()
+                                        ->columnSpanFull(),
+                                ])->columnSpan([
+                                    'sm' => 3,
+                                    'md' => 3,
+                                    'lg' => 2
+                                ]),
+                                Forms\Components\Grid::make(1)->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->disabled()
+                                        ->readOnly(),
+                                    Forms\Components\Select::make('status')
+                                        ->required()
+                                        ->options([
+                                            'pending' => 'Pending',
+                                            'approved' => 'Approved',
+                                            'rejected' => 'Rejected',
+                                        ]),
+                                ])->columnSpan([
+                                    'sm' => 3,
+                                    'md' => 3,
+                                    'lg' => 1
+                                ]),
+                            ])
+                            ->columns(3)
+                            ->columnSpanFull()
+                            ->defaultItems(0)
+                            ->disableItemCreation()
+                            ->disableItemDeletion(),
+                    ])->columnSpanFull(),
+            ]);
     }
 
     public static function table(Table $table): Table

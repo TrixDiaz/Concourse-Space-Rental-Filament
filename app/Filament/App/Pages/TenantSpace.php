@@ -111,42 +111,60 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->button()
                     ->slideOver()
                     ->form(fn($record) => RenewForm::schema($record))
+                    ->visible(function ($record) {
+                        // Check if user already has a pending renewal application for this space
+                        return !Renew::where('user_id', auth()->id())
+                            ->where('space_id', $record->id)
+                            ->where('concourse_id', $record->concourse_id)
+                            ->whereIn('application_status', ['pending', 'processing'])
+                            ->exists();
+                    })
                     ->action(function (array $data, $record) {
-                        // Get the application_id from the Space record
-                        $application = $record->application_id;
+                        // Create the Renew application first
+                        $renew = Renew::create([
+                            'user_id' => auth()->id(),
+                            'space_id' => $record->id,
+                            'concourse_id' => $record->concourse_id,
+                            'business_name' => $data['business_name'] ?? null,
+                            'owner_name' => $data['owner_name'] ?? null,
+                            'address' => $data['address'] ?? null,
+                            'phone_number' => $data['phone_number'] ?? null,
+                            'email' => $data['email'] ?? null,
+                            'business_type' => $data['business_type'] ?? null,
+                            'requirements_status' => 'pending',
+                            'application_status' => 'pending',
+                            'space_type' => 'renewal',
+                            'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
+                            'remarks' => $data['remarks'] ?? null,
+                        ]);
 
-
-
-                        if ($application) {
-
-                            $renew = Renew::create([
-                                'user_id' => auth()->id(),
-                                'space_id' => $record->id,
-                                'concourse_id' => $record->concourse_id,
-                                'business_name' => $data['business_name'] ?? null,
-                                'owner_name' => $data['owner_name'] ?? null,
-                                'address' => $data['address'] ?? null,
-                                'phone_number' => $data['phone_number'] ?? null,
-                                'email' => $data['email'] ?? null,
-                                'business_type' => $data['business_type'] ?? null,
-                                'requirements_status' => 'pending',
-                                'application_status' => 'pending',
-                                'space_type' => 'renewal',
-                                'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
-                                'remarks' => $data['remarks'] ?? null,
-                            ]);
-
-
-
-                            Notification::make()
-                                ->title('Lease Renewal Application Submitted')
-                                ->body('Your application for lease renewal has been submitted successfully.')
-                                ->success()
-                                ->send();
-
-                            Mail::to($record->user->email)->send(new RenewApplication($record));
+                        // Store the uploaded requirements
+                        if (isset($data['requirements'])) {
+                            foreach ($data['requirements'] as $requirementId => $file) {
+                                if ($file) {
+                                    RenewAppRequirements::create([
+                                        'requirement_id' => $requirementId,
+                                        'user_id' => auth()->id(),
+                                        'space_id' => $record->id,
+                                        'concourse_id' => $record->concourse_id,
+                                        'application_id' => $renew->id, // Use the newly created renew application's ID
+                                        'name' => \App\Models\Requirement::find($requirementId)->name,
+                                        'status' => 'pending',
+                                        'file' => $file,
+                                    ]);
+                                }
+                            }
                         }
-                    }),
+
+                        Notification::make()
+                            ->title('Lease Renewal Application Submitted')
+                            ->body('Your application for lease renewal has been submitted successfully.')
+                            ->success()
+                            ->send();
+
+                        // Mail::to($record->user->email)->send(new RenewApplication($record));
+                    })
+                    ,
                 Tables\Actions\Action::make('payBills')
                     ->label('Pay Bills')
                     ->button()
