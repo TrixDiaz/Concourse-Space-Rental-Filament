@@ -119,6 +119,10 @@ class RenewResource extends Resource
                                             'approved' => 'Approved',
                                             'rejected' => 'Rejected',
                                         ]),
+                                    Forms\Components\TextInput::make('remarks')
+                                        ->label('Remarks')
+                                        ->maxLength(255)
+                                        ->default(null),
                                 ])->columnSpan([
                                     'sm' => 3,
                                     'md' => 3,

@@ -50,6 +50,7 @@ class RenewEditRequirement extends Page implements Forms\Contracts\HasForms
             $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
             $formData['requirements'][$requirement->id] = $appRequirement ? $appRequirement->file : null;
             $formData['requirement_status'][$requirement->id] = $appRequirement ? $appRequirement->status : 'pending';
+            $formData['remarks'][$requirement->id] = $appRequirement ? $appRequirement->remarks : null;
         }
         $this->form->fill($formData);
     }
@@ -97,12 +98,12 @@ class RenewEditRequirement extends Page implements Forms\Contracts\HasForms
                             ->label('Application Status')
                             ->disabled()
                             ->extraInputAttributes(['class' => 'capitalize']),
-                            
+
                         Forms\Components\Section::make('Requirements')
                             ->schema(function () {
                                 return $this->allRequirements->map(function ($requirement) {
                                     $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
-                                    return Forms\Components\Grid::make(2)
+                                    return Forms\Components\Grid::make(3)
                                         ->schema([
                                             Forms\Components\FileUpload::make("requirements.{$requirement->id}")
                                                 ->label('')
@@ -118,15 +119,21 @@ class RenewEditRequirement extends Page implements Forms\Contracts\HasForms
                                                 ->panelLayout('integrated')
                                                 ->removeUploadedFileButtonPosition('right')
                                                 ->uploadButtonPosition('left')
-                                                ->uploadProgressIndicatorPosition('left'),
-                                            Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
-                                                ->label($requirement->name)
-                                                ->extraInputAttributes(['class' => 'capitalize'])
-                                                ->disabled(),
+                                                ->uploadProgressIndicatorPosition('left')
+                                                ->columnSpan(2),
+                                            Forms\Components\Section::make()->schema([
+                                                Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
+                                                    ->label($requirement->name)
+                                                    ->extraInputAttributes(['class' => 'capitalize'])
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make("remarks.{$requirement->id}")
+                                                    ->label('Remarks')
+                                                    ->disabled(),
+                                            ])->columnSpan(1),
                                         ]);
                                 })->toArray();
                             }),
-                    ])->columns(2),
+                    ])->columns(3),
             ])
 
             ->statePath('data');
@@ -143,10 +150,10 @@ class RenewEditRequirement extends Page implements Forms\Contracts\HasForms
         if (isset($data['requirements'])) {
             foreach ($data['requirements'] as $requirementId => $file) {
                 $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirementId);
-                
+
                 if ($file) {
                     $filename = $file;
-                    
+
                     if ($appRequirement) {
                         $appRequirement->update([
                             'file' => $filename,

@@ -19,6 +19,7 @@ class RenewAppRequirements extends Model
         'name',
         'status',
         'file',
+        'remarks',
     ];
 
     public function renew()

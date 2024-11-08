@@ -41,7 +41,7 @@ final class RequirementForm
                         ->label('Phone Number')
                         ->default(fn() => $user->phone_number)
                         ->required(),
-                    Forms\Components\TextInput::make('address')
+                    Forms\Components\Textarea::make('address')
                         ->label('Permanent Address')
                         ->default(fn() => $user->address)
                         ->columnSpanFull()

@@ -18,6 +18,7 @@ class AppRequirement extends Model
         'name',
         'status',
         'file',
+        'remarks',
     ];
 
     public function application()

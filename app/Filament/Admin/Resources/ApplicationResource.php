@@ -119,6 +119,9 @@ class ApplicationResource extends Resource
                                             'approved' => 'Approved',
                                             'rejected' => 'Rejected',
                                         ]),
+                                    Forms\Components\Textarea::make('remarks')
+                                        ->maxLength(255)
+                                        ->default(null),
                                 ])->columnSpan([
                                     'sm' => 3,
                                     'md' => 3,

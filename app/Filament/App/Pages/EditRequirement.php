@@ -47,6 +47,7 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
             $appRequirement = $this->appRequirements->firstWhere('requirement_id', $requirement->id);
             $formData['requirements'][$requirement->id] = $appRequirement ? $appRequirement->file : null;
             $formData['requirement_status'][$requirement->id] = $appRequirement ? $appRequirement->status : 'pending';
+            $formData['remarks'][$requirement->id] = $appRequirement ? $appRequirement->remarks : null;
         }
         $this->form->fill($formData);
     }
@@ -113,17 +114,21 @@ class EditRequirement extends Page implements Forms\Contracts\HasForms
                                                 ->panelLayout('integrated')
                                                 ->removeUploadedFileButtonPosition('right')
                                                 ->uploadButtonPosition('left')
-                                                ->uploadProgressIndicatorPosition('left'),
-                                            Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
-                                                ->label($requirement->name)
-                                                ->extraInputAttributes(['class' => 'capitalize'])
-                                                
-                                                ->disabled(),
+                                                ->uploadProgressIndicatorPosition('left')
+                                                ->columnSpan(1),
+                                            Forms\Components\Grid::make(1)->schema([
+                                                Forms\Components\TextInput::make("requirement_status.{$requirement->id}")
+                                                    ->label($requirement->name)
+                                                    ->extraInputAttributes(['class' => 'capitalize'])
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make("remarks.{$requirement->id}")
+                                                    ->label('Remarks')
+                                                    ->disabled(),
+                                            ])->columnSpan(1),
                                         ]);
                                 })->toArray();
                             }),
-                    ])
-                    ->columns(2),
+                    ])->columns(3),
             ])
             ->statePath('data');
     }
