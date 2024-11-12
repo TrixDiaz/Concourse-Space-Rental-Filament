@@ -22,23 +22,12 @@
 
     <p>Dear {{ $application->owner_name }},</p>
 
-    <p>We regret to inform you that your application for space rental has been rejected.</p>
+    <p>We regret to inform you that your renewal application for {{ $application->space->name }} in {{ $application->concourse->name }} at {{ $application->concourse->address }} has been rejected. Unfortunately, your application did not meet the necessary criteria for renewal at this time.</p>
 
-    <h2>Application Details:</h2>
-    <p>
-        <strong>Business Name:</strong> {{ $application->business_name }}<br>
-        <strong>Space Name:</strong> {{ $application->space->name }}<br>
-        <strong>Space Address:</strong> {{ $application->concourse->address }}
-    </p>
+    <p>If you have any questions regarding this decision or wish to discuss future opportunities, please feel free to contact us.</p>
 
-    <p>If you have any questions regarding this decision, please don't hesitate to contact us.</p>
-
-    <p>Thank you for your interest in our services.</p>
-
-    <p>
-        Best regards,<br>
-        {{ config('app.name') }}
-    </p>
+    <p>Regards,<br>
+    COMS</p>
 </body>
 
 </html>

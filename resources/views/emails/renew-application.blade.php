@@ -38,25 +38,13 @@
     </div>
 
     <div class="content">
-        <p>Dear Admin,</p>
+        <p>Dear {{ $tenant->name }},</p>
 
-        <p>A new lease renewal application has been submitted with the following details:</p>
+        <p>Thank you for submitting your renewal application for {{ $space->name }} in {{ $concourse->name }} at {{ $concourse->address }}. We have received your application and will review it promptly.</p>
 
-        <h3>Tenant Information:</h3>
-        <ul>
-            <li><strong>Tenant Name:</strong> {{ $tenant->name }}</li>
-            <li><strong>Email:</strong> {{ $tenant->email }}</li>
-            <li><strong>Phone:</strong> {{ $tenant->phone_number ?? 'Not provided' }}</li>
-        </ul>
+        <p>You will receive a follow-up notification once your application has been processed.</p>
 
-        <h3>Space Details:</h3>
-        <ul>
-            <li><strong>Concourse:</strong> {{ $concourse->name }}</li>
-            <li><strong>Space Number:</strong> {{ $space->name }}</li>
-            <li><strong>Current Lease End Date:</strong> {{ $space->lease_end ? $space->lease_end->format('F j, Y') : 'Not set' }}</li>
-        </ul>
-
-        <p>Please review this application in your admin dashboard to process the renewal request.</p>
+        <p>Regards,<br>COMS</p>
     </div>
 
     <div class="footer">

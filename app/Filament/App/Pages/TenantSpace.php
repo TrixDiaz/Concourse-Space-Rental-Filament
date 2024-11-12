@@ -162,7 +162,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                             ->success()
                             ->send();
 
-                        // Mail::to($record->user->email)->send(new RenewApplication($record));
+                        Mail::to($record->user->email)->send(new RenewApplication($record));
                     })
                     ,
                 Tables\Actions\Action::make('payBills')
@@ -357,74 +357,92 @@ class TenantSpace extends Page implements HasForms, HasTable
         $now = now();
         $dueData = [];
 
-        if (isset($data['pay_water']) && $data['pay_water']) {
-            $waterDue = Carbon::parse($record->water_due);
-            $penalty = $now->gt($waterDue) ? ($record->water_bills * 0.02) : 0;
+        // Validate that at least one payment option is selected
+        if (!isset($data['pay_water']) && !isset($data['pay_electricity']) && !isset($data['pay_rent'])) {
+            $this->notify('danger', 'Payment Error', 'Please select at least one bill to pay.');
+            return null;
+        }
+
+        // Water Bill
+        if (!empty($data['pay_water'])) {
+            $waterDue = $record->water_due ? Carbon::parse($record->water_due) : null;
+            $penalty = ($waterDue && $now->gt($waterDue)) ? ($record->water_bills * 0.02) : 0;
             $totalWater = $record->water_bills + $penalty;
 
-            $lineItems[] = [
-                'currency' => 'PHP',
-                'amount' => $totalWater * 100,
-                'description' => 'Water Bill' . ($penalty > 0 ? ' + 2% Penalty' : ''),
-                'name' => 'Water Bill',
-                'quantity' => 1,
-            ];
-            $totalAmount += $totalWater;
-            $description .= "Water Bill" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
+            if ($totalWater > 0) {
+                $lineItems[] = [
+                    'currency' => 'PHP',
+                    'amount' => (int)($totalWater * 100), // Ensure amount is an integer
+                    'description' => 'Water Bill' . ($penalty > 0 ? ' + 2% Penalty' : ''),
+                    'name' => 'Water Bill',
+                    'quantity' => 1,
+                ];
+                $totalAmount += $totalWater;
+                $description .= "Water Bill" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
 
-            // Check if payment is late
-            if ($record->water_due && $waterDue->isPast()) {
-                $dueData['water_due'] = $record->water_due;
-                $dueData['paid_late'] = $now;
+                if ($waterDue && $waterDue->isPast()) {
+                    $dueData['water_due'] = $record->water_due;
+                    $dueData['paid_late'] = $now;
+                }
             }
         }
 
-        if (isset($data['pay_electricity']) && $data['pay_electricity']) {
-            $electricityDue = Carbon::parse($record->electricity_due);
-            $penalty = $now->gt($electricityDue) ? ($record->electricity_bills * 0.02) : 0;
+        // Electricity Bill
+        if (!empty($data['pay_electricity'])) {
+            $electricityDue = $record->electricity_due ? Carbon::parse($record->electricity_due) : null;
+            $penalty = ($electricityDue && $now->gt($electricityDue)) ? ($record->electricity_bills * 0.02) : 0;
             $totalElectricity = $record->electricity_bills + $penalty;
 
-            $lineItems[] = [
-                'currency' => 'PHP',
-                'amount' => $totalElectricity * 100,
-                'description' => 'Electricity Bill' . ($penalty > 0 ? ' + 2% Penalty' : ''),
-                'name' => 'Electricity Bill',
-                'quantity' => 1,
-            ];
-            $totalAmount += $totalElectricity;
-            $description .= "Electricity Bill" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
+            if ($totalElectricity > 0) {
+                $lineItems[] = [
+                    'currency' => 'PHP',
+                    'amount' => (int)($totalElectricity * 100), // Ensure amount is an integer
+                    'description' => 'Electricity Bill' . ($penalty > 0 ? ' + 2% Penalty' : ''),
+                    'name' => 'Electricity Bill',
+                    'quantity' => 1,
+                ];
+                $totalAmount += $totalElectricity;
+                $description .= "Electricity Bill" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
 
-            // Check if payment is late
-            if ($record->electricity_due && $electricityDue->isPast()) {
-                $dueData['electricity_due'] = $record->electricity_due;
-                if (!isset($dueData['paid_late'])) {
-                    $dueData['paid_late'] = $now;
+                if ($electricityDue && $electricityDue->isPast()) {
+                    $dueData['electricity_due'] = $record->electricity_due;
+                    if (!isset($dueData['paid_late'])) {
+                        $dueData['paid_late'] = $now;
+                    }
                 }
             }
         }
 
-        if (isset($data['pay_rent']) && $data['pay_rent']) {
-            $rentDue = Carbon::parse($record->rent_due);
-            $penalty = $now->gt($rentDue) ? ($record->rent_bills * 0.02) : 0;
+        // Rent Bill
+        if (!empty($data['pay_rent'])) {
+            $rentDue = $record->rent_due ? Carbon::parse($record->rent_due) : null;
+            $penalty = ($rentDue && $now->gt($rentDue)) ? ($record->rent_bills * 0.02) : 0;
             $totalRent = $record->rent_bills + $penalty;
 
-            $lineItems[] = [
-                'currency' => 'PHP',
-                'amount' => $totalRent * 100,
-                'description' => 'Monthly Rent' . ($penalty > 0 ? ' + 2% Penalty' : ''),
-                'name' => 'Monthly Rent',
-                'quantity' => 1,
-            ];
-            $totalAmount += $totalRent;
-            $description .= "Monthly Rent" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
+            if ($totalRent > 0) {
+                $lineItems[] = [
+                    'currency' => 'PHP',
+                    'amount' => (int)($totalRent * 100), // Ensure amount is an integer
+                    'description' => 'Monthly Rent' . ($penalty > 0 ? ' + 2% Penalty' : ''),
+                    'name' => 'Monthly Rent',
+                    'quantity' => 1,
+                ];
+                $totalAmount += $totalRent;
+                $description .= "Monthly Rent" . ($penalty > 0 ? " (incl. ₱" . number_format($penalty, 2) . " penalty), " : ", ");
 
-            // Check if payment is late
-            if ($record->rent_due && $rentDue->isPast()) {
-                $dueData['rent_due'] = $record->rent_due;
-                if (!isset($dueData['paid_late'])) {
-                    $dueData['paid_late'] = $now;
+                if ($rentDue && $rentDue->isPast()) {
+                    $dueData['rent_due'] = $record->rent_due;
+                    if (!isset($dueData['paid_late'])) {
+                        $dueData['paid_late'] = $now;
+                    }
                 }
             }
+        }
+
+        // Validate that we have at least one line item
+        if (empty($lineItems)) {
+            $this->notify('danger', 'Payment Error', 'No valid bills selected for payment.');
+            return null;
         }
 
         // Remove trailing comma and space from description

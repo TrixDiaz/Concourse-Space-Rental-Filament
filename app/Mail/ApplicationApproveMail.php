@@ -39,8 +39,14 @@ class ApplicationApproveMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.application_approve',
-            with: $this->mailData,
+            markdown: 'emails.application_approve',
+            with: [
+                'greeting' => 'Dear ' . $this->mailData['tenantName'],
+                'line1' => 'We are pleased to inform you that your renewal application for ' . $this->mailData['spaceName'] . ' in ' . $this->mailData['concourseName'] . ' at ' . $this->mailData['concourseAddress'] . ' has been approved. Your lease has been successfully renewed, and you may continue your tenancy without interruption.',
+                'line2' => 'Thank you for choosing to stay with us. If you have any further questions, please feel free to reach out.',
+                'salutation' => 'Regards,',
+                'fromName' => 'COMS'
+            ]
         );
     }
 

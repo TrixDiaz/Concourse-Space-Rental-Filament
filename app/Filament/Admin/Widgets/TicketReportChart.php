@@ -18,7 +18,7 @@ class TicketReportChart extends ApexChartWidget
      *
      * @var string|null
      */
-    protected static ?string $heading = 'TicketReportChart';
+    protected static ?string $heading = 'Ticket Report Chart';
 
 
      /**
