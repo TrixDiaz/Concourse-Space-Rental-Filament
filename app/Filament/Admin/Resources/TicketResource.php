@@ -30,19 +30,26 @@ class TicketResource extends Resource
                     Forms\Components\Section::make()->schema([
                         Forms\Components\TextInput::make('incident_ticket_number')
                             ->required()
-                            ->columnSpanFull()
-                            ->disabled(),
+                            ->default(fn() => 'INC' . str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT))
+                            ->columnSpanFull(),
                     ])->hiddenOn('create'),
                     Forms\Components\Section::make()->schema([
 
                         Forms\Components\Select::make('concourse_id')
                             ->relationship('concourse', 'name')
                             ->required()
-                            ->disabled(),
+                            ->native(false)
+                            ->disabled(fn() => !auth()->user()->hasRole('super_admin')),
                         Forms\Components\Select::make('space_id')
-                            ->relationship('space', 'name')
+                            ->relationship('space', 'name', function ($query, $get) {
+                                return $query->when($get('concourse_id'), function ($query, $concourseId) {
+                                    return $query->where('concourse_id', $concourseId);
+                                });
+                            })
                             ->required()
-                            ->disabled(),
+                            ->disabled(fn() => !auth()->user()->hasRole('super_admin'))
+                            ->reactive()
+                            ->native(false),
                         Forms\Components\TextInput::make('title')
                             ->required()
                             ->maxLength(255)
@@ -64,9 +71,19 @@ class TicketResource extends Resource
                 ]),
                 Forms\Components\Grid::make(1)->schema([
                     Forms\Components\Section::make()->schema([
-                        Forms\Components\TextInput::make('concern_type')
-                            ->required()
-                            ->maxLength(255),
+                        Forms\Components\Select::make('concern_type')
+                            ->options([
+                                'maintenance and repair' => 'Maintenance and Repair',
+                                'safety and security' => 'Safety and Security',
+                                'cleanliness and sanitation' => 'Cleanliness and Sanitation',
+                                'lease and contractual' => 'Lease and Contractual Issues',
+                                'utilities concerns' => 'Utilities Concerns',
+                                'aesthetic and comestics' => 'Aesthetic and Comestics Issues',
+                                'general support' => 'General Support',
+                                'others' => 'Others',
+                            ])
+                            ->native(false)
+                            ->required(),
                         Forms\Components\Select::make('priority')
                             ->required()
                             ->options([
@@ -79,10 +96,10 @@ class TicketResource extends Resource
                             ->label('Created by')
                             ->relationship('createdBy', 'name')
                             ->required()
+                            ->default(auth()->user()->id)
                             ->disabled(),
                         Forms\Components\Select::make('assigned_to')
                             ->label('Assigned to')
-                            ->required()
                             ->relationship('assignedTo', 'name', fn($query) => $query->whereHas('roles', function ($q) {
                                 $q->where('name', 'analyst');
                             }))
@@ -210,11 +227,11 @@ class TicketResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('incident_ticket_number')
-                ->description(fn($record) => $record->concern_type)
-                ->searchable(),
+                    ->description(fn($record) => $record->concern_type)
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('concourse.name')
                     ->description(fn($record) => $record->space->name)
-                    ->sortable(),   
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('createdBy.name')
                     ->label('Tenant')
                     ->searchable(),

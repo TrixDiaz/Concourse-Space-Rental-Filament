@@ -11,11 +11,11 @@ class Ticket extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'incident_ticket_number',
         'created_by',
         'assigned_to',
         'space_id',
         'concourse_id',
-        'incident_ticket_number',
         'title',
         'description',
         'concern_type',
