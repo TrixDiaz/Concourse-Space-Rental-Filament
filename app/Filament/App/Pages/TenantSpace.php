@@ -113,7 +113,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->form(fn($record) => RenewForm::schema($record))
                     ->visible(function ($record) {
                         // Check if user already has a pending renewal application for this space
-                        return !Renew::where('user_id', auth()->id())
+                        return !Renew::where('user_id', auth()->user()->id)
                             ->where('space_id', $record->id)
                             ->where('concourse_id', $record->concourse_id)
                             ->whereIn('application_status', ['pending', 'processing'])
@@ -122,7 +122,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->action(function (array $data, $record) {
                         // Create the Renew application first
                         $renew = Renew::create([
-                            'user_id' => auth()->id(),
+                            'user_id' => auth()->user()->id,
                             'space_id' => $record->id,
                             'concourse_id' => $record->concourse_id,
                             'business_name' => $data['business_name'] ?? null,
@@ -144,11 +144,12 @@ class TenantSpace extends Page implements HasForms, HasTable
                                 if ($file) {
                                     RenewAppRequirements::create([
                                         'requirement_id' => $requirementId,
-                                        'user_id' => auth()->id(),
+                                        'user_id' => auth()->user()->id,
                                         'space_id' => $record->id,
                                         'concourse_id' => $record->concourse_id,
                                         'application_id' => $renew->id, // Use the newly created renew application's ID
                                         'name' => \App\Models\Requirement::find($requirementId)->name,
+                                        'remarks' => $data['remarks'] ?? null,
                                         'status' => 'pending',
                                         'file' => $file,
                                     ]);
