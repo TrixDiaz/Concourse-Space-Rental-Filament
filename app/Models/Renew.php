@@ -26,6 +26,7 @@ class Renew extends Model
         'monthly_payment',
         'payment_status',
         'payment_due',
+        'remarks',
         'application_status',
         'payment_due_date',
         'payment_due_status',
