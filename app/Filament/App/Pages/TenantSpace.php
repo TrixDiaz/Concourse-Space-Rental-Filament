@@ -106,241 +106,244 @@ class TenantSpace extends Page implements HasForms, HasTable
                     )
             ])
             ->actions([
-                Tables\Actions\Action::make('renew')
-                    ->label('Renew Lease')
-                    ->button()
-                    ->slideOver()
-                    ->form(fn($record) => RenewForm::schema($record))
-                    ->visible(function ($record) {
-                        // Check if user already has a pending renewal application for this space
-                        return !Renew::where('user_id', auth()->user()->id)
-                            ->where('space_id', $record->id)
-                            ->where('concourse_id', $record->concourse_id)
-                            ->whereIn('application_status', ['pending', 'processing'])
-                            ->exists();
-                    })
-                    ->action(function (array $data, $record) {
-                        // Create the Renew application first
-                        $renew = Renew::create([
-                            'user_id' => auth()->user()->id,
-                            'space_id' => $record->id,
-                            'concourse_id' => $record->concourse_id,
-                            'business_name' => $data['business_name'] ?? null,
-                            'owner_name' => $data['owner_name'] ?? null,
-                            'address' => $data['address'] ?? null,
-                            'phone_number' => $data['phone_number'] ?? null,
-                            'email' => $data['email'] ?? null,
-                            'business_type' => $data['business_type'] ?? null,
-                            'requirements_status' => 'pending',
-                            'application_status' => 'pending',
-                            'space_type' => 'renewal',
-                            'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
-                            'remarks' => $data['remarks'] ?? null,
-                        ]);
+                Tables\Actions\ActionGroup::make([
 
-                        // Store the uploaded requirements
-                        if (isset($data['requirements'])) {
-                            foreach ($data['requirements'] as $requirementId => $file) {
-                                if ($file) {
-                                    RenewAppRequirements::create([
-                                        'requirement_id' => $requirementId,
-                                        'user_id' => auth()->user()->id,
-                                        'space_id' => $record->id,
-                                        'concourse_id' => $record->concourse_id,
-                                        'application_id' => $renew->id, // Use the newly created renew application's ID
-                                        'name' => \App\Models\Requirement::find($requirementId)->name,
-                                        'remarks' => $data['remarks'] ?? null,
-                                        'status' => 'pending',
-                                        'file' => $file,
-                                    ]);
+                    Tables\Actions\Action::make('renew')
+                        ->label('Renew Lease')
+                        ->button()
+                        ->slideOver()
+                        ->form(fn($record) => RenewForm::schema($record))
+                        ->visible(function ($record) {
+                            // Check if user already has a pending renewal application for this space
+                            return !Renew::where('user_id', auth()->user()->id)
+                                ->where('space_id', $record->id)
+                                ->where('concourse_id', $record->concourse_id)
+                                ->whereIn('application_status', ['pending', 'processing'])
+                                ->exists();
+                        })
+                        ->action(function (array $data, $record) {
+                            // Create the Renew application first
+                            $renew = Renew::create([
+                                'user_id' => auth()->user()->id,
+                                'space_id' => $record->id,
+                                'concourse_id' => $record->concourse_id,
+                                'business_name' => $data['business_name'] ?? null,
+                                'owner_name' => $data['owner_name'] ?? null,
+                                'address' => $data['address'] ?? null,
+                                'phone_number' => $data['phone_number'] ?? null,
+                                'email' => $data['email'] ?? null,
+                                'business_type' => $data['business_type'] ?? null,
+                                'requirements_status' => 'pending',
+                                'application_status' => 'pending',
+                                'space_type' => 'renewal',
+                                'concourse_lease_term' => $data['concourse_lease_term'] ?? null,
+                                'remarks' => $data['remarks'] ?? null,
+                            ]);
+
+                            // Store the uploaded requirements
+                            if (isset($data['requirements'])) {
+                                foreach ($data['requirements'] as $requirementId => $file) {
+                                    if ($file) {
+                                        RenewAppRequirements::create([
+                                            'requirement_id' => $requirementId,
+                                            'user_id' => auth()->user()->id,
+                                            'space_id' => $record->id,
+                                            'concourse_id' => $record->concourse_id,
+                                            'application_id' => $renew->id, // Use the newly created renew application's ID
+                                            'name' => \App\Models\Requirement::find($requirementId)->name,
+                                            'remarks' => $data['remarks'] ?? null,
+                                            'status' => 'pending',
+                                            'file' => $file,
+                                        ]);
+                                    }
                                 }
                             }
-                        }
 
-                        Notification::make()
-                            ->title('Lease Renewal Application Submitted')
-                            ->body('Your application for lease renewal has been submitted successfully.')
-                            ->success()
-                            ->send();
+                            Notification::make()
+                                ->title('Lease Renewal Application Submitted')
+                                ->body('Your application for lease renewal has been submitted successfully.')
+                                ->success()
+                                ->send();
 
-                        Mail::to($record->user->email)->send(new RenewApplication($record));
-                    })
-                    ,
-                Tables\Actions\Action::make('payBills')
-                    ->label('Pay Bills')
-                    ->button()
-                    ->action(fn($record, array $data) => $this->payWithGCash($record, $data))
-                    ->form(function ($record) {
-                        // Define $now at the beginning
-                        $now = now();
+                            Mail::to($record->user->email)->send(new RenewApplication($record));
+                        }),
+                    Tables\Actions\Action::make('payBills')
+                        ->label('Pay Bills')
+                        ->button()
+                        ->action(fn($record, array $data) => $this->payWithGCash($record, $data))
+                        ->form(function ($record) {
+                            // Define $now at the beginning
+                            $now = now();
 
-                        // Header Section
-                        $header = [
-                            \Filament\Forms\Components\Section::make('Space Details')
-                                ->schema([
-                                    \Filament\Forms\Components\Placeholder::make('space_name')
-                                        ->label('Space')
-                                        ->content($record->concourse->name . ' - ' . $record->name),
-                                    \Filament\Forms\Components\Placeholder::make('payment_due_dates')
-                                        ->label('Payment Due Dates')
-                                        ->content(function () use ($record) {
-                                            return collect([
-                                                'Rent: ' . ($record->rent_due ? Carbon::parse($record->rent_due)->format('M d, Y') : 'N/A'),
-                                                'Water: ' . ($record->water_due ? Carbon::parse($record->water_due)->format('M d, Y') : 'N/A'),
-                                                'Electricity: ' . ($record->electricity_due ? Carbon::parse($record->electricity_due)->format('M d, Y') : 'N/A'),
-                                            ])->map(fn($item) => "••••• {$item} •••••")
-                                                ->implode("");
-                                        })->columnSpanFull(),
-                                    \Filament\Forms\Components\Placeholder::make('current_penalties')
-                                        ->label('Current Penalties')
-                                        ->content(function () use ($record, $now) {
-                                            $rentPenalty = $record->rent_due && $now->gt(Carbon::parse($record->rent_due)) ? '₱' . number_format($record->rent_bills * 0.02, 2) : 'N/A';
-                                            $waterPenalty = $record->water_due && $now->gt(Carbon::parse($record->water_due)) ? '₱' . number_format($record->water_bills * 0.02, 2) : 'N/A';
-                                            $electricityPenalty = $record->electricity_due && $now->gt(Carbon::parse($record->electricity_due)) ? '₱' . number_format($record->electricity_bills * 0.02, 2) : 'N/A';
+                            // Header Section
+                            $header = [
+                                \Filament\Forms\Components\Section::make('Space Details')
+                                    ->schema([
+                                        \Filament\Forms\Components\Placeholder::make('space_name')
+                                            ->label('Space')
+                                            ->content($record->concourse->name . ' - ' . $record->name),
+                                        \Filament\Forms\Components\Placeholder::make('payment_due_dates')
+                                            ->label('Payment Due Dates')
+                                            ->content(function () use ($record) {
+                                                return collect([
+                                                    'Rent: ' . ($record->rent_due ? Carbon::parse($record->rent_due)->format('M d, Y') : 'N/A'),
+                                                    'Water: ' . ($record->water_due ? Carbon::parse($record->water_due)->format('M d, Y') : 'N/A'),
+                                                    'Electricity: ' . ($record->electricity_due ? Carbon::parse($record->electricity_due)->format('M d, Y') : 'N/A'),
+                                                ])->map(fn($item) => "••••• {$item} •••••")
+                                                    ->implode("");
+                                            })->columnSpanFull(),
+                                        \Filament\Forms\Components\Placeholder::make('current_penalties')
+                                            ->label('Current Penalties')
+                                            ->content(function () use ($record, $now) {
+                                                $rentPenalty = $record->rent_due && $now->gt(Carbon::parse($record->rent_due)) ? '₱' . number_format($record->rent_bills * 0.02, 2) : 'N/A';
+                                                $waterPenalty = $record->water_due && $now->gt(Carbon::parse($record->water_due)) ? '₱' . number_format($record->water_bills * 0.02, 2) : 'N/A';
+                                                $electricityPenalty = $record->electricity_due && $now->gt(Carbon::parse($record->electricity_due)) ? '₱' . number_format($record->electricity_bills * 0.02, 2) : 'N/A';
 
-                                            return collect([
-                                                'Rent: ' . $rentPenalty,
-                                                'Water: ' . $waterPenalty,
-                                                'Electricity: ' . $electricityPenalty,
-                                            ])->map(fn($item) => "••••• {$item} •••••")
-                                                ->implode("");
-                                        })->columnSpanFull(),
-                                ])
-                                ->columnSpanFull(),
-                        ];
+                                                return collect([
+                                                    'Rent: ' . $rentPenalty,
+                                                    'Water: ' . $waterPenalty,
+                                                    'Electricity: ' . $electricityPenalty,
+                                                ])->map(fn($item) => "••••• {$item} •••••")
+                                                    ->implode("");
+                                            })->columnSpanFull(),
+                                    ])
+                                    ->columnSpanFull(),
+                            ];
 
-                        // Existing Checkboxes Logic
-                        $checkboxes = [];
-                        $now = now();
+                            // Existing Checkboxes Logic
+                            $checkboxes = [];
+                            $now = now();
 
-                        if ($record->water_bills > 0) {
-                            $waterDue = Carbon::parse($record->water_due);
-                            $penalty = $now->gt($waterDue) ? ($record->water_bills * 0.02) : 0;
-                            $totalWater = $record->water_bills + $penalty;
+                            if ($record->water_bills > 0) {
+                                $waterDue = Carbon::parse($record->water_due);
+                                $penalty = $now->gt($waterDue) ? ($record->water_bills * 0.02) : 0;
+                                $totalWater = $record->water_bills + $penalty;
 
-                            $checkboxes[] = Checkbox::make('pay_water')
-                                ->label("Water Bill: ₱" . number_format($record->water_bills, 2))
-                                ->default(true);
-                        }
+                                $checkboxes[] = Checkbox::make('pay_water')
+                                    ->label("Water Bill: ₱" . number_format($record->water_bills, 2))
+                                    ->default(true);
+                            }
 
-                        if ($record->electricity_bills > 0) {
-                            $electricityDue = Carbon::parse($record->electricity_due);
-                            $penalty = $now->gt($electricityDue) ? ($record->electricity_bills * 0.02) : 0;
-                            $totalElectricity = $record->electricity_bills + $penalty;
+                            if ($record->electricity_bills > 0) {
+                                $electricityDue = Carbon::parse($record->electricity_due);
+                                $penalty = $now->gt($electricityDue) ? ($record->electricity_bills * 0.02) : 0;
+                                $totalElectricity = $record->electricity_bills + $penalty;
 
-                            $checkboxes[] = Checkbox::make('pay_electricity')
-                                ->label("Electricity Bill: ₱" . number_format($record->electricity_bills, 2))
-                                ->default(true);
-                        }
+                                $checkboxes[] = Checkbox::make('pay_electricity')
+                                    ->label("Electricity Bill: ₱" . number_format($record->electricity_bills, 2))
+                                    ->default(true);
+                            }
 
-                        if ($record->rent_bills > 0) {
-                            $rentDue = Carbon::parse($record->rent_due);
-                            $penalty = $now->gt($rentDue) ? ($record->rent_bills * 0.02) : 0;
-                            $totalRent = $record->rent_bills + $penalty;
+                            if ($record->rent_bills > 0) {
+                                $rentDue = Carbon::parse($record->rent_due);
+                                $penalty = $now->gt($rentDue) ? ($record->rent_bills * 0.02) : 0;
+                                $totalRent = $record->rent_bills + $penalty;
 
-                            $checkboxes[] = Checkbox::make('pay_rent')
-                                ->label("Rent: ₱" . number_format($record->rent_bills, 2))
-                                ->default(true);
-                        }
+                                $checkboxes[] = Checkbox::make('pay_rent')
+                                    ->label("Rent: ₱" . number_format($record->rent_bills, 2))
+                                    ->default(true);
+                            }
 
-                        // Footer Section
-                        $footer = [
-                            \Filament\Forms\Components\Section::make()
-                                ->schema([
-                                    \Filament\Forms\Components\Placeholder::make('total_bills')
-                                        ->label('Total Bills:')
-                                        ->content('₱' . number_format($record->water_bills + $record->electricity_bills + $record->rent_bills, 2)),
-                                    \Filament\Forms\Components\Placeholder::make('total_penalties')
-                                        ->label('Total Penalties:')
-                                        ->content(function () use ($record, $now) {
-                                            $totalPenalty = 0;
-                                            if ($record->rent_due && $now->gt(Carbon::parse($record->rent_due))) {
-                                                $totalPenalty += $record->rent_bills * 0.02;
-                                            }
-                                            if ($record->water_due && $now->gt(Carbon::parse($record->water_due))) {
-                                                $totalPenalty += $record->water_bills * 0.02;
-                                            }
-                                            if ($record->electricity_due && $now->gt(Carbon::parse($record->electricity_due))) {
-                                                $totalPenalty += $record->electricity_bills * 0.02;
-                                            }
-                                            return $totalPenalty > 0 ? '₱' . number_format($totalPenalty, 2) : 'N/A';
-                                        }),
-                                    \Filament\Forms\Components\Placeholder::make('grand_total')
-                                        ->label('Grand Total:')
-                                        ->content(function () use ($record, $now) {
-                                            $total = $record->water_bills + $record->electricity_bills + $record->rent_bills;
-                                            if ($record->rent_due && $now->gt(Carbon::parse($record->rent_due))) {
-                                                $total += $record->rent_bills * 0.02;
-                                            }
-                                            if ($record->water_due && $now->gt(Carbon::parse($record->water_due))) {
-                                                $total += $record->water_bills * 0.02;
-                                            }
-                                            if ($record->electricity_due && $now->gt(Carbon::parse($record->electricity_due))) {
-                                                $total += $record->electricity_bills * 0.02;
-                                            }
-                                            return '₱' . number_format($total, 2);
-                                        })
-                                        ->extraAttributes(['class' => 'font-bold']),
-                                ])
-                                ->columns(1),
-                        ];
+                            // Footer Section
+                            $footer = [
+                                \Filament\Forms\Components\Section::make()
+                                    ->schema([
+                                        \Filament\Forms\Components\Placeholder::make('total_bills')
+                                            ->label('Total Bills:')
+                                            ->content('₱' . number_format($record->water_bills + $record->electricity_bills + $record->rent_bills, 2)),
+                                        \Filament\Forms\Components\Placeholder::make('total_penalties')
+                                            ->label('Total Penalties:')
+                                            ->content(function () use ($record, $now) {
+                                                $totalPenalty = 0;
+                                                if ($record->rent_due && $now->gt(Carbon::parse($record->rent_due))) {
+                                                    $totalPenalty += $record->rent_bills * 0.02;
+                                                }
+                                                if ($record->water_due && $now->gt(Carbon::parse($record->water_due))) {
+                                                    $totalPenalty += $record->water_bills * 0.02;
+                                                }
+                                                if ($record->electricity_due && $now->gt(Carbon::parse($record->electricity_due))) {
+                                                    $totalPenalty += $record->electricity_bills * 0.02;
+                                                }
+                                                return $totalPenalty > 0 ? '₱' . number_format($totalPenalty, 2) : 'N/A';
+                                            }),
+                                        \Filament\Forms\Components\Placeholder::make('grand_total')
+                                            ->label('Grand Total:')
+                                            ->content(function () use ($record, $now) {
+                                                $total = $record->water_bills + $record->electricity_bills + $record->rent_bills;
+                                                if ($record->rent_due && $now->gt(Carbon::parse($record->rent_due))) {
+                                                    $total += $record->rent_bills * 0.02;
+                                                }
+                                                if ($record->water_due && $now->gt(Carbon::parse($record->water_due))) {
+                                                    $total += $record->water_bills * 0.02;
+                                                }
+                                                if ($record->electricity_due && $now->gt(Carbon::parse($record->electricity_due))) {
+                                                    $total += $record->electricity_bills * 0.02;
+                                                }
+                                                return '₱' . number_format($total, 2);
+                                            })
+                                            ->extraAttributes(['class' => 'font-bold']),
+                                    ])
+                                    ->columns(1),
+                            ];
 
-                        // Combine all sections
-                        return array_merge($header, $checkboxes, $footer);
-                    })
-                    ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
-                Tables\Actions\Action::make('Check Application')
-                    ->link()
-                    ->icon('heroicon-o-pencil')
-                    ->url(fn($record) => route('filament.app.pages.renew-edit-requirement', ['concourse_id' => $record->concourse_id, 'space_id' => $record->id, 'user_id' => Auth::id()]))
-                    ->openUrlInNewTab()
-                    ->visible(function ($record) {
-                        // Hide if status is approved
-                        if ($record->requirements_status === 'approved' || $record->application_status === 'approved') {
-                            return false;
-                        }
+                            // Combine all sections
+                            return array_merge($header, $checkboxes, $footer);
+                        })
+                        ->visible(fn($record) => $record->electricity_bills > 0 || $record->water_bills > 0 || $record->rent_bills > 0),
+                    Tables\Actions\Action::make('Check Application')
+                        ->link()
+                        ->icon('heroicon-o-pencil')
+                        ->url(fn($record) => route('filament.app.pages.renew-edit-requirement', ['concourse_id' => $record->concourse_id, 'space_id' => $record->id, 'user_id' => Auth::id()]))
+                        ->openUrlInNewTab()
+                        ->visible(function ($record) {
+                            // Hide if status is approved
+                            if ($record->requirements_status === 'approved' || $record->application_status === 'approved') {
+                                return false;
+                            }
 
-                        return \App\Models\Renew::where('user_id', auth()->user()->id)
-                            ->where('concourse_id', $record->concourse_id)
-                            ->where('space_id', $record->id)
-                            ->exists();
-                    }),
-                Tables\Actions\Action::make('Report')
-                    ->link()
-                    ->icon('heroicon-o-paper-airplane')
-                    ->visible(fn($record) => $record->status === 'occupied')
-                    ->form(fn($record) => ReportForm::schema($record))
-                    ->action(function (array $data, $record) {
-                        $ticket = new \App\Models\Ticket($data);
-                        $ticket->save();
+                            return \App\Models\Renew::where('user_id', auth()->user()->id)
+                                ->where('concourse_id', $record->concourse_id)
+                                ->where('space_id', $record->id)
+                                ->exists();
+                        }),
+                    Tables\Actions\Action::make('Report')
+                        ->link()
+                        ->icon('heroicon-o-paper-airplane')
+                        ->visible(fn($record) => $record->status === 'occupied')
+                        ->form(fn($record) => ReportForm::schema($record))
+                        ->action(function (array $data, $record) {
+                            $ticket = new \App\Models\Ticket($data);
+                            $ticket->save();
 
-                        \Filament\Notifications\Notification::make()
-                            ->title('Success')
-                            ->body('Your ticket has been submitted successfully.')
-                            ->success()
-                            ->send();
+                            \Filament\Notifications\Notification::make()
+                                ->title('Success')
+                                ->body('Your ticket has been submitted successfully.')
+                                ->success()
+                                ->send();
 
-                        \Filament\Notifications\Notification::make()
-                            ->title('Success')
-                            ->body('Your ticket has been submitted successfully.')
-                            ->success()
-                            ->sendToDatabase(auth()->user());
+                            \Filament\Notifications\Notification::make()
+                                ->title('Success')
+                                ->body('Your ticket has been submitted successfully.')
+                                ->success()
+                                ->sendToDatabase(auth()->user());
 
-                        \Filament\Notifications\Notification::make()
-                            ->title('New Ticket')
-                            ->body('A new ticket has been submitted.')
-                            ->success()
-                            ->sendToDatabase(User::find(1));
+                            \Filament\Notifications\Notification::make()
+                                ->title('New Ticket')
+                                ->body('A new ticket has been submitted.')
+                                ->success()
+                                ->sendToDatabase(User::find(1));
 
-                        // Send email to admin
-                        $admin = User::find(1); // Assuming admin is always user with ID 1
-                        $tenant = auth()->user();
-                        $spaceName = $record->name;
-                        $concourseName = $record->concourse->name;
+                            // Send email to admin
+                            $admin = User::find(1); // Assuming admin is always user with ID 1
+                            $tenant = auth()->user();
+                            $spaceName = $record->name;
+                            $concourseName = $record->concourse->name;
 
-                        Mail::to($admin->email)->send(new TicketReportMail($admin, $tenant, $ticket, $spaceName, $concourseName));
-                    }),
-
+                            Mail::to($admin->email)->send(new TicketReportMail($admin, $tenant, $ticket, $spaceName, $concourseName));
+                        }),
+                ])
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->tooltip('Actions'),
             ])->headerActions([
                 Tables\Actions\Action::make('My Report')
                     ->link()
