@@ -296,7 +296,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                     ->openUrlInNewTab()
                     ->visible(function ($record) {
                         // Hide if status is approved
-                        if ($record->status === 'approved') {
+                        if ($record->requirements_status === 'approved' || $record->application_status === 'approved') {
                             return false;
                         }
 
