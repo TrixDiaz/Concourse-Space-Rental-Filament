@@ -88,15 +88,21 @@ class BillsReport extends Report
 
     public function filterForm(Form $form): Form
     {
+        $query = Concourse::query();
+        
+        // If user is not super_admin, show only their concourses
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->whereHas('spaces', function ($query) {
+                $query->where('user_id', auth()->id());
+            });
+        }
+
         return $form
             ->schema([
                 \Filament\Forms\Components\Select::make('concourse_id')
                     ->label('Concourse')
                     ->multiple()
-                    ->options(
-                        \App\Models\Concourse::query()
-                            ->pluck('name', 'id')
-                    )
+                    ->options($query->pluck('name', 'id'))
                     ->native(false)
                     ->required(),
             ]);
