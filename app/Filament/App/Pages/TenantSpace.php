@@ -300,7 +300,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                             return false;
                         }
 
-                        return \App\Models\Renew::where('user_id', Auth::id())
+                        return \App\Models\Renew::where('user_id', auth()->user()->id)
                             ->where('concourse_id', $record->concourse_id)
                             ->where('space_id', $record->id)
                             ->exists();
