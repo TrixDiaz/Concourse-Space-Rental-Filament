@@ -290,17 +290,6 @@ class EditRenew extends EditRecord
             ->icon('heroicon-o-document-text')
             ->title('Application Updated')
             ->body("Application {$record->name} has been updated.")
-            ->actions([
-                Action::make('markAsRead')
-                    ->label('Mark as read')
-                    ->button()
-                    ->markAsRead(),
-                Action::make('delete')
-                    ->label('Delete')
-                    ->color('danger')
-                    ->icon('heroicon-o-trash')
-                    ->action(fn(Notification $notification) => $notification->delete()),
-            ])
             ->sendToDatabase($authUser);
 
         // Notification for the application owner (if different from auth user)
@@ -317,17 +306,6 @@ class EditRenew extends EditRecord
                 ->icon('heroicon-o-user-circle')
                 ->title('Application Updated')
                 ->body("Application {$record->name} Updated. Please review it!")
-                ->actions([
-                    Action::make('view')
-                        ->label('View Application')
-                        ->button()
-                        ->url($url),
-                    Action::make('delete')
-                        ->label('Delete')
-                        ->color('danger')
-                        ->icon('heroicon-o-trash')
-                        ->action(fn(Notification $notification) => $notification->delete()),
-                ])
                 ->sendToDatabase($selectedUser);
         }
 
