@@ -93,7 +93,8 @@ class BillsReport extends Report
         // If user is not super_admin, show only their concourses
         if (!auth()->user()->hasRole('super_admin')) {
             $query->whereHas('spaces', function ($query) {
-                $query->where('user_id', auth()->id());
+                $query->whereNotNull('user_id')
+                      ->where('user_id', auth()->id());
             });
         }
 
@@ -115,6 +116,10 @@ class BillsReport extends Report
         $query = Space::query()
             ->with(['concourse', 'user'])
             ->whereHas('concourse');
+
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('user_id', auth()->id());
+        }
 
         if (isset($filters['concourse_id'])) {
             $query->whereIn('concourse_id', $filters['concourse_id']);
@@ -161,7 +166,15 @@ class BillsReport extends Report
             return collect();
         }
 
-        $concourses = Concourse::query()->whereIn('id', $filters['concourse_id'])->get();
+        $query = Concourse::query()->whereIn('id', $filters['concourse_id']);
+
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->whereHas('spaces', function ($query) {
+                $query->where('user_id', auth()->id());
+            });
+        }
+
+        $concourses = $query->get();
 
         return collect([
             [
