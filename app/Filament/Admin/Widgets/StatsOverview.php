@@ -48,7 +48,7 @@ class StatsOverview extends BaseWidget
         // $electricBillChart = $this->getSpaceChartData('electricity_bills');
 
         return [
-            Stat::make('Total Unpaid Rent', '₱' . number_format($totalRevenue, 2))
+            Stat::make('Total Paid Rent', '₱' . number_format($totalRevenue, 2))
                 ->description('₱' . number_format($totalUnpaidRevenue, 2) . ' Total Unpaid Rent')
                 ->color('danger')
             // ->description($this->getChangeDescription($revenueChart))
