@@ -106,7 +106,7 @@ class TenantReport extends Report
                     'column5' => $payment && $payment->rent_due ? $payment->rent_due->format('m-d-Y') : 'N/A', 
                     'column6' => $payment ? $payment->created_at->format('m-d-Y') : 'N/A',
                     'column7' => $payment ? ($payment->rent_due >= now() ? 'Yes' : 'No') : 'N/A',
-                    'column8' => $payment ? number_format($payment->rent_due->diffInDays(now()), 0) : 'N/A',
+                    'column8' => $payment && $payment->rent_due ? number_format($payment->rent_due->diffInDays(now()), 0) : 'N/A',
                     'column9' => $payment ? number_format($payment->penalty, 2) : 'N/A',
                     'column10' => $payment ? (
                         ($payment->payment_status == 'paid' && 
