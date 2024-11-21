@@ -56,7 +56,7 @@ class AppPanelProvider extends PanelProvider
             ->navigationItems([
                 NavigationItem::make('Bills Report')
                     ->icon('heroicon-o-document-text')
-                    ->url(fn () => route('filament.app.reports.bills-report'))
+                    ->url(fn() => route('filament.app.reports.bills-report'))
                     ->sort(999),
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')

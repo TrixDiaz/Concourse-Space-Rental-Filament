@@ -182,10 +182,9 @@ class RentIncomeReport extends Report
 
         return collect([
             [
-                'column1' => 'Payment Method',
-                'column2' => "Total Transactions ($monthLabel)",
-                'column3' => "Total Income ($monthLabel)",
-                'column4' => "Amount of Income Loss ($monthLabel)",
+                'column1' => "Total Transactions ($monthLabel)",
+                'column2' => "Total Income ($monthLabel)",
+                'column3' => "Amount of Income Loss ($monthLabel)",
                 // 'column5' => "Payments for $monthLabel",
             ]
         ])->concat($paymentMethods->map(function ($payments, $method) {
@@ -207,10 +206,9 @@ class RentIncomeReport extends Report
                 ->join("\n");
 
             return [
-                'column1' => $method,
-                'column2' => $payments->count(),
-                'column3' => number_format($onTimePayments->sum('rent_bill'), 2),
-                'column4' => number_format($latePayments->sum('rent_bill'), 2),
+                'column1' => $payments->count(),
+                'column2' => number_format($onTimePayments->sum('rent_bill'), 2),
+                'column3' => number_format($latePayments->sum('rent_bill'), 2),
                 // 'column5' => $paymentDates ?: '- No payments -',
             ];
         }));

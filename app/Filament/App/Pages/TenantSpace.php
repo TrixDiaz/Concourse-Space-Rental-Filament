@@ -307,8 +307,7 @@ class TenantSpace extends Page implements HasForms, HasTable
                                 ->exists();
                         }),
                     Tables\Actions\Action::make('Report')
-                        ->link()
-                        ->icon('heroicon-o-paper-airplane')
+                        ->button()
                         ->visible(fn($record) => $record->status === 'occupied')
                         ->form(fn($record) => ReportForm::schema($record))
                         ->action(function (array $data, $record) {

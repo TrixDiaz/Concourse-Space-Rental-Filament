@@ -227,6 +227,7 @@ class TicketResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('incident_ticket_number')
+                    ->label('INC Ticket & Concern Type')
                     ->description(fn($record) => $record->concern_type)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('concourse.name')

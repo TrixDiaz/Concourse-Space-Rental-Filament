@@ -24,35 +24,60 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $totalRevenue = Space::where('rent_payment_status', 'unpaid')->sum('rent_bills');
-
+        $totalUnpaidRevenue = Space::where('rent_payment_status', 'unpaid')->sum('rent_bills');
+        $paidPenalty = Payment::where('payment_status', 'paid')->sum('penalty');
         // Water stats from Spaces
-        $totalWaterBill = Space::where('water_payment_status', 'unpaid')->sum('water_bills');
-        $totalWaterConsumption = Space::where('water_payment_status', 'unpaid')->sum('water_consumption');
-
+        $unpaidWaterBill = Space::where('water_payment_status', 'unpaid')->sum('water_bills');
+        $paidWaterBill = Payment::where('payment_status', 'paid')->sum('water_bill');
         // Electric stats from Spaces
-        $totalElectricBill = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_bills');
-        $totalElectricConsumption = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_consumption');
+        $unpaidElectricBill = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_bills');
+        $paidElectricBill = Payment::where('payment_status', 'paid')->sum('electricity_bill');
 
-        $revenueChart = $this->getChartData(Space::class, 'rent_bills');
-        $waterBillChart = $this->getSpaceChartData('water_bills');
-        $electricBillChart = $this->getSpaceChartData('electricity_bills');
+        $paidThisMonth = Payment::where('created_at', '>=', now()->startOfMonth())->sum('amount');
+        $unpaidThisMonth = Space::where('updated_at', '>=', now()->startOfMonth())->where('rent_payment_status', 'unpaid')
+            ->sum('rent_bills') + Space::where('updated_at', '>=', now()->startOfMonth())->where('water_payment_status', 'unpaid')
+            ->sum('water_bills') + Space::where('updated_at', '>=', now()->startOfMonth())->where('electricity_payment_status', 'unpaid')
+            ->sum('electricity_bills');
+
+        $pastDue = Payment::where('payment_status', 'unpaid')->where('paid_date', '<', now())->sum('amount');
+        // $revenueChart = $this->getChartData(Space::class, 'rent_bills');
+        // $waterBillChart = $this->getSpaceChartData('water_bills');
+        // $electricBillChart = $this->getSpaceChartData('electricity_bills');
 
         return [
             Stat::make('Total Unpaid Rent', '₱' . number_format($totalRevenue, 2))
-                ->description($this->getChangeDescription($revenueChart))
-                ->descriptionIcon($this->getChangeIcon($revenueChart))
-                ->chart($revenueChart)
-                ->color($this->getChangeColor($revenueChart)),
-            Stat::make('Total Unpaid Water Usage & Bills', '₱' . number_format($totalWaterBill, 2))
-                ->description(number_format($totalWaterConsumption) . ' Consumption m³')
-                ->descriptionIcon($this->getChangeIcon($waterBillChart))
-                ->chart($waterBillChart)
-                ->color($this->getChangeColor($waterBillChart)),
-            Stat::make('Total Unpaid Electric Usage & Bills', '₱' . number_format($totalElectricBill, 2))
-                ->description(number_format($totalElectricConsumption) . ' Consumption kWh')
-                ->descriptionIcon($this->getChangeIcon($electricBillChart))
-                ->chart($electricBillChart)
-                ->color($this->getChangeColor($electricBillChart)),
+                ->description('₱' . number_format($totalUnpaidRevenue, 2) . ' Total Unpaid Rent')
+                ->color('danger')
+            // ->description($this->getChangeDescription($revenueChart))
+            // ->chart($revenueChart)
+            // ->color($this->getChangeColor($revenueChart))
+            ,
+            Stat::make('Total Paid Water Bills', '₱' . number_format($paidWaterBill, 2))
+                ->description('₱' . number_format($unpaidWaterBill, 2) . ' Total Unpaid')
+                ->color('danger')
+            // ->chart($waterBillChart)
+            // ->color($this->getChangeColor($waterBillChart))
+            ,
+            Stat::make('Total Paid Electric Bills', '₱' . number_format($paidElectricBill, 2))
+                ->description('₱' . number_format($unpaidElectricBill, 2) . ' Total Unpaid')
+                ->color('danger')
+            // ->chart($electricBillChart)
+            // ->color($this->getChangeColor($electricBillChart))
+            ,
+            Stat::make('Total Penalty', '₱' . number_format($paidPenalty, 2))
+            // ->chart($electricBillChart)
+            // ->color($this->getChangeColor($electricBillChart))
+            ,
+            Stat::make('Total Paid this Month', '₱' . number_format($paidThisMonth, 2))
+                ->description('₱' . number_format($unpaidThisMonth, 2) . ' Total Unpaid This Month')
+                ->color('danger')
+            // ->chart($electricBillChart)
+            // ->color($this->getChangeColor($electricBillChart))
+            ,
+            Stat::make('Past Due', '₱' . number_format($pastDue, 2))
+            // ->chart($electricBillChart)
+            // ->color($this->getChangeColor($electricBillChart))
+            ,
         ];
     }
 
