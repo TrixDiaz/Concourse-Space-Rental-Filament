@@ -16,9 +16,23 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class ConcourseRateResource extends Resource
+class ConcourseRateResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'publish'
+        ];
+    }
+
     protected static ?string $navigationGroup = 'Concourse Settings';
 
     protected static ?string $navigationLabel = 'Rate per SQM';

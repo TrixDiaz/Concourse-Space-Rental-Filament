@@ -13,9 +13,23 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class PaymentResource extends Resource
+class PaymentResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'publish'
+        ];
+    }
+
     protected static ?string $navigationGroup = 'Others';
     
     protected static ?string $model = Payment::class;

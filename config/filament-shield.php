@@ -13,6 +13,8 @@ return [
         'cluster' => null,
     ],
 
+    'tenant_model' => null,
+
     'auth_provider_model' => [
         'fqcn' => 'App\\Models\\User',
     ],
@@ -29,7 +31,6 @@ return [
         'name' => 'panel_user',
     ],
 
-
     'permission_prefixes' => [
         'resource' => [
             'view',
@@ -44,6 +45,7 @@ return [
             'delete_any',
             'force_delete',
             'force_delete_any',
+            'lock'
         ],
 
         'page' => 'page',

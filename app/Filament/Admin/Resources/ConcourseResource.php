@@ -20,9 +20,24 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class ConcourseResource extends Resource
+class ConcourseResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'publish'
+        ];
+    }
+    
+
     protected static ?string $navigationGroup = 'Concourse Settings';
 
     protected static ?string $navigationLabel = 'Concourse';
