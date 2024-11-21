@@ -245,36 +245,36 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                             $this->updateElectricityBills($data['electricity_consumption'], fn($value) => null, fn() => null, $record);
                             return $record;
                         }),
-                    Tables\Actions\Action::make('Add Monthly Rent')
-                        ->icon('heroicon-m-currency-dollar')
-                        ->color('warning')
-                        ->requiresConfirmation()
-                        ->visible(fn($record) => $record->status === 'occupied')
-                        ->action(function (Space $record) {
-                            $rentAmount = $record->price ?? 0;
-                            $record->rent_bills = $rentAmount;
-                            $record->rent_payment_status = 'unpaid';
-                            $record->save();
+                    // Tables\Actions\Action::make('Add Monthly Rent')
+                    //     ->icon('heroicon-m-currency-dollar')
+                    //     ->color('warning')
+                    //     ->requiresConfirmation()
+                    //     ->visible(fn($record) => $record->status === 'occupied')
+                    //     ->action(function (Space $record) {
+                    //         $rentAmount = $record->price ?? 0;
+                    //         $record->rent_bills = $rentAmount;
+                    //         $record->rent_payment_status = 'unpaid';
+                    //         $record->save();
 
-                            // Send email to tenant
-                            $tenant = $record->user;
-                            $dueDate = now()->addDays(7)->format('F j, Y');
-                            $penalty = 10;
+                    //         // Send email to tenant
+                    //         $tenant = $record->user;
+                    //         $dueDate = now()->addDays(7)->format('F j, Y');
+                    //         $penalty = 10;
 
-                            Mail::to($tenant->email)->send(new RentBillMail(
-                                tenantName: $tenant->name,
-                                month: now()->format('F Y'),
-                                rentAmount: $rentAmount,
-                                totalAmount: $rentAmount,
-                                dueDate: $dueDate,
-                                penalty: $penalty
-                            ));
+                    //         Mail::to($tenant->email)->send(new RentBillMail(
+                    //             tenantName: $tenant->name,
+                    //             month: now()->format('F Y'),
+                    //             rentAmount: $rentAmount,
+                    //             totalAmount: $rentAmount,
+                    //             dueDate: $dueDate,
+                    //             penalty: $penalty
+                    //         ));
 
-                            Notification::make()
-                                ->title('Rent bill added and email sent')
-                                ->success()
-                                ->send();
-                        }),
+                    //         Notification::make()
+                    //             ->title('Rent bill added and email sent')
+                    //             ->success()
+                    //             ->send();
+                    //     }),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->tooltip('Actions')
@@ -313,19 +313,21 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
                         'electricity_bills' => $data['electricity_bills'],
                     ]);
 
+                    $this->notifySpacesAboutBills();
+
                     Notification::make()
                         ->title('Bills updated successfully')
                         ->success()
                         ->send();
                 }),
-            Action::make('notifySpaces')
-                ->label('Notify Spaces')
-                ->action(function () {
-                    $this->notifySpacesAboutBills();
-                })
-                ->color('warning')
-                ->icon('heroicon-o-bell')
-                ->requiresConfirmation(),
+            // Action::make('notifySpaces')
+            //     ->label('Notify Spaces')
+            //     ->action(function () {
+            //         $this->notifySpacesAboutBills();
+            //     })
+            //     ->color('warning')
+            //     ->icon('heroicon-o-bell')
+            //     ->requiresConfirmation(),
         ];
     }
 

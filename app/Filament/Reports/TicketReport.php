@@ -56,6 +56,11 @@ class TicketReport extends Report
                             ->data(
                                 fn(?array $filters) => $this->statusSummary($filters)
                             ),
+                        VerticalSpace::make(),
+                        Body\Table::make()
+                            ->data(
+                                fn(?array $filters) => $this->ticketMethodSummary($filters)
+                            ),
                     ]),
             ]);
     }
@@ -196,6 +201,86 @@ class TicketReport extends Report
     {
         $query = Ticket::query();
 
+        $filtersApplied = true;
+
+        if (isset($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+            $filtersApplied = true;
+        }
+
+        if (isset($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+            $filtersApplied = true;
+        }
+
+        if (!$filtersApplied) {
+            return collect();
+        }
+
+
+        $totalCount = $query->count();
+        $openCount = (clone $query)->where('status', 'open')->count();
+        $inProgressCount = (clone $query)->where('status', 'in_progress')->count();
+        $resolvedCount = (clone $query)->where('status', 'resolved')->count();
+        $closedCount = (clone $query)->where('status', 'closed')->count();
+
+        $maintenanceAndRepairCount = (clone $query)->where('concern_type', 'maintenance and repair')->count();
+        $safetyAndSecurityCount = (clone $query)->where('concern_type', 'safety and security')->count();
+        $cleanlinessAndSanitationCount = (clone $query)->where('concern_type', 'cleanliness and sanitation')->count();
+        $leaseAndContractualCount = (clone $query)->where('concern_type', 'lease and contractual')->count();
+        $utilitiesConcernsCount = (clone $query)->where('concern_type', 'utilities concerns')->count();
+        $aestheticAndCosmeticsCount = (clone $query)->where('concern_type', 'aesthetic and comestics')->count();
+        $generalSupportCount = (clone $query)->where('concern_type', 'general support')->count();
+        $othersCount = (clone $query)->where('concern_type', 'others')->count();
+
+        return collect([
+            [
+                'column1' => 'Concern Type',
+                'column2' => 'Count',
+            ],
+            [
+                'column1' => 'Maintenance and Repair',
+                'column2' => $maintenanceAndRepairCount,
+            ],
+            [
+                'column1' => 'Safety and Security',
+                'column2' => $safetyAndSecurityCount,
+            ],
+            [
+                'column1' => 'Cleanliness and Sanitation',
+                'column2' => $cleanlinessAndSanitationCount,
+            ],
+            [
+                'column1' => 'Lease and Contractual',
+                'column2' => $leaseAndContractualCount,
+            ],
+            [
+                'column1' => 'Utilities Concerns',
+                'column2' => $utilitiesConcernsCount,
+            ],
+            [
+                'column1' => 'Aesthetic and Cosmetics',
+                'column2' => $aestheticAndCosmeticsCount,
+            ],
+            [
+                'column1' => 'General Support',
+                'column2' => $generalSupportCount,
+            ],
+            [
+                'column1' => 'Others',
+                'column2' => $othersCount,
+            ],
+            [
+                'column1' => 'Total',
+                'column2' => $totalCount,
+            ],
+        ]);
+    }
+
+    public function ticketMethodSummary(?array $filters): Collection
+    {
+        $query = Ticket::query();
+
         $filtersApplied = false;
 
         if (isset($filters['date_from'])) {
@@ -212,37 +297,34 @@ class TicketReport extends Report
             return collect();
         }
 
-        $totalCount = $query->count();
-        $openCount = (clone $query)->where('status', 'open')->count();
-        $inProgressCount = (clone $query)->where('status', 'in_progress')->count();
-        $resolvedCount = (clone $query)->where('status', 'resolved')->count();
-        $closedCount = (clone $query)->where('status', 'closed')->count();
+        $tickets = $query->get();
+
+        $concernTypes = [
+            'maintenance and repair' => 'Maintenance and Repair',
+            'safety and security' => 'Safety and Security',
+            'cleanliness and sanitation' => 'Cleanliness and Sanitation',
+            'lease and contractual' => 'Lease and Contractual Issues',
+            'utilities concerns' => 'Utilities Concerns',
+            'aesthetic and comestics' => 'Aesthetic and Cosmetics',
+            'general support' => 'General Support',
+            'others' => 'Others',
+        ];
 
         return collect([
             [
-                'column1' => 'Status',
-                'column2' => 'Count',
-            ],
-            [
-                'column1' => 'Open',
-                'column2' => $openCount,
-            ],
-            [
-                'column1' => 'In Progress',
-                'column2' => $inProgressCount,
-            ],
-            [
-                'column1' => 'Resolved',
-                'column2' => $resolvedCount,
-            ],
-            [
-                'column1' => 'Closed',
-                'column2' => $closedCount,
-            ],
-            [
-                'column1' => 'Total',
-                'column2' => $totalCount,
-            ],
+                'column1' => 'Concern Type',
+                'column2' => 'Total Count',
+            ]
+        ])->concat(
+            collect($concernTypes)->map(function ($label, $type) use ($tickets) {
+                return [
+                    'column1' => $label,
+                    'column2' => $tickets->where('concern_type', $type)->count(),
+                ];
+            })
+        )->push([
+            'column1' => 'Total',
+            'column2' => $tickets->count(),
         ]);
     }
 }
