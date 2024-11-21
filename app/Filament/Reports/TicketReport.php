@@ -91,11 +91,16 @@ class TicketReport extends Report
                     ->label('Concern Type')
                     ->native(false)
                     ->multiple()
-                    ->options(
-                        Ticket::distinct()
-                            ->pluck('concern_type', 'concern_type')
-                            ->toArray()
-                    ),
+                    ->options([
+                        'maintenance and repair' => 'Maintenance and Repair',
+                        'safety and security' => 'Safety and Security',
+                        'cleanliness and sanitation' => 'Cleanliness and Sanitation',
+                        'lease and contractual' => 'Lease and Contractual Issues',
+                        'utilities concerns' => 'Utilities Concerns',
+                        'aesthetic and comestics' => 'Aesthetic and Comestics',
+                        'general support' => 'General Support',
+                        'others' => 'Others',
+                    ]),
                 \Filament\Forms\Components\Actions::make([
                     \Filament\Forms\Components\Actions\Action::make('reset')
                         ->label('Reset Filter')
