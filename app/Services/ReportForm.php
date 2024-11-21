@@ -24,7 +24,7 @@ final class ReportForm
             Forms\Components\TextInput::make('incident_ticket_number')
                 ->default(fn() => 'INC' . str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT))
                 ->required()
-                ->visibleOn('edit')
+                ->hiddenOn(['edit'])
                 ->readOnly(),
             Forms\Components\TextInput::make('title')
                 ->required(),
