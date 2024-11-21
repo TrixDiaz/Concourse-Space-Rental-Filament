@@ -24,7 +24,7 @@ class TicketReportChart extends ApexChartWidget
      /**
      * Sort
      */
-    protected static ?int $sort = 8;
+    protected static ?int $sort = 3;
 
     /**
      * Widget content height

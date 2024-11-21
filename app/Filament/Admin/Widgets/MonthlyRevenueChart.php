@@ -28,7 +28,7 @@ class MonthlyRevenueChart extends ApexChartWidget
     /**
      * Sort
      */
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 8;
 
     /**
      * Widget content height
