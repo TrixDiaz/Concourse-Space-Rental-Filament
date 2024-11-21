@@ -87,30 +87,30 @@ class TicketReport extends Report
     {
         return $form
             ->schema([
-                \Filament\Forms\Components\Select::make('concern_type')
-                    ->label('Concern Type')
-                    ->native(false)
-                    ->multiple()
-                    ->options([
-                        'maintenance and repair' => 'Maintenance and Repair',
-                        'safety and security' => 'Safety and Security',
-                        'cleanliness and sanitation' => 'Cleanliness and Sanitation',
-                        'lease and contractual' => 'Lease and Contractual Issues',
-                        'utilities concerns' => 'Utilities Concerns',
-                        'aesthetic and comestics' => 'Aesthetic and Comestics',
-                        'general support' => 'General Support',
-                        'others' => 'Others',
-                    ]),
-                \Filament\Forms\Components\Actions::make([
-                    \Filament\Forms\Components\Actions\Action::make('reset')
-                        ->label('Reset Filter')
-                        ->color('danger')
-                        ->action(function (Form $form) {
-                            $form->fill([
-                                'concern_type' => null,
-                            ]);
-                        })
-                ]),
+                // \Filament\Forms\Components\Select::make('concern_type')
+                //     ->label('Concern Type')
+                //     ->native(false)
+                //     ->multiple()
+                //     ->options([
+                //         'maintenance and repair' => 'Maintenance and Repair',
+                //         'safety and security' => 'Safety and Security',
+                //         'cleanliness and sanitation' => 'Cleanliness and Sanitation',
+                //         'lease and contractual' => 'Lease and Contractual Issues',
+                //         'utilities concerns' => 'Utilities Concerns',
+                //         'aesthetic and comestics' => 'Aesthetic and Comestics',
+                //         'general support' => 'General Support',
+                //         'others' => 'Others',
+                //     ]),
+                // \Filament\Forms\Components\Actions::make([
+                //     \Filament\Forms\Components\Actions\Action::make('reset')
+                //         ->label('Reset Filter')
+                //         ->color('danger')
+                //         ->action(function (Form $form) {
+                //             $form->fill([
+                //                 'concern_type' => null,
+                //             ]);
+                //         })
+                // ]),
             ]);
     }
 
@@ -118,7 +118,7 @@ class TicketReport extends Report
     {
         $query = Ticket::query();
 
-        $filtersApplied = false;
+        $filtersApplied = true;
 
         // if (isset($filters['search']) && !empty($filters['search'])) {
         //     $query->where(function ($q) use ($filters) {
@@ -129,10 +129,10 @@ class TicketReport extends Report
         //     $filtersApplied = true;
         // }
 
-        if (isset($filters['concern_type']) && !empty($filters['concern_type'])) {
-            $query->whereIn('concern_type', $filters['concern_type']);
-            $filtersApplied = true;
-        }
+        // if (isset($filters['concern_type']) && !empty($filters['concern_type'])) {
+        //     $query->whereIn('concern_type', $filters['concern_type']);
+        //     $filtersApplied = true;
+        // }
 
         if (isset($filters['status']) && $filters['status'] !== 'all') {
             $query->where('status', $filters['status']);
