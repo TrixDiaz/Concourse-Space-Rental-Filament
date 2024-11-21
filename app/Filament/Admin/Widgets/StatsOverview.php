@@ -26,9 +26,11 @@ class StatsOverview extends BaseWidget
         $totalRevenue = Space::where('rent_payment_status', 'unpaid')->sum('rent_bills');
         $totalUnpaidRevenue = Space::where('rent_payment_status', 'unpaid')->sum('rent_bills');
         $paidPenalty = Payment::where('payment_status', 'paid')->sum('penalty');
+
         // Water stats from Spaces
         $unpaidWaterBill = Space::where('water_payment_status', 'unpaid')->sum('water_bills');
         $paidWaterBill = Payment::where('payment_status', 'paid')->sum('water_bill');
+
         // Electric stats from Spaces
         $unpaidElectricBill = Space::where('electricity_payment_status', 'unpaid')->sum('electricity_bills');
         $paidElectricBill = Payment::where('payment_status', 'paid')->sum('electricity_bill');
@@ -40,6 +42,7 @@ class StatsOverview extends BaseWidget
             ->sum('electricity_bills');
 
         $pastDue = Payment::where('payment_status', 'unpaid')->where('paid_date', '<', now())->sum('amount');
+
         // $revenueChart = $this->getChartData(Space::class, 'rent_bills');
         // $waterBillChart = $this->getSpaceChartData('water_bills');
         // $electricBillChart = $this->getSpaceChartData('electricity_bills');
@@ -64,7 +67,7 @@ class StatsOverview extends BaseWidget
             // ->chart($electricBillChart)
             // ->color($this->getChangeColor($electricBillChart))
             ,
-            Stat::make('Total Penalty', '₱' . number_format($paidPenalty, 2))
+            Stat::make('Total Penalties Collected', '₱' . number_format($paidPenalty, 2))
             // ->chart($electricBillChart)
             // ->color($this->getChangeColor($electricBillChart))
             ,
