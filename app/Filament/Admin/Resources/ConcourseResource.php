@@ -36,7 +36,7 @@ class ConcourseResource extends Resource implements HasShieldPermissions
             'publish'
         ];
     }
-    
+
 
     protected static ?string $navigationGroup = 'Concourse Settings';
 
@@ -113,11 +113,11 @@ class ConcourseResource extends Resource implements HasShieldPermissions
                                     if (is_array($state) && isset($state['formatted_address'])) {
                                         $set('address', $state['formatted_address']);
                                     }
-                                }),
+                                })->columnSpanFull(),
                             Forms\Components\TextInput::make('address')
                                 ->label('Address')
                                 ->required()
-                                ->disabled()
+                                ->readOnly()
                                 ->dehydrated(),
                             Forms\Components\Grid::make()->schema([
                                 Forms\Components\TextInput::make('name')
@@ -192,7 +192,7 @@ class ConcourseResource extends Resource implements HasShieldPermissions
                                 ->label('Visible')
                                 ->default(true),
                         ]),
-                        
+
                         Forms\Components\Section::make()->schema([
                             Forms\Components\Placeholder::make('created_at')
                                 ->label('Created at')
@@ -296,7 +296,7 @@ class ConcourseResource extends Resource implements HasShieldPermissions
                                     }
                                 }),
                         ])->hiddenOn('create')
-                        
+
                     ])->columnSpan([
                         'sm' => 3,
                         'md' => 3,
