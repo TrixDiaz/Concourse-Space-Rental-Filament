@@ -57,6 +57,64 @@ class ListSpaces extends Component implements HasTable, HasForms
         $this->selectedSpace = null;
     }
 
+    private function createApplication(array $data, $record)
+    {
+        // Create the application
+        $application = \App\Models\Application::create($data);
+
+        // Store the uploaded requirements
+        if (isset($data['requirements'])) {
+            foreach ($data['requirements'] as $requirementId => $file) {
+                if ($file) {
+                    \App\Models\AppRequirement::create([
+                        'requirement_id' => $requirementId,
+                        'user_id' => Auth::id(),
+                        'space_id' => $record->id,
+                        'concourse_id' => $this->concourseId,
+                        'application_id' => $application->id,
+                        'name' => \App\Models\Requirement::find($requirementId)->name,
+                        'status' => 'pending',
+                        'file' => $file,
+                    ]);
+                }
+            }
+        }
+
+        // Update space status
+        if ($record) {
+            $record->update([
+                'user_id' => Auth::id(),
+                'status' => 'pending'
+            ]);
+        }
+
+        // Send notifications
+        $this->sendApplicationNotifications($application);
+
+        return $application;
+    }
+
+    private function sendApplicationNotifications($application)
+    {
+        Notification::make()
+            ->title('Application Submitted')
+            ->body('Your application has been submitted.')
+            ->icon('heroicon-o-document-text')
+            ->sendToDatabase(Auth::user());
+
+        Notification::make()
+            ->title('New Application')
+            ->body('A new application has been submitted.')
+            ->icon('heroicon-o-document-text')
+            ->sendToDatabase(User::find(1));
+
+        // Send email to admin
+        $admin = User::find(1);
+        if ($admin) {
+            Mail::to($admin->email)->send(new NewApplicationSubmitted($application));
+        }
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -123,6 +181,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                     ->disableCreateAnother()
                     ->modalSubmitActionLabel('Submit')
                     ->label('Apply Now')
+                    ->modalHeading('Application Form')
                     ->slideOver()
                     ->icon('heroicon-o-plus')
                     ->form(function ($record) {
@@ -130,55 +189,7 @@ class ListSpaces extends Component implements HasTable, HasForms
                         return RequirementForm::schema($this->concourseId, $spaceId, $this->concourse_lease_term);
                     })
                     ->using(function (array $data, $record) {
-                        // Create the application
-                        $application = \App\Models\Application::create($data);
-
-                        // Store the uploaded requirements
-                        if (isset($data['requirements'])) {
-                            foreach ($data['requirements'] as $requirementId => $file) {
-                                if ($file) {
-                                    \App\Models\AppRequirement::create([
-                                        'requirement_id' => $requirementId,
-                                        'user_id' => Auth::id(),
-                                        'space_id' => $record->id,
-                                        'concourse_id' => $this->concourseId,
-                                        'application_id' => $application->id,
-                                        'name' => \App\Models\Requirement::find($requirementId)->name,
-                                        'status' => 'pending',
-                                        'file' => $file,
-                                    ]);
-                                }
-                            }
-                        }
-
-                        if ($record) {
-                            $record->update([
-                                'user_id' => Auth::id(),
-                                'status' => 'pending'
-                            ]);
-                        }
-
-                        $applicationUrl = route('filament.admin.resources.applications.edit', ['record' => $application->id]);
-
-                        Notification::make()
-                            ->title('Application Submitted')
-                            ->body('Your application has been submitted.')
-                            ->icon('heroicon-o-document-text')
-                            ->sendToDatabase(Auth::user());
-
-                        Notification::make()
-                            ->title('New Application')
-                            ->body('A new application has been submitted.')
-                            ->icon('heroicon-o-document-text')
-                            ->sendToDatabase(User::find(1));
-
-                        // Send email to admin (User with ID 1)
-                        $admin = User::find(1);
-                        if ($admin) {
-                            Mail::to($admin->email)->send(new NewApplicationSubmitted($application));
-                        }
-
-                        return $application;
+                        return $this->createApplication($data, $record);
                     })
                     ->hidden(function ($record) {
                         if (!$record) return true; // Hide if no record (shouldn't happen, but just in case)

@@ -14,10 +14,11 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\FileUpload;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class Approve extends Page implements HasForms, HasTable
 {
-    use InteractsWithForms, InteractsWithTable;
+    use InteractsWithForms, InteractsWithTable, HasPageShield;
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -127,7 +128,7 @@ class Approve extends Page implements HasForms, HasTable
                                 TextInput::make('remarks')
                                     ->disabled(),
                             ])->columns(2),
-                        
+
                         Section::make('Requirements')
                             ->schema([
                                 Repeater::make('app_requirements')

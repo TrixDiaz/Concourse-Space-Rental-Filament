@@ -106,7 +106,13 @@
                     <p>Sqm: {{ $space->sqm }}</p>
                     <p>Status: {{ ucfirst($space->status) }}</p>
 
-                    <div class="mt-4">
+                    <div class="mt-4 space-x-2">
+                        <x-filament::button
+                            color="warning"
+                            wire:click="editSpace({{ $space->id }})"
+                            x-on:click="$dispatch('open-modal', { id: 'edit-space-modal' })">
+                            Edit Space
+                        </x-filament::button>
                         <x-filament::button
                             color="danger"
                             x-on:click="$dispatch('open-modal', { id: 'delete-space-{{ $space->id }}' })">
@@ -214,7 +220,9 @@
                 });
 
                 Livewire.on('open-create-space-modal', () => {
-                    Livewire.dispatch('open-modal', { id: 'create-space-modal' });
+                    Livewire.dispatch('open-modal', {
+                        id: 'create-space-modal'
+                    });
                 });
             });
         </script>
@@ -295,6 +303,61 @@
                     <span wire:loading.remove>Create Space</span>
                     <span wire:loading>Loading...</span>
                 </x-filament::button>
+            </x-filament::section>
+        </form>
+    </x-filament::modal>
+
+    <x-filament::modal id="edit-space-modal" width="5xl">
+        <x-slot name="heading">
+            Edit Space
+        </x-slot>
+
+        <form wire:submit.prevent="updateSpace">
+            <x-filament::section class="grid grid-cols-2 gap-2">
+                <label for="editingSpaceName">Name</label>
+                <x-filament::input.wrapper class="mb-2">
+                    <x-filament::input
+                        type="text"
+                        placeholder="Name"
+                        wire:model="editingSpaceName" />
+                </x-filament::input.wrapper>
+
+                <label for="editingSpaceSqm">SQM</label>
+                <x-filament::input.wrapper class="mb-2">
+                    <x-filament::input
+                        type="text"
+                        placeholder="SQM"
+                        wire:model.live="editingSpaceSqm"
+                        step="0.01"
+                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
+                    <x-slot name="suffix">
+                        X Rate {{ $rate }}
+                    </x-slot>
+                </x-filament::input.wrapper>
+
+                <label for="editingSpacePrice">Price</label>
+                <x-filament::input.wrapper disabled class="mb-2">
+                    <x-filament::input
+                        type="number"
+                        placeholder="Price"
+                        wire:model="editingSpacePrice"
+                        disabled />
+                </x-filament::input.wrapper>
+
+                <div class="col-span-2 flex justify-end space-x-2">
+                    <x-filament::button
+                        color="gray"
+                        x-on:click="$dispatch('close-modal', { id: 'edit-space-modal' })">
+                        Cancel
+                    </x-filament::button>
+                    <x-filament::button
+                        type="submit"
+                        wire:loading.attr="disabled"
+                        wire:loading.class="opacity-70 cursor-wait">
+                        <span wire:loading.remove>Update Space</span>
+                        <span wire:loading>Updating...</span>
+                    </x-filament::button>
+                </div>
             </x-filament::section>
         </form>
     </x-filament::modal>

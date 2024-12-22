@@ -15,7 +15,7 @@ class ApplicationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_application') || $user->hasRole('super_admin');
+        return $user->can('view_any_application');
     }
 
     /**
@@ -23,7 +23,7 @@ class ApplicationPolicy
      */
     public function view(User $user, Application $application): bool
     {
-        return $user->can('view_application') || $user->hasRole('super_admin');
+        return $user->can('view_application');
     }
 
     /**
@@ -31,7 +31,7 @@ class ApplicationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_application') || $user->hasRole('super_admin');
+        return $user->can('create_application');
     }
 
     /**
@@ -39,7 +39,7 @@ class ApplicationPolicy
      */
     public function update(User $user, Application $application): bool
     {
-        return $user->can('update_application') || $user->hasRole('super_admin');
+        return $user->can('update_application');
     }
 
     /**
@@ -47,7 +47,7 @@ class ApplicationPolicy
      */
     public function delete(User $user, Application $application): bool
     {
-        return $user->can('delete_application') || $user->hasRole('super_admin');
+        return $user->can('delete_application');
     }
 
     /**
@@ -55,7 +55,7 @@ class ApplicationPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_application') || $user->hasRole('super_admin');
+        return $user->can('delete_any_application');
     }
 
     /**
@@ -63,7 +63,7 @@ class ApplicationPolicy
      */
     public function forceDelete(User $user, Application $application): bool
     {
-        return $user->can('force_delete_application') || $user->hasRole('super_admin');
+        return $user->can('force_delete_application');
     }
 
     /**
@@ -71,7 +71,7 @@ class ApplicationPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_application') || $user->hasRole('super_admin');
+        return $user->can('force_delete_any_application');
     }
 
     /**
@@ -79,7 +79,7 @@ class ApplicationPolicy
      */
     public function restore(User $user, Application $application): bool
     {
-        return $user->can('restore_application') || $user->hasRole('super_admin');
+        return $user->can('restore_application');
     }
 
     /**
@@ -87,7 +87,7 @@ class ApplicationPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_application') || $user->hasRole('super_admin');
+        return $user->can('restore_any_application');
     }
 
     /**
@@ -95,7 +95,7 @@ class ApplicationPolicy
      */
     public function replicate(User $user, Application $application): bool
     {
-        return $user->can('replicate_application') || $user->hasRole('super_admin');
+        return $user->can('replicate_application');
     }
 
     /**
@@ -103,6 +103,6 @@ class ApplicationPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_application') || $user->hasRole('super_admin');
+        return $user->can('reorder_application');
     }
 }

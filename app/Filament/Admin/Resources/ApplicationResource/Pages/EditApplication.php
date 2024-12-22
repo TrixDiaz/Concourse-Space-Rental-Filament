@@ -166,7 +166,7 @@ class EditApplication extends EditRecord
             Actions\Action::make('rejectRequirements')
                 ->label('Reject Requirements')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn($record) => $record->requirements_status === 'pending' || $record->requirements_status === 'approved' )
+                ->visible(fn($record) => $record->requirements_status === 'pending' || $record->requirements_status === 'approved')
                 ->action(function () {
                     $application = $this->getRecord();
 

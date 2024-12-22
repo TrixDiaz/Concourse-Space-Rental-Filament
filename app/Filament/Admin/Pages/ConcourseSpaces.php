@@ -16,16 +16,15 @@ use Filament\Forms\Form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Filament\Notifications\Notification;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\RentBillMail;
 use App\Mail\UtilityBillMail;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class ConcourseSpaces extends Page implements HasForms, HasTable
 {
-    use InteractsWithForms, InteractsWithTable;
+    use InteractsWithForms, InteractsWithTable, HasPageShield;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
@@ -363,7 +362,7 @@ class ConcourseSpaces extends Page implements HasForms, HasTable
     protected function notifySpacesAboutBills(): void
     {
         $concourse = $this->concourse;
-        
+
         $spaces = $concourse->spaces()
             ->where('is_active', true)
             ->get();

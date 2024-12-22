@@ -19,21 +19,11 @@
                                 height: {{ $space->space_length }}%;
                                 background-color: {{ $space->status === 'available' ? 'rgba(0, 0, 255, 0.3)' : 'rgba(0, 255, 0, 0.3)' }};
                                 transition: background-color 0.3s ease;
-                                cursor: pointer;
+                                ;
                             ">
                     <span style="color: {{ $space->status === 'available' ? 'blue' : 'green' }}; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{{ $space->name }}</span>
 
-                    <div x-show="showInfo" class="absolute z-10 p-2 w-auto bg-white border border-gray-300 rounded shadow-lg" style="top: 100%; left: 50%; transform: translateX(-50%);">
-                        <x-filament::section style="width: 150px;">
-                            <x-slot name="heading">
-                                <h3 class="text-lg font-semibold">Location: {{ $space->name }}</h3>
-                            </x-slot>
 
-                            <x-slot name="description">
-                                <p class="capitalize">Status: {{ $space->status }}</p>
-                            </x-slot>
-                        </x-filament::section>
-                    </div>
                 </div>
                 @endforeach
             </div>
@@ -48,4 +38,23 @@
     <section class="pt-4">
         {{ $this->table }}
     </section>
+
+    <x-filament::modal
+        id="application-modal"
+        :heading="'Application Form'"
+        :slide-over="true"
+        wire:model="showApplicationModal">
+
+        <form wire:submit="submitApplication">
+            {{ $this->form }}
+
+            <div class="mt-4 flex justify-end">
+                <x-filament::button
+                    type="submit"
+                    color="primary">
+                    Submit
+                </x-filament::button>
+            </div>
+        </form>
+    </x-filament::modal>
 </div>

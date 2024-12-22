@@ -12,9 +12,12 @@ use Filament\Forms\Form;
 use Illuminate\Support\Collection;
 use App\Models\Space;
 use App\Models\Concourse;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class BillsReport extends Report
 {
+    use HasPageShield;
+
     public ?string $heading = "Bills Report";
 
     // public ?string $subHeading = "A great report";
@@ -42,7 +45,7 @@ class BillsReport extends Report
     public function body(Body $body): Body
     {
         return $body
-            ->schema([       
+            ->schema([
                 Body\Layout\BodyColumn::make()
                     ->schema([
                         Text::make('Concourse Summary')
@@ -89,12 +92,12 @@ class BillsReport extends Report
     public function filterForm(Form $form): Form
     {
         $query = Concourse::query();
-        
+
         // If user is not super_admin, show only their concourses
         if (!auth()->user()->hasRole('super_admin')) {
             $query->whereHas('spaces', function ($query) {
                 $query->whereNotNull('user_id')
-                      ->where('user_id', auth()->id());
+                    ->where('user_id', auth()->id());
             });
         }
 
@@ -112,7 +115,7 @@ class BillsReport extends Report
     public function paymentsSummary(?array $filters): Collection
     {
         $filtersApplied = false;
-        
+
         $query = Space::query()
             ->with(['concourse', 'user'])
             ->whereHas('concourse');

@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Notifications\Notification;
 
 class ApplicationResource extends Resource implements HasShieldPermissions
 {
@@ -26,7 +27,7 @@ class ApplicationResource extends Resource implements HasShieldPermissions
             'publish'
         ];
     }
-    
+
     protected static ?string $navigationGroup = 'Applications Settings';
 
     protected static ?string $navigationLabel = 'Pending';
@@ -154,6 +155,31 @@ class ApplicationResource extends Resource implements HasShieldPermissions
 
     public static function table(Table $table): Table
     {
+        // Auto-reject and delete inactive applications after 3 minutes
+        $applications = static::getModel()::query()
+            ->where('updated_at', '<=', now()->subMinutes(5))
+            ->where('application_status', 'pending')
+            ->get();
+
+        $rejectedCount = $applications->count();
+
+        if ($rejectedCount > 0) {
+            // Update and delete the applications
+            foreach ($applications as $application) {
+                $application->update([
+                    'application_status' => 'rejected',
+                    'requirements_status' => 'rejected'
+                ]);
+                $application->delete();
+            }
+
+            Notification::make()
+                ->title('Applications Auto-rejected')
+                ->body("{$rejectedCount} inactive application(s) have been automatically rejected and archived.")
+                ->warning()
+                ->send();
+        }
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')

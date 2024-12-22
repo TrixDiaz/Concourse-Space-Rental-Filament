@@ -14,6 +14,37 @@ class ViewSpaceConcourses extends Page
 {
     use InteractsWithRecord;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     protected static string $resource = ConcourseResource::class;
 
     protected static string $view = 'filament.admin.resources.concourse-resource.pages.view-space-concourses';
@@ -27,13 +58,17 @@ class ViewSpaceConcourses extends Page
     public $spaceDimensions = null;
     public $sqm = 0;
     public $rate;
+    public $editingSpace = null;
+    public $editingSpaceName;
+    public $editingSpaceSqm;
+    public $editingSpacePrice;
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
         $this->spaces = $this->record->spaces()->get();
         $this->canCreateSpace = $this->record->layout !== null;
-        $this->rate = $this->record->concourseRate->price; 
+        $this->rate = $this->record->concourseRate->price;
     }
 
     public function toggleDrawMode()
@@ -116,6 +151,12 @@ class ViewSpaceConcourses extends Page
         $this->computePrice();
     }
 
+    public function updatedEditingSpaceSqm()
+    {
+        $this->editingSpaceSqm = is_numeric($this->editingSpaceSqm) ? (float) number_format((float) $this->editingSpaceSqm, 2, '.', '') : 0;
+        $this->editingSpacePrice = number_format($this->editingSpaceSqm * $this->rate, 2, '.', '');
+    }
+
     protected function computePrice()
     {
         $this->sqm = is_numeric($this->sqm) ? (float) number_format((float) $this->sqm, 2, '.', '') : 0;
@@ -125,20 +166,56 @@ class ViewSpaceConcourses extends Page
     public function deleteSpace($spaceId)
     {
         $space = Space::find($spaceId);
-        
+
         if ($space) {
             $space->delete();
-            
+
             Notification::make()
                 ->title('Space deleted successfully')
                 ->success()
                 ->send();
-            
+
             $this->reload();
         } else {
             Notification::make()
                 ->title('Space not found')
                 ->danger()
+                ->send();
+        }
+    }
+
+    public function editSpace($spaceId)
+    {
+        $space = Space::find($spaceId);
+        if ($space) {
+            $this->editingSpace = $space;
+            $this->editingSpaceName = $space->name;
+            $this->editingSpaceSqm = $space->sqm;
+            $this->editingSpacePrice = $space->price;
+        }
+    }
+
+    public function updateSpace()
+    {
+        $this->validate([
+            'editingSpaceName' => 'required|string|max:255',
+            'editingSpaceSqm' => 'required|numeric|min:0',
+            'editingSpacePrice' => 'required|numeric|min:0',
+        ]);
+
+        if ($this->editingSpace) {
+            $this->editingSpace->update([
+                'name' => $this->editingSpaceName,
+                'sqm' => $this->editingSpaceSqm,
+                'price' => $this->editingSpacePrice,
+            ]);
+
+            $this->editingSpace = null;
+            $this->reload();
+
+            Notification::make()
+                ->title('Space Updated')
+                ->success()
                 ->send();
         }
     }
